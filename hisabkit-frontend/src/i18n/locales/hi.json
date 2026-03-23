@@ -1,0 +1,20 @@
+{
+  "common": {
+    "login": "लॉगिन",
+    "register": "रजिस्टर",
+    "welcome": "हिसाबकिट में आपका स्वागत है",
+    "language": "भाषा",
+    "logout": "लॉगआउट",
+    "save": "सहेजें",
+    "cancel": "रद्द करें"
+  },
+  "ledger": {
+    "title": "हिसाब-किताब",
+    "add_transaction": "नया लेनदेन",
+    "customer_name": "ग्राहक का नाम",
+    "amount": "रकम",
+    "credit": "दिया",
+    "debit": "मिला",
+    "balance": "बाकी"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "common": {
+    "login": "Login",
+    "register": "Register",
+    "welcome": "Welcome to HisabKit",
+    "language": "Language",
+    "logout": "Logout",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "ledger": {
+    "title": "Ledger",
+    "add_transaction": "Add Transaction",
+    "customer_name": "Customer Name",
+    "amount": "Amount",
+    "credit": "You Gave",
+    "debit": "You Got",
+    "balance": "Balance"
+  }
+}
