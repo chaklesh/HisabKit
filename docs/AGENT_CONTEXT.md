@@ -23,6 +23,7 @@
 ## API Surfaces
 - Tenant-scoped operations: `/api/ledger/**`
 - Super-admin operations: `/api/admin/**`
+- Module catalog operations: `/api/modules` (authenticated, used for future dynamic navigation)
 - Auth: `/api/auth/login`, `/api/auth/social/google`, `/api/auth/register` (super-admin only)
 - Attachment content streaming: `/api/ledger/attachments/{attachmentId}/content`
 - User profile APIs: `/api/profile`, `/api/profile/password`, `/api/profile/tenant`
