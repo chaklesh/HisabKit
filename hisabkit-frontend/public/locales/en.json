@@ -31,5 +31,18 @@
     "credit": "You Gave",
     "debit": "You Got",
     "balance": "Balance"
+  },
+  "shell": {
+    "workspace": "Workspace",
+    "admin": "Admin",
+    "profile": "Profile",
+    "soon": "Soon",
+    "modules": {
+      "dashboard": "Dashboard",
+      "ledger": "Customer Ledger",
+      "inventory": "Inventory",
+      "suppliers": "Suppliers",
+      "lending": "Money Lending"
+    }
   }
 }

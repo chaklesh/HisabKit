@@ -58,3 +58,14 @@ Ship a polished, product-grade v1.1 with stronger UX, faster workflows, and oper
 - feat/backend-attachment-policy
 - chore/qa-regression-suite
 - chore/release-v1.1
+
+## Progress Delta (2026-04-08)
+- Frontend foundation completed:
+	- Shared protected app shell with desktop-style module rail and sticky workspace header.
+	- Module registry architecture created with planned modules scaffolded (Inventory, Suppliers, Money Lending).
+	- English-first shell labels with i18 keys added.
+- UX reference completed:
+	- Pattern-level adaptation guide documented in docs/KHATABOOK_UI_UX_ADAPTATION.md.
+- Next implementation block:
+	- Apply shell cleanup to remaining pages (Ledger/Admin/Profile) for full consistency.
+	- Start modular API contracts for future modules without activating them.

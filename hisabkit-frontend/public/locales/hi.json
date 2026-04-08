@@ -31,5 +31,18 @@
     "credit": "दिया",
     "debit": "मिला",
     "balance": "बाकी"
+  },
+  "shell": {
+    "workspace": "वर्कस्पेस",
+    "admin": "एडमिन",
+    "profile": "प्रोफाइल",
+    "soon": "जल्द",
+    "modules": {
+      "dashboard": "डैशबोर्ड",
+      "ledger": "कस्टमर लेजर",
+      "inventory": "इन्वेंटरी",
+      "suppliers": "सप्लायर्स",
+      "lending": "मनी लेंडिंग"
+    }
   }
 }

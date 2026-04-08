@@ -23,3 +23,12 @@ Use one entry per completed package. Keep it short and delta-focused.
 - Validation Run: Documentation-only update; no build/test required.
 - Known Risks: Fast mode can hide integration issues if handoff gates are skipped.
 - Next Action: Each feature agent must append entries here at handoff.
+
+- Date: 2026-04-08
+- From Agent: Frontend Architecture Agent
+- To Agent: Frontend UX Agent
+- Scope Completed: Added shared protected app shell, module registry, i18-ready shell labels, and Khatabook-pattern adaptation notes.
+- Files Changed: src/layout/AppShell.tsx, src/layout/ProtectedAppLayout.tsx, src/modules/moduleRegistry.ts, src/App.tsx, src/pages/DashboardHomePage.tsx, public/locales/en.json, public/locales/hi.json, docs/KHATABOOK_UI_UX_ADAPTATION.md, docs/AGENT_CONTEXT.md, docs/SPRINT_v1.1_MULTI_AGENT_PLAN.md
+- Validation Run: npm run build (frontend).
+- Known Risks: Ledger/Admin/Profile still contain legacy local nav sections; should be normalized in next pass.
+- Next Action: UX agent to complete shell consistency and interaction polish for remaining pages.

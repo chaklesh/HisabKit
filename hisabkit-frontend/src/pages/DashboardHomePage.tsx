@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, Building2, LogOut, Settings, ShieldCheck, Users, WalletCards } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Building2, Settings, ShieldCheck, Users, WalletCards } from 'lucide-react';
 import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,8 +13,7 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(value);
 
 export const DashboardHomePage = () => {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
 
   useEffect(() => {
@@ -44,47 +43,9 @@ export const DashboardHomePage = () => {
     );
   }, [customers]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/', { replace: true });
-  };
-
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f5f7fb_0%,#edf2ff_100%)] px-4 py-6 sm:px-6 lg:px-8">
+    <div className="rounded-2xl bg-[linear-gradient(180deg,#f5f7fb_0%,#edf2ff_100%)] p-3 sm:p-4">
       <div className="mx-auto max-w-7xl">
-        <nav className="mb-4 flex flex-wrap items-center justify-end gap-2">
-          <Link
-            to="/dashboard"
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Home
-          </Link>
-          <Link
-            to="/ledger"
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Customer Ledger
-          </Link>
-          {user?.role === 'SUPER_ADMIN' && (
-            <Link
-              to="/admin"
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              Admin Console
-            </Link>
-          )}
-          <Link to="/profile" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-            {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.fullName || user.username} className="h-6 w-6 rounded-full object-cover" />
-            ) : (
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-700">
-                {(user?.fullName || user?.username || 'U').slice(0, 1).toUpperCase()}
-              </div>
-            )}
-            Profile
-          </Link>
-        </nav>
-
         <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
@@ -102,13 +63,9 @@ export const DashboardHomePage = () => {
               </div>
             </div>
 
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-            >
-              <LogOut className="h-4 w-4" />
-              Logout
-            </button>
+            <span className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-slate-600">
+              Overview
+            </span>
           </div>
         </div>
 

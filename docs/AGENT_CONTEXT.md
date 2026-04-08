@@ -3,6 +3,8 @@
 ## Architecture Snapshot
 - Backend: Spring Boot + JWT + tenant isolation context.
 - Frontend: React + Vite + role-aware dashboards.
+- Frontend shell now uses a shared desktop app layout (`src/layout/AppShell.tsx`) with module-driven navigation.
+- Frontend modules are registry-driven (`src/modules/moduleRegistry.ts`) for extensibility.
 - Auth:
   - Password login (`/api/auth/login`)
   - Google/OneTap social login (`/api/auth/social/google`) for registered users only.
@@ -35,6 +37,11 @@
   - `{{balanceType}}`
   - `{{businessName}}`
   - `{{customerPhone}}`
+
+## Desktop UX Direction
+- Adaptation target is pattern-level alignment with popular MSME ledger desktop workflows.
+- Standard structure: left module rail + sticky workspace header + task-first content.
+- Reference doc: docs/KHATABOOK_UI_UX_ADAPTATION.md
 
 ## Operational Notes
 - Use `.env` and `.env.example` for runtime configuration.
