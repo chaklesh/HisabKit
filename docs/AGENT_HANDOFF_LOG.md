@@ -32,3 +32,12 @@ Use one entry per completed package. Keep it short and delta-focused.
 - Validation Run: npm run build (frontend).
 - Known Risks: Ledger/Admin/Profile still contain legacy local nav sections; should be normalized in next pass.
 - Next Action: UX agent to complete shell consistency and interaction polish for remaining pages.
+
+- Date: 2026-04-08
+- From Agent: Frontend UX Agent
+- To Agent: Frontend Feature Agent
+- Scope Completed: Removed duplicate page-level nav from Ledger/Admin/Profile and aligned these pages to the shared protected app shell.
+- Files Changed: hisabkit-frontend/src/pages/LedgerDashboard.tsx, hisabkit-frontend/src/pages/AdminDashboard.tsx, hisabkit-frontend/src/pages/ProfilePage.tsx, docs/AGENT_HANDOFF_LOG.md
+- Validation Run: npm run build (frontend).
+- Known Risks: Admin page still uses an internal secondary tab sidebar by design; this is local feature navigation, not global app navigation.
+- Next Action: Build placeholders for planned modules (Inventory, Suppliers, Money Lending) using module registry routes.

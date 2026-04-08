@@ -1,12 +1,9 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
 import {
   Download,
-  ArrowLeft,
   CalendarDays,
   CreditCard,
   FileUp,
-  Home,
-  LogOut,
   MessageCircleMore,
   MessageSquareText,
   Pencil,
@@ -16,7 +13,6 @@ import {
   UserPlus,
   Wallet,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
 import api, {
   Attachment,
   deleteAttachment,
@@ -26,7 +22,6 @@ import api, {
   Tenant,
   uploadTransactionAttachment,
 } from '../api/api';
-import { useAuth } from '../context/AuthContext';
 
 type Customer = {
   id: string;
@@ -86,8 +81,6 @@ const formatDate = (value: string) =>
   new Date(value).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
 export const LedgerDashboard: React.FC = () => {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [transactions, setTransactions] = useState<LedgerTransaction[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
@@ -498,60 +491,9 @@ export const LedgerDashboard: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/', { replace: true });
-  };
-
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f5f7fb_0%,#edf2ff_100%)] px-4 py-6 sm:px-6 lg:px-8">
+    <div className="rounded-2xl bg-[linear-gradient(180deg,#f5f7fb_0%,#edf2ff_100%)] p-3 sm:p-4">
       <div className="mx-auto max-w-7xl">
-        <nav className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back
-            </button>
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              <Home className="h-3.5 w-3.5" />
-              Dashboard
-            </Link>
-            {user?.role === 'SUPER_ADMIN' && (
-              <Link
-                to="/admin"
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-              >
-                Admin Console
-              </Link>
-            )}
-            <Link to="/profile" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.fullName || user.username} className="h-6 w-6 rounded-full object-cover" />
-              ) : (
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-700">
-                  {(user?.fullName || user?.username || 'U').slice(0, 1).toUpperCase()}
-                </div>
-              )}
-              Profile
-            </Link>
-          </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            Logout
-          </button>
-        </nav>
-
         <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
