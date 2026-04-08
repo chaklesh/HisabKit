@@ -8,6 +8,9 @@ import { useAuth } from '../context/AuthContext';
 const titleByRoute: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/ledger': 'Customer Ledger',
+  '/inventory': 'Inventory',
+  '/suppliers': 'Suppliers',
+  '/lending': 'Money Lending',
   '/admin': 'Admin Console',
   '/profile': 'Profile Settings',
 };

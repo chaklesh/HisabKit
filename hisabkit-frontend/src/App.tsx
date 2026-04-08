@@ -9,6 +9,7 @@ import { DashboardHomePage } from './pages/DashboardHomePage';
 import { LandingPage } from './pages/LandingPage';
 import { LedgerDashboard } from './pages/LedgerDashboard';
 import { LoginPage } from './pages/LoginPage';
+import { ModuleComingSoonPage } from './pages/ModuleComingSoonPage';
 import { ProfilePage } from './pages/ProfilePage';
 
 function AppRoutes() {
@@ -27,6 +28,9 @@ function AppRoutes() {
       >
         <Route path="/dashboard" element={<DashboardHomePage />} />
         <Route path="/ledger" element={<LedgerDashboard />} />
+        <Route path="/inventory" element={<ModuleComingSoonPage />} />
+        <Route path="/suppliers" element={<ModuleComingSoonPage />} />
+        <Route path="/lending" element={<ModuleComingSoonPage />} />
         <Route
           path="/admin"
           element={
