@@ -59,3 +59,12 @@ Use one entry per completed package. Keep it short and delta-focused.
 - Validation Run: Compile not yet run; keep as targeted next-step validation at handoff.
 - Known Risks: Frontend still uses local module registry; API is available for future dynamic binding.
 - Next Action: Frontend agent can optionally bind shell navigation to /api/modules in a later pass.
+
+- Date: 2026-04-08
+- From Agent: Frontend Feature Agent
+- To Agent: Frontend UX Agent
+- Scope Completed: Bound the protected shell to the live `/api/modules` backend catalog with static fallback.
+- Files Changed: hisabkit-frontend/src/api/api.ts, hisabkit-frontend/src/layout/AppShell.tsx, docs/AGENT_CONTEXT.md, docs/AGENT_HANDOFF_LOG.md
+- Validation Run: npm run build (frontend).
+- Known Risks: Module catalog API requires authenticated context; fallback is intentionally retained for resilience.
+- Next Action: Next UX pass can focus on ledger interaction polish and dashboard hierarchy.

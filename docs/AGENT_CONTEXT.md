@@ -43,6 +43,7 @@
 - Adaptation target is pattern-level alignment with popular MSME ledger desktop workflows.
 - Standard structure: left module rail + sticky workspace header + task-first content.
 - Reference doc: docs/KHATABOOK_UI_UX_ADAPTATION.md
+- Frontend shell now prefers the live `/api/modules` catalog and falls back to static module definitions if the API is unavailable.
 
 ## Operational Notes
 - Use `.env` and `.env.example` for runtime configuration.

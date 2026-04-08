@@ -65,6 +65,15 @@ export interface Attachment {
   tenantId: string;
 }
 
+export interface ModuleCatalogItem {
+  key: 'DASHBOARD' | 'LEDGER' | 'INVENTORY' | 'SUPPLIERS' | 'LENDING';
+  label: string;
+  route: string;
+  status: 'LIVE' | 'PLANNED';
+  enabled: boolean;
+  description?: string;
+}
+
 const api = axios.create({
   baseURL: env.apiUrl,
 });
@@ -286,5 +295,7 @@ export const updateTenantProfile = (payload: {
   smsTemplate?: string;
   whatsappTemplate?: string;
 }) => api.put<Tenant>('/profile/tenant', payload);
+
+export const listModuleCatalog = () => api.get<ModuleCatalogItem[]>('/modules');
 
 export default api;

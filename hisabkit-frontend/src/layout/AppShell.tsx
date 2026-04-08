@@ -1,8 +1,10 @@
 import { LogOut, ShieldCheck, UserRound } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { appModules } from '../modules/moduleRegistry';
+import { appModules, type AppModule } from '../modules/moduleRegistry';
+import { listModuleCatalog, type ModuleCatalogItem } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
 const titleByRoute: Record<string, string> = {
@@ -24,6 +26,49 @@ export const AppShell = ({ children }: AppShellProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [catalog, setCatalog] = useState<ModuleCatalogItem[] | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void listModuleCatalog()
+      .then((response) => {
+        if (active) {
+          setCatalog(response.data);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setCatalog(null);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const modules = useMemo<AppModule[]>(() => {
+    const source = catalog || appModules.map((module) => ({
+      key: module.id === 'dashboard' ? 'DASHBOARD' : module.id === 'ledger' ? 'LEDGER' : module.id === 'inventory' ? 'INVENTORY' : module.id === 'suppliers' ? 'SUPPLIERS' : 'LENDING',
+      label: module.label,
+      route: module.route,
+      status: module.enabled ? 'LIVE' : 'PLANNED',
+      enabled: module.enabled,
+      description: module.phase === 'live' ? 'Live module' : 'Planned module',
+    }));
+
+    return source.map((module) => {
+      const fallback = appModules.find((candidate) => candidate.route === module.route);
+      return {
+        id: fallback?.id || 'dashboard',
+        label: module.label,
+        route: module.route,
+        icon: fallback?.icon || appModules[0].icon,
+        enabled: module.enabled,
+        phase: module.status === 'LIVE' ? 'live' : 'planned',
+      };
+    });
+  }, [catalog]);
 
   const title = titleByRoute[location.pathname] || 'HisabKit';
 
@@ -42,7 +87,7 @@ export const AppShell = ({ children }: AppShellProps) => {
           </div>
 
           <nav className="flex-1 space-y-1 px-3 py-4">
-            {appModules.map((module) => {
+            {modules.map((module) => {
               const Icon = module.icon;
               const isActive = location.pathname === module.route;
               const label = t(`shell.modules.${module.id}`, module.label);
@@ -123,7 +168,7 @@ export const AppShell = ({ children }: AppShellProps) => {
           </div>
 
           <div className="mt-3 flex gap-2 overflow-x-auto lg:hidden">
-            {appModules
+            {modules
               .filter((module) => module.enabled)
               .map((module) => {
                 const isActive = location.pathname === module.route;
