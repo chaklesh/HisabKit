@@ -39,3 +39,10 @@
 ## Operational Notes
 - Use `.env` and `.env.example` for runtime configuration.
 - Keep crash logs/build artifacts out of git (`.gitignore`).
+- Development mode now uses fast inner-loop execution:
+  - Minimize frequent full compile/build/test runs.
+  - Use targeted validation at critical boundaries.
+  - Reserve full validation for handoff/release gates.
+- All agents should maintain context continuity via:
+  - docs/AGENT_CONTEXT.md (architecture/domain deltas)
+  - docs/AGENT_HANDOFF_LOG.md (package handoffs)

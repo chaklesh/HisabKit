@@ -53,7 +53,10 @@
 3. QA agent validates critical user journeys and regression checks.
 4. Release agent bumps versions, updates notes, and cuts release tag.
 
-### Non-Negotiable Quality Gates
-- Frontend must pass: `npm run lint` and `npm run build`.
-- Backend must pass: `mvn test`.
-- All customer-impacting changes require release-note entry.
+### Quality Policy (Fast Delivery)
+- Inner loop prioritizes speed: avoid running full builds/tests after every micro-change.
+- Agent handoff requires at least one relevant targeted validation run.
+- Release gate remains strict:
+   - Frontend must pass npm run lint and npm run build.
+   - Backend must pass mvn test.
+   - All customer-impacting changes require release-note entry.

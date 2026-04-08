@@ -38,6 +38,19 @@ Ship a polished, product-grade v1.1 with stronger UX, faster workflows, and oper
 - QA checklist passed with no critical severity defects.
 - Release notes and migration notes updated.
 
+## Fast Execution Rules
+- Keep development speed high: avoid frequent full compile/build/test in inner loop.
+- Use targeted validation only when crossing critical boundaries:
+	- Auth/session handling
+	- Tenant isolation and repository contracts
+	- Shared API schema or DTO changes
+- Run full quality gates only at release candidate and final release.
+
+## Context and Handoff Requirements
+- Every agent must leave a short delta update in docs/AGENT_CONTEXT.md.
+- Every handoff must append one entry in docs/AGENT_HANDOFF_LOG.md.
+- Sprint progress updates should modify only changed status lines (delta-only updates).
+
 ## Suggested Branches
 - feat/frontend-dashboard-revamp
 - feat/frontend-ledger-ux

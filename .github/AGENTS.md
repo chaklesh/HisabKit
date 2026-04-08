@@ -52,10 +52,30 @@ Each agent handoff must include:
 3. Verify: QA agent runs regression and acceptance checks.
 4. Release: DevOps agent versions, tags, and publishes release notes.
 
-## Quality Gates
+## Execution Mode (Fast)
 
-- Frontend: npm run lint ; npm run build
-- Backend: mvn test
-- No tenant-leak regressions
-- No broken protected-route behavior
-- Release notes updated for customer-facing changes
+- Default mode is fast inner-loop delivery.
+- Do not run full compile/test after every small edit.
+- Use lightweight reasoning checks during implementation.
+- Run heavier checks only at handoff points and milestone points.
+
+## Validation Tiers
+
+- Inner Loop (default):
+	- No mandatory full build/test per micro-change.
+	- Run targeted checks only when touching critical paths (auth, tenancy, persistence boundaries).
+- Handoff Gate (agent to agent):
+	- Frontend: at least one successful npm run build for the touched area before handoff.
+	- Backend: at least one successful mvn test when API/data contract changed.
+- Release Gate (mandatory):
+	- Frontend: npm run lint and npm run build.
+	- Backend: mvn test.
+	- No tenant-leak regressions.
+	- No broken protected-route behavior.
+
+## Context Discipline
+
+Each completed work package must update:
+- docs/AGENT_CONTEXT.md with architecture/domain impact notes.
+- docs/SPRINT_v1.1_MULTI_AGENT_PLAN.md with status deltas.
+- docs/AGENT_HANDOFF_LOG.md with concise handoff details.
