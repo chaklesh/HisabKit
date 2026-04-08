@@ -70,11 +70,9 @@ export const LedgerDashboard: React.FC = () => {
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [dueDateByCustomer, setDueDateByCustomer] = useState<Record<string, string>>({});
-  const [reportAddressFilter, setReportAddressFilter] = useState('');
+  const [reportSearchTerm, setReportSearchTerm] = useState('');
   const [reportDueFilter, setReportDueFilter] = useState<'ALL' | 'OVERDUE' | 'UPCOMING_7_DAYS' | 'NO_DUE_DATE'>('ALL');
   const [reportSortField, setReportSortField] = useState<'NAME' | 'BALANCE' | 'DUE_DATE'>('BALANCE');
-  const [reportFromDate, setReportFromDate] = useState('');
-  const [reportToDate, setReportToDate] = useState('');
   const [drawerMode, setDrawerMode] = useState<DrawerMode>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const totalAmountInputRef = useRef<HTMLInputElement | null>(null);
@@ -183,32 +181,8 @@ export const LedgerDashboard: React.FC = () => {
   );
 
   const reportTransactions = useMemo(() => {
-    if (!reportFromDate && !reportToDate) {
-      return sortedTransactions;
-    }
-
-    const from = reportFromDate ? new Date(`${reportFromDate}T00:00:00`).getTime() : Number.NEGATIVE_INFINITY;
-    const to = reportToDate ? new Date(`${reportToDate}T23:59:59`).getTime() : Number.POSITIVE_INFINITY;
-
-    return sortedTransactions.filter((transaction) => {
-      const ts = new Date(transaction.timestamp).getTime();
-      return ts >= from && ts <= to;
-    });
-  }, [sortedTransactions, reportFromDate, reportToDate]);
-
-  const reportSummary = useMemo(() => {
-    return reportTransactions.reduce(
-      (acc, transaction) => {
-        if (transaction.type === 'SALE') {
-          acc.youGave += Number(transaction.totalAmount || 0);
-        } else {
-          acc.youGot += Number(transaction.paidAmount || 0);
-        }
-        return acc;
-      },
-      { youGave: 0, youGot: 0 }
-    );
-  }, [reportTransactions]);
+    return sortedTransactions;
+  }, [sortedTransactions]);
 
   const detectAttachmentType = (attachment: Attachment): 'image' | 'pdf' | 'other' => {
     const fileType = (attachment.fileType || '').toLowerCase();
@@ -294,10 +268,24 @@ export const LedgerDashboard: React.FC = () => {
     const next7 = new Date(now);
     next7.setDate(now.getDate() + 7);
 
+    const query = reportSearchTerm.trim().toLowerCase();
+
     const filtered = customersWithDueDate.filter((customer) => {
-      if (reportAddressFilter.trim()) {
-        const addr = (customer.address || '').toLowerCase();
-        if (!addr.includes(reportAddressFilter.trim().toLowerCase())) {
+      if (query) {
+        const searchable = [
+          customer.name,
+          customer.phone,
+          customer.email,
+          customer.address,
+          customer.gstNumber,
+          customer.dueDate,
+          customer.totalBalance == null ? '' : String(customer.totalBalance),
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+
+        if (!searchable.includes(query)) {
           return false;
         }
       }
@@ -331,7 +319,7 @@ export const LedgerDashboard: React.FC = () => {
     });
 
     return sorted;
-  }, [customersWithDueDate, reportAddressFilter, reportDueFilter, reportSortField]);
+  }, [customersWithDueDate, reportSearchTerm, reportDueFilter, reportSortField]);
 
   const openCustomerDrawer = (forceNew = false) => {
     if (selectedCustomer && !forceNew) {
@@ -953,6 +941,15 @@ export const LedgerDashboard: React.FC = () => {
               <button
                 type="button"
                 disabled={!selectedCustomer}
+                onClick={() => openCustomerDrawer(false)}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit customer
+              </button>
+              <button
+                type="button"
+                disabled={!selectedCustomer}
                 onClick={() => openTransactionDrawer('SALE')}
                 className="inline-flex items-center gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -1142,6 +1139,7 @@ export const LedgerDashboard: React.FC = () => {
                           <div>
                             <p className="text-base font-bold text-slate-900">{customer.name}</p>
                             <p className="mt-1 text-xs text-slate-500">{customer.phone || customer.email || 'No contact added'}</p>
+                            <p className="mt-1 text-xs text-slate-500">{customer.address || 'No address added'}</p>
                             {customer.dueDate && (
                               <p className="mt-1 text-[11px] font-semibold text-amber-700">Due: {formatDate(customer.dueDate)}</p>
                             )}
@@ -1177,130 +1175,240 @@ export const LedgerDashboard: React.FC = () => {
               </div>
             ) : (
               <>
-                <div className="order-1 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h2 className="text-lg font-black text-slate-900">{selectedCustomer.name}</h2>
-                      <p className="mt-1 text-sm text-slate-500">{selectedCustomer.phone || selectedCustomer.email || 'No contact available'}</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openTransactionDrawer('SALE')}
-                        className="inline-flex items-center gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        Sale
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openTransactionDrawer('PAYMENT')}
-                        className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                        Payment
-                      </button>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <a
-                      href={smsLink || undefined}
-                      className={`inline-flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold ${
-                        smsLink ? 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'
-                      }`}
-                      onClick={(e) => {
-                        if (!smsLink) e.preventDefault();
-                      }}
-                    >
-                      <MessageSquareText className="h-3.5 w-3.5" />
-                      SMS reminder
-                    </a>
-                    <a
-                      href={whatsappLink || undefined}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={`inline-flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold ${
-                        whatsappLink ? 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'
-                      }`}
-                      onClick={(e) => {
-                        if (!whatsappLink) e.preventDefault();
-                      }}
-                    >
-                      <MessageCircleMore className="h-3.5 w-3.5" />
-                      WhatsApp reminder
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: '' }))}
-                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      Clear due date
-                    </button>
-                  </div>
+                {rightTab === 'LEDGER' && (
+                  <>
+                    <div className="order-1 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h2 className="text-lg font-black text-slate-900">{selectedCustomer.name}</h2>
+                          <p className="mt-1 text-sm text-slate-500">{selectedCustomer.phone || selectedCustomer.email || 'No contact available'}</p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openCustomerDrawer(false)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openTransactionDrawer('SALE')}
+                            className="inline-flex items-center gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            Sale
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openTransactionDrawer('PAYMENT')}
+                            className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            Payment
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <a
+                          href={smsLink || undefined}
+                          className={`inline-flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold ${
+                            smsLink ? 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'
+                          }`}
+                          onClick={(e) => {
+                            if (!smsLink) e.preventDefault();
+                          }}
+                        >
+                          <MessageSquareText className="h-3.5 w-3.5" />
+                          SMS reminder
+                        </a>
+                        <a
+                          href={whatsappLink || undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={`inline-flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold ${
+                            whatsappLink ? 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'
+                          }`}
+                          onClick={(e) => {
+                            if (!whatsappLink) e.preventDefault();
+                          }}
+                        >
+                          <MessageCircleMore className="h-3.5 w-3.5" />
+                          WhatsApp reminder
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: '' }))}
+                          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          Clear due date
+                        </button>
+                      </div>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Due date:</p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const date = new Date();
-                        date.setDate(date.getDate() + 7);
-                        setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: date.toISOString().slice(0, 10) }));
-                      }}
-                      className="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      +7d
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const date = new Date();
-                        date.setDate(date.getDate() + 15);
-                        setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: date.toISOString().slice(0, 10) }));
-                      }}
-                      className="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      +15d
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const date = new Date();
-                        date.setDate(date.getDate() + 30);
-                        setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: date.toISOString().slice(0, 10) }));
-                      }}
-                      className="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      +30d
-                    </button>
-                    <input
-                      type="date"
-                      value={selectedCustomer.dueDate || ''}
-                      onChange={(event) => setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: event.target.value }))}
-                      className="rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    />
-                  </div>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Due date:</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const date = new Date();
+                            date.setDate(date.getDate() + 7);
+                            setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: date.toISOString().slice(0, 10) }));
+                          }}
+                          className="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          +7d
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const date = new Date();
+                            date.setDate(date.getDate() + 15);
+                            setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: date.toISOString().slice(0, 10) }));
+                          }}
+                          className="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          +15d
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const date = new Date();
+                            date.setDate(date.getDate() + 30);
+                            setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: date.toISOString().slice(0, 10) }));
+                          }}
+                          className="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          +30d
+                        </button>
+                        <input
+                          type="date"
+                          value={selectedCustomer.dueDate || ''}
+                          onChange={(event) => setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomer.id]: event.target.value }))}
+                          className="rounded-xl border border-slate-300 px-2.5 py-1.5 text-xs outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        />
+                      </div>
 
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current balance</p>
-                      <p className="mt-2 text-xl font-extrabold text-slate-900">
-                        {formatCurrency(Math.abs(Number(selectedCustomer.totalBalance || 0)))}
-                      </p>
-                      <p className="mt-1 text-xs font-semibold text-slate-600">
-                        {Number(selectedCustomer.totalBalance || 0) >= 0 ? 'Amount to collect' : 'Amount to pay'}
-                      </p>
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current balance</p>
+                          <p className="mt-2 text-xl font-extrabold text-slate-900">
+                            {formatCurrency(Math.abs(Number(selectedCustomer.totalBalance || 0)))}
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-slate-600">
+                            {Number(selectedCustomer.totalBalance || 0) >= 0 ? 'Amount to collect' : 'Amount to pay'}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Entries</p>
+                          <p className="mt-2 text-xl font-extrabold text-slate-900">{transactions.length}</p>
+                          <p className="mt-1 text-xs font-semibold text-slate-600">Chronological ledger history</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Entries</p>
-                      <p className="mt-2 text-xl font-extrabold text-slate-900">{transactions.length}</p>
-                      <p className="mt-1 text-xs font-semibold text-slate-600">Chronological ledger history</p>
+
+                    <div className="order-2 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
+                      <h2 className="mb-4 text-base font-bold text-slate-900">Customer ledger</h2>
+                      <div className="mb-3 hidden grid-cols-[1.2fr_0.9fr_0.9fr_120px] rounded-xl bg-slate-100 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-slate-500 md:grid">
+                        <p>Entry</p>
+                        <p className="text-right">You Gave</p>
+                        <p className="text-right">You Got</p>
+                        <p className="text-right">Actions</p>
+                      </div>
+                      <div className="max-h-[58vh] space-y-3 overflow-y-auto pr-1 lg:max-h-[62vh]">
+                        {isLoadingTransactions ? (
+                          <p className="py-6 text-center text-sm text-slate-500">Loading transactions...</p>
+                        ) : reportTransactions.length === 0 ? (
+                          <p className="py-6 text-center text-sm text-slate-500">No transactions for this customer yet.</p>
+                        ) : (
+                          reportTransactions.map((transaction) => {
+                            const sale = transaction.type === 'SALE';
+                            const amount = sale ? Number(transaction.dueAmount || 0) : Number(transaction.paidAmount || 0);
+                            const attachments = attachmentsByTransaction[transaction.id] || [];
+                            return (
+                              <div key={transaction.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                <div className="grid gap-2 md:grid-cols-[1.2fr_0.9fr_0.9fr_120px] md:items-center">
+                                  <div>
+                                    <p className="text-sm font-bold text-slate-900">
+                                      {sale ? 'Sale added' : 'Payment received'} · {formatDate(transaction.timestamp)}
+                                    </p>
+                                    <p className="mt-1 text-xs text-slate-500">
+                                      Ref: {transaction.referenceNo} {transaction.description ? `· ${transaction.description}` : ''}
+                                    </p>
+                                  </div>
+
+                                  <p className="text-sm font-extrabold text-right text-rose-700">
+                                    {sale ? formatCurrency(amount) : '-'}
+                                  </p>
+
+                                  <p className="text-sm font-extrabold text-right text-emerald-700">
+                                    {!sale ? formatCurrency(amount) : '-'}
+                                  </p>
+
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => startEditTransaction(transaction)}
+                                      className="rounded-lg border border-slate-300 bg-white p-1.5 text-slate-600 hover:bg-slate-100"
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteTransaction(transaction.id)}
+                                      className="rounded-lg border border-rose-200 bg-rose-50 p-1.5 text-rose-700 hover:bg-rose-100"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                                {attachments.length > 0 && (
+                                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                                    {attachments.map((attachment) => {
+                                      const fileType = detectAttachmentType(attachment);
+                                      const previewUrl = attachmentPreviewUrls[attachment.id];
+                                      const isImage = fileType === 'image';
+                                      const isPdf = fileType === 'pdf';
+                                      return (
+                                        <div key={attachment.id} className="rounded-xl border border-slate-200 bg-white p-2">
+                                          <div className="mb-2 flex items-center justify-between gap-2">
+                                            <p className="truncate text-[11px] font-semibold text-slate-600">{attachment.fileName}</p>
+                                            <button
+                                              type="button"
+                                              onClick={() => void downloadAttachment(attachment)}
+                                              className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
+                                            >
+                                              <Download className="h-3 w-3" />
+                                              Download
+                                            </button>
+                                          </div>
+                                          {isImage && previewUrl ? (
+                                            <button type="button" onClick={() => setLightbox({ name: attachment.fileName, type: 'image', url: previewUrl })} className="w-full">
+                                              <img src={previewUrl} alt={attachment.fileName} className="h-32 w-full rounded-lg object-cover" />
+                                            </button>
+                                          ) : isPdf && previewUrl ? (
+                                            <button type="button" onClick={() => setLightbox({ name: attachment.fileName, type: 'pdf', url: previewUrl })} className="w-full">
+                                              <iframe src={previewUrl} title={attachment.fileName} className="h-32 w-full rounded-lg border border-slate-200" />
+                                            </button>
+                                          ) : (
+                                            <p className="text-xs text-slate-500">Preview unavailable. Use download.</p>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </>
+                )}
 
                 {rightTab === 'REPORTS' && (
-                  <div className="order-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
+                  <div className="order-1 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <h2 className="text-base font-bold text-slate-900">Ledger report</h2>
                       <div className="flex flex-wrap items-center gap-2">
@@ -1323,43 +1431,14 @@ export const LedgerDashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="mt-4 grid gap-3 md:grid-cols-4">
-                    <label className="space-y-1 md:col-span-1">
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">From</p>
-                      <input
-                        type="date"
-                        value={reportFromDate}
-                        onChange={(event) => setReportFromDate(event.target.value)}
-                        className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                      />
-                    </label>
-                    <label className="space-y-1 md:col-span-1">
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">To</p>
-                      <input
-                        type="date"
-                        value={reportToDate}
-                        onChange={(event) => setReportToDate(event.target.value)}
-                        className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                      />
-                    </label>
-                    <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 md:col-span-1">
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-rose-700">You Gave</p>
-                      <p className="mt-1 text-lg font-extrabold text-rose-800">{formatCurrency(reportSummary.youGave)}</p>
-                    </div>
-                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 md:col-span-1">
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-700">You Got</p>
-                      <p className="mt-1 text-lg font-extrabold text-emerald-800">{formatCurrency(reportSummary.youGot)}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 md:grid-cols-3">
-                      <label className="space-y-1">
-                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Address</p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                      <label className="space-y-1 md:col-span-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Search customers</p>
                         <input
                           type="text"
-                          value={reportAddressFilter}
-                          onChange={(event) => setReportAddressFilter(event.target.value)}
-                          placeholder="Search by area/city"
+                          value={reportSearchTerm}
+                          onChange={(event) => setReportSearchTerm(event.target.value)}
+                          placeholder="Search by name, phone, email, address, GST or due date"
                           className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                         />
                       </label>
@@ -1390,128 +1469,28 @@ export const LedgerDashboard: React.FC = () => {
                       </label>
                     </div>
 
-                    <div className="mt-4 max-h-[42vh] space-y-2 overflow-y-auto rounded-2xl border border-slate-200 p-2">
+                    <div className="mt-4 max-h-[62vh] space-y-2 overflow-y-auto rounded-2xl border border-slate-200 p-2">
                       {dueDateByCustomerReport.length === 0 ? (
                         <p className="py-6 text-center text-sm text-slate-500">No report data for selected filters.</p>
                       ) : (
                         dueDateByCustomerReport.map((customer) => {
                           const balance = Number(customer.totalBalance || 0);
                           return (
-                            <div key={customer.id} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                            <div key={customer.id} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
                               <div className="flex items-center justify-between gap-2">
-                                <p className="text-sm font-bold text-slate-900">{customer.name}</p>
-                                <p className={`text-xs font-extrabold ${balance >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                <p className="truncate text-sm font-bold text-slate-900">{customer.name}</p>
+                                <button type="button" className={`text-xs font-extrabold whitespace-nowrap ${balance >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
                                   {formatCurrency(Math.abs(balance))}
-                                </p>
+                                </button>
                               </div>
-                              <p className="text-xs text-slate-500">{customer.address || 'No address'}</p>
-                              <p className="text-xs font-semibold text-amber-700">{customer.dueDate ? `Due ${formatDate(customer.dueDate)}` : 'No due date'}</p>
+                              <p className="truncate text-xs text-slate-500">{customer.address || '—'}</p>
+                              <p className="text-[10px] font-semibold text-amber-700">{customer.dueDate ? `Due ${formatDate(customer.dueDate)}` : ''}</p>
                             </div>
                           );
                         })
                       )}
                     </div>
                   </div>
-                )}
-
-                {rightTab === 'LEDGER' && (
-                <div className="order-2 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
-                  <h2 className="mb-4 text-base font-bold text-slate-900">Customer ledger</h2>
-                  <div className="mb-3 hidden grid-cols-[1.2fr_0.9fr_0.9fr_120px] rounded-xl bg-slate-100 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-slate-500 md:grid">
-                    <p>Entry</p>
-                    <p className="text-right">You Gave</p>
-                    <p className="text-right">You Got</p>
-                    <p className="text-right">Actions</p>
-                  </div>
-                  <div className="max-h-[58vh] space-y-3 overflow-y-auto pr-1 lg:max-h-[62vh]">
-                    {isLoadingTransactions ? (
-                      <p className="py-6 text-center text-sm text-slate-500">Loading transactions...</p>
-                    ) : reportTransactions.length === 0 ? (
-                      <p className="py-6 text-center text-sm text-slate-500">No transactions for this customer yet.</p>
-                    ) : (
-                      reportTransactions.map((transaction) => {
-                        const sale = transaction.type === 'SALE';
-                        const amount = sale ? Number(transaction.dueAmount || 0) : Number(transaction.paidAmount || 0);
-                        const attachments = attachmentsByTransaction[transaction.id] || [];
-                        return (
-                          <div key={transaction.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                            <div className="grid gap-2 md:grid-cols-[1.2fr_0.9fr_0.9fr_120px] md:items-center">
-                              <div>
-                                <p className="text-sm font-bold text-slate-900">
-                                  {sale ? 'Sale added' : 'Payment received'} · {formatDate(transaction.timestamp)}
-                                </p>
-                                <p className="mt-1 text-xs text-slate-500">
-                                  Ref: {transaction.referenceNo} {transaction.description ? `· ${transaction.description}` : ''}
-                                </p>
-                              </div>
-
-                              <p className="text-sm font-extrabold text-right text-rose-700">
-                                {sale ? formatCurrency(amount) : '-'}
-                              </p>
-
-                              <p className="text-sm font-extrabold text-right text-emerald-700">
-                                {!sale ? formatCurrency(amount) : '-'}
-                              </p>
-
-                              <div className="flex items-center justify-end gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => startEditTransaction(transaction)}
-                                  className="rounded-lg border border-slate-300 bg-white p-1.5 text-slate-600 hover:bg-slate-100"
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteTransaction(transaction.id)}
-                                  className="rounded-lg border border-rose-200 bg-rose-50 p-1.5 text-rose-700 hover:bg-rose-100"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </div>
-                            </div>
-                            {attachments.length > 0 && (
-                              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                                {attachments.map((attachment) => {
-                                  const fileType = detectAttachmentType(attachment);
-                                  const previewUrl = attachmentPreviewUrls[attachment.id];
-                                  const isImage = fileType === 'image';
-                                  const isPdf = fileType === 'pdf';
-                                  return (
-                                    <div key={attachment.id} className="rounded-xl border border-slate-200 bg-white p-2">
-                                      <div className="mb-2 flex items-center justify-between gap-2">
-                                        <p className="truncate text-[11px] font-semibold text-slate-600">{attachment.fileName}</p>
-                                        <button
-                                          type="button"
-                                          onClick={() => void downloadAttachment(attachment)}
-                                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
-                                        >
-                                          <Download className="h-3 w-3" />
-                                          Download
-                                        </button>
-                                      </div>
-                                      {isImage && previewUrl ? (
-                                        <button type="button" onClick={() => setLightbox({ name: attachment.fileName, type: 'image', url: previewUrl })} className="w-full">
-                                          <img src={previewUrl} alt={attachment.fileName} className="h-32 w-full rounded-lg object-cover" />
-                                        </button>
-                                      ) : isPdf && previewUrl ? (
-                                        <button type="button" onClick={() => setLightbox({ name: attachment.fileName, type: 'pdf', url: previewUrl })} className="w-full">
-                                          <iframe src={previewUrl} title={attachment.fileName} className="h-32 w-full rounded-lg border border-slate-200" />
-                                        </button>
-                                      ) : (
-                                        <p className="text-xs text-slate-500">Preview unavailable. Use download.</p>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
                 )}
               </>
             )}
