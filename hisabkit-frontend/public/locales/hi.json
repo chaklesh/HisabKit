@@ -1,0 +1,35 @@
+{
+  "login": {
+    "title": "हिसाबकिट में आपका स्वागत है",
+    "subtitle": "अपने खाते में साइन इन करें",
+    "username": "उपयोगकर्ता नाम",
+    "password": "पासवर्ड",
+    "tenantId": "टेनेंट आईडी",
+    "button": "लॉगिन",
+    "loading": "लॉगिन हो रहा है...",
+    "switch_language": "भाषा बदलें",
+    "switch_to_english": "English",
+    "switch_to_hindi": "हिन्दी",
+    "error": "गलत उपयोगकर्ता नाम या पासवर्ड"
+  },
+  "common": {
+    "login": "लॉगिन",
+    "register": "रजिस्टर",
+    "welcome": "हिसाबकिट में आपका स्वागत है",
+    "language": "भाषा",
+    "logout": "लॉग आउट",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "loading": "लोड हो रहा है...",
+    "error_occurred": "एक त्रुटि हुई"
+  },
+  "ledger": {
+    "title": "हिसाब-किताब",
+    "add_transaction": "नया लेनदेन",
+    "customer_name": "ग्राहक का नाम",
+    "amount": "रकम",
+    "credit": "दिया",
+    "debit": "मिला",
+    "balance": "बाकी"
+  }
+}

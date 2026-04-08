@@ -1,0 +1,27 @@
+package com.nayag.hisabkit.repository;
+
+import com.nayag.hisabkit.model.Transaction;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Repository
+public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
+    List<Transaction> findByTenantIdAndCustomerIdOrderByTimestampDesc(UUID tenantId, UUID customerId);
+    List<Transaction> findByTenantIdOrderByTimestampDesc(UUID tenantId);
+    Optional<Transaction> findByIdAndTenantId(UUID id, UUID tenantId);
+    List<Transaction> findByTenantIdAndCustomerId(UUID tenantId, UUID customerId);
+    List<Transaction> findByCustomerId(UUID customerId);
+
+    @Query("""
+            select coalesce(sum(case when t.type = 'SALE' then t.dueAmount else -t.paidAmount end), 0)
+            from Transaction t
+            where t.tenantId = :tenantId and t.customerId = :customerId
+            """)
+    BigDecimal calculateCustomerBalance(UUID tenantId, UUID customerId);
+}

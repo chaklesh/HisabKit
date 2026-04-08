@@ -1,0 +1,35 @@
+{
+  "login": {
+    "title": "Welcome to HisabKit",
+    "subtitle": "Sign in to your account",
+    "username": "Username",
+    "password": "Password",
+    "tenantId": "Tenant ID",
+    "button": "Login",
+    "loading": "Logging in...",
+    "switch_language": "Switch Language",
+    "switch_to_english": "English",
+    "switch_to_hindi": "हिन्दी",
+    "error": "Invalid username or password"
+  },
+  "common": {
+    "login": "Login",
+    "register": "Register",
+    "welcome": "Welcome to HisabKit",
+    "language": "Language",
+    "logout": "Logout",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error_occurred": "An error occurred"
+  },
+  "ledger": {
+    "title": "Ledger",
+    "add_transaction": "Add Transaction",
+    "customer_name": "Customer Name",
+    "amount": "Amount",
+    "credit": "You Gave",
+    "debit": "You Got",
+    "balance": "Balance"
+  }
+}

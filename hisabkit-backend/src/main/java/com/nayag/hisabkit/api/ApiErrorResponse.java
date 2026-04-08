@@ -1,0 +1,20 @@
+package com.nayag.hisabkit.api;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
+import lombok.Value;
+
+import java.time.OffsetDateTime;
+import java.util.Map;
+
+@Value
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ApiErrorResponse {
+    OffsetDateTime timestamp;
+    int status;
+    String error;
+    String message;
+    String path;
+    Map<String, String> validationErrors;
+}

@@ -1,0 +1,25 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / crash dumps
+*.log
+hs_err_pid*
+replay_pid*
+.runlogs/
+
+# Java / Maven
+hisabkit-backend/target/
+hisabkit-backend/.m2repo/
+.mvn/
+
+# Node / frontend build
+hisabkit-frontend/node_modules/
+hisabkit-frontend/dist/
+
+# Environment files
+.env
+.env.*
+!*.env.example
+hisabkit-frontend/.env
+hisabkit-backend/.env

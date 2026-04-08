@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/001-initial-schema.xml
+  - include:
+      file: db/changelog/changes/002-audit-logs.xml
+  - include:
+      file: db/changelog/changes/003-ledger-schema.xml
+  - include:
+      file: db/changelog/changes/004-user-email.xml
+  - include:
+      file: db/changelog/changes/005-user-social-profile.xml
+  - include:
+      file: db/changelog/changes/006-user-mobile.xml
+  - include:
+      file: db/changelog/changes/007-tenant-profile-and-templates.xml
+  - include:
+      file: db/changelog/changes/008-user-avatar-clob.xml

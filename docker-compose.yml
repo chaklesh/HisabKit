@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: ./hisabkit-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/hisabkit
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - db
+    networks:
+      - hisabkit-network
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=hisabkit
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - hisabkit-network
+
+  frontend:
+    build:
+      context: ./hisabkit-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - hisabkit-network
+
+networks:
+  hisabkit-network:
+    driver: bridge
+
+volumes:
+  pgdata:

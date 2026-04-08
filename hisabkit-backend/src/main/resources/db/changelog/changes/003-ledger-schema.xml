@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="3" author="hisabkit-db-agent">
+        <createTable tableName="customers">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="VARCHAR(50)"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="address" type="VARCHAR(500)"/>
+            <column name="gst_number" type="VARCHAR(50)"/>
+            <column name="total_balance" type="DECIMAL(15,2)" defaultValue="0.00"/>
+            <column name="tenant_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="transactions">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="reference_no" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount" type="DECIMAL(15,2)" defaultValue="0.00"/>
+            <column name="paid_amount" type="DECIMAL(15,2)" defaultValue="0.00"/>
+            <column name="due_amount" type="DECIMAL(15,2)" defaultValue="0.00"/>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="timestamp" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="created_by_user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tenant_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="attachments">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="transaction_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_type" type="VARCHAR(100)"/>
+            <column name="file_url" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uploaded_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="tenant_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Foreign Keys -->
+        <addForeignKeyConstraint baseTableName="customers" baseColumnNames="tenant_id" constraintName="fk_customers_tenants" referencedTableName="tenants" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="transactions" baseColumnNames="customer_id" constraintName="fk_transactions_customers" referencedTableName="customers" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="transactions" baseColumnNames="created_by_user_id" constraintName="fk_transactions_users" referencedTableName="users" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="transactions" baseColumnNames="tenant_id" constraintName="fk_transactions_tenants" referencedTableName="tenants" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="attachments" baseColumnNames="transaction_id" constraintName="fk_attachments_transactions" referencedTableName="transactions" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="attachments" baseColumnNames="tenant_id" constraintName="fk_attachments_tenants" referencedTableName="tenants" referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>
