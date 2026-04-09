@@ -9,6 +9,10 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+# Server Port (dev & prod both use 8010)
+server:
+  port: ${SERVER_PORT:8010}
+
 # Security Configurations (Global)
 hisabkit:
   jwt:
@@ -17,7 +21,7 @@ hisabkit:
   google:
     client-id: ${GOOGLE_CLIENT_ID:964754530671-a38f6mbkbod3mk99md0upp4onrbib9cs.apps.googleusercontent.com}
   security:
-    cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+    cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3010,http://127.0.0.1:3010,http://localhost:5173}
   bootstrap:
     enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
     tenant-name: ${BOOTSTRAP_ADMIN_TENANT_NAME:}
@@ -29,7 +33,7 @@ hisabkit:
     dir: ${UPLOAD_DIR:./uploads}
 
 ---
-# Development Profile (Windows Local)
+# Development Profile (Windows Local — H2 file-based)
 spring:
   config:
     activate:
@@ -53,18 +57,26 @@ spring:
       enabled: false
 
 ---
-# Production Profile (Oracle Cloud)
+# Production Profile (Oracle Cloud — Hestia-managed MariaDB)
 spring:
   config:
     activate:
       on-profile: prod
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    # host.docker.internal resolves to the Docker host (where HestiaCP MariaDB runs)
+    url: jdbc:mariadb://${DB_HOST:host.docker.internal}:${DB_PORT:3306}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Kolkata
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate:
       ddl-auto: validate
     show-sql: false
+  h2:
+    console:
+      enabled: false

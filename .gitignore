@@ -34,3 +34,10 @@ hisabkit-backend/uploads/
 hisabkit-mobile/node_modules/
 hisabkit-mobile/android/.gradle/
 hisabkit-mobile/android/app/build/
+hisabkit-mobile/ios/build/
+hisabkit-mobile/*.apk
+hisabkit-mobile/*.aab
+
+# APK/AAB releases (never commit binaries)
+*.apk
+*.aab

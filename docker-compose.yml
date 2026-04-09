@@ -1,46 +1,37 @@
 version: '3.8'
+
 services:
   app:
     build:
       context: ./hisabkit-backend
+    container_name: hisabkit-backend
     ports:
-      - "8080:8080"
+      - "8010:8010"
+    env_file:
+      - ./hisabkit-backend/.env
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/hisabkit
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-    depends_on:
-      - db
-    networks:
-      - hisabkit-network
-
-  db:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_DB=hisabkit
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
+      - DB_HOST=host.docker.internal  # On Linux, you may need to use your server IP or extra_hosts
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./hisabkit-backend/uploads:/app/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
     networks:
       - hisabkit-network
 
   frontend:
     build:
       context: ./hisabkit-frontend
+    container_name: hisabkit-frontend
     ports:
-      - "80:80"
+      - "3010:3010"
     depends_on:
       - app
+    restart: always
     networks:
       - hisabkit-network
 
 networks:
   hisabkit-network:
     driver: bridge
-
-volumes:
-  pgdata:
