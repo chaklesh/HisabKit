@@ -44,10 +44,12 @@
 - Standard structure: left module rail + sticky workspace header + task-first content.
 - Reference doc: docs/KHATABOOK_UI_UX_ADAPTATION.md
 - Frontend shell now prefers the live `/api/modules` catalog and falls back to static module definitions if the API is unavailable.
+- Ledger dashboard now includes a compact top status strip for visible customer count, current focus, and selected balance so the operator can orient quickly before editing.
 
 ## Operational Notes
 - Use `.env` and `.env.example` for runtime configuration.
 - Keep crash logs/build artifacts out of git (`.gitignore`).
+- Frontend dev server must be launched from the frontend root and verified at `http://127.0.0.1:5173/`; a wrong launch root can still start Vite but return 404 for `/` and `/src/main.tsx`.
 - Development mode now uses fast inner-loop execution:
   - Minimize frequent full compile/build/test runs.
   - Use targeted validation at critical boundaries.

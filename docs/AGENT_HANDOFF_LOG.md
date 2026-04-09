@@ -68,3 +68,21 @@ Use one entry per completed package. Keep it short and delta-focused.
 - Validation Run: npm run build (frontend).
 - Known Risks: Module catalog API requires authenticated context; fallback is intentionally retained for resilience.
 - Next Action: Next UX pass can focus on ledger interaction polish and dashboard hierarchy.
+
+- Date: 2026-04-08
+- From Agent: Frontend Runtime Agent
+- To Agent: Frontend UX Agent
+- Scope Completed: Diagnosed the frontend loading failure as a Vite launch-root mismatch and relaunched the dev server from the frontend root; confirmed `/` and `/src/main.tsx` return 200 on `http://127.0.0.1:5173/`.
+- Files Changed: docs/AGENT_CONTEXT.md, docs/AGENT_HANDOFF_LOG.md
+- Validation Run: `curl.exe -i http://127.0.0.1:5173/` and `curl.exe -i http://127.0.0.1:5173/src/main.tsx` both returned 200; frontend build remained green.
+- Known Risks: Keep launching Vite from the frontend root; the wrong root can still start the dev server but serve 404s.
+- Next Action: Continue with ledger UX polish and maintain the live dev server for visible iteration.
+
+- Date: 2026-04-08
+- From Agent: Frontend UX Agent
+- To Agent: Frontend Feature Agent
+- Scope Completed: Added a compact ledger status strip to surface visible customer count, current focus, and selected balance above the ledger workspace.
+- Files Changed: hisabkit-frontend/src/pages/LedgerDashboard.tsx, docs/AGENT_CONTEXT.md, docs/AGENT_HANDOFF_LOG.md
+- Validation Run: `npm run build` (frontend) and targeted page error check.
+- Known Risks: None beyond the existing ledger API dependency; the new strip is display-only.
+- Next Action: Build on the core ledger flow with deeper interaction polish or module expansion.

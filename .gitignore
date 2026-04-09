@@ -23,3 +23,14 @@ hisabkit-frontend/dist/
 !*.env.example
 hisabkit-frontend/.env
 hisabkit-backend/.env
+
+# Data
+data/
+
+# Uploads
+hisabkit-backend/uploads/
+
+# Mobile
+hisabkit-mobile/node_modules/
+hisabkit-mobile/android/.gradle/
+hisabkit-mobile/android/app/build/
