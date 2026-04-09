@@ -106,14 +106,13 @@ export const Login = () => {
             <div className="mt-10 space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-400/15 px-4 py-2 text-sm font-medium text-emerald-200">
                 <Sparkles className="h-4 w-4" />
-                Secure access to your ledger workspace
+                Secure access to HisabKit
               </div>
 
               <div className="space-y-4">
-                <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Welcome back.</h1>
+                <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Login to your Shop</h1>
                 <p className="max-w-xl text-base leading-7 text-slate-300">
-                  Sign in quickly with Google or continue with your username and password to access your business
-                  dashboard.
+                  Access your enterprise ledger to manage customer accounts, credits, and file attachments securely.
                 </p>
               </div>
             </div>
@@ -121,18 +120,17 @@ export const Login = () => {
             <div className="mt-10 grid gap-4 sm:grid-cols-2">
               <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
                 <ShieldCheck className="h-6 w-6 text-emerald-300" />
-                <h2 className="mt-4 text-sm font-bold text-white">Tenant-aware sessions</h2>
+                <h2 className="mt-4 text-sm font-bold text-white">Isolated Shop Data</h2>
                 <p className="mt-2 text-sm leading-6 text-slate-300">
-                  The authenticated session keeps the tenant ID in localStorage and sends it through the shared API
-                  client.
+                  Every request is scoped to your specific shop ensuring absolute data privacy.
                 </p>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
                 <LockKeyhole className="h-6 w-6 text-sky-300" />
-                <h2 className="mt-4 text-sm font-bold text-white">Protected routes</h2>
+                <h2 className="mt-4 text-sm font-bold text-white">Multilingual Support</h2>
                 <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Once signed in, you are routed to `/dashboard`, with `/admin` and `/ledger` still guarded.
+                  Switch seamlessly between English and Hindi interface after logging in.
                 </p>
               </div>
             </div>
@@ -142,10 +140,10 @@ export const Login = () => {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Sign in</p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-900">Access your account</h2>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-900">Shopkeeper Login</h2>
               </div>
               <div className="rounded-2xl bg-[#2E3A59]/10 px-3 py-2 text-xs font-semibold text-[#2E3A59]">
-                Landing-ready auth
+                Enterprise Security
               </div>
             </div>
 
@@ -219,7 +217,7 @@ export const Login = () => {
               )}
 
               <p className="text-sm leading-6 text-slate-500">
-                Use whichever sign-in method is easier. You will land directly on your dashboard after login.
+                Manage your building material or hardware business with peace of mind.
               </p>
             </div>
           </section>

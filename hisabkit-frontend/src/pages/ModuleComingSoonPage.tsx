@@ -14,8 +14,7 @@ export const ModuleComingSoonPage = () => {
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Planned Module</p>
       <h2 className="mt-2 text-2xl font-black text-slate-900">{moduleLabel}</h2>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-        This module is intentionally scaffolded in routing and architecture but not enabled in navigation yet.
-        It will be activated in a future sprint once domain contracts and UX flows are finalized.
+        This feature is part of our upcoming roadmap for HisabKit. We are working hard to bring this specialized workflow for MSMEs in the upcoming updates.
       </p>
     </div>
   );

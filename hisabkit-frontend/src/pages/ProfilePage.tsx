@@ -152,9 +152,9 @@ export const ProfilePage = () => {
 
         <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Account Settings</p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">Profile, security and business templates</h1>
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">Profile, security and shop configuration</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Keep personal details updated, secure your account, and standardize reminder templates used in ledger follow-ups.
+            Keep credentials updated securely, configure multilingual preferences, and standardize business templates for ledger updates.
           </p>
         </div>
 

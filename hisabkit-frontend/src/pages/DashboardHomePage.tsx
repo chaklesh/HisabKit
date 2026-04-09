@@ -93,13 +93,13 @@ export const DashboardHomePage = () => {
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/60">
             <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
               <Users className="h-4 w-4" />
-              Daily operations
+              Ledger Management
             </div>
             <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900">
-              Keep customer accounts clear and up to date.
+              Maintain precise financial records for your hardware and building material sales.
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
-              Open the customer-wise ledger to add entries, record backdated transactions, and keep balances accurate.
+              Open the ledger to handle customer credits, debits, partial payments, and attach proof documents securely under your shop's isolated data context.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">

@@ -13,25 +13,25 @@ import {
 const highlights = [
   {
     icon: ShieldCheck,
-    title: 'Role-safe access',
-    description: 'Super admins and tenant users land in the right workspace with the right permissions.',
+    title: 'Multi-Tenant Safety',
+    description: 'Absolute data isolation ensures hardware and paint shops manage records securely.',
   },
   {
     icon: Network,
-    title: 'Tenant isolation',
-    description: 'Every request stays scoped to the active tenant so ledgers remain clean and separated.',
+    title: 'Multilingual Support',
+    description: 'Full support for English and Hindi interfaces to serve shopkeepers locally.',
   },
   {
     icon: Smartphone,
-    title: 'Mobile-friendly flow',
-    description: 'The auth and dashboard experience stays usable on small screens without feeling cramped.',
+    title: 'File Attachments',
+    description: 'Attach PDF bills and images to customer credits, debits, and partial payments.',
   },
 ];
 
 const workflowSteps = [
   'Sign in with username/password or Google',
-  'Land in a protected dashboard route',
-  'Jump into admin or ledger tools as needed',
+  'Access your isolated shop data',
+  'Manage customers, credits, and attachments',
 ];
 
 export const LandingPage = () => {
@@ -48,7 +48,7 @@ export const LandingPage = () => {
             </div>
             <div>
               <p className="text-sm font-semibold tracking-[0.24em] text-slate-300">HISABKIT</p>
-              <p className="text-xs text-slate-400">Multi-tenant ledger control</p>
+              <p className="text-xs text-slate-400">Enterprise-grade ledger for MSMEs</p>
             </div>
           </div>
 
@@ -67,16 +67,15 @@ export const LandingPage = () => {
           <section className="space-y-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-200">
               <Sparkles className="h-4 w-4" />
-              A cleaner entry point for your ledger workspace
+              Welcome to HisabKit for your Business
             </div>
 
             <div className="space-y-5">
               <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Manage your books without losing the thread between teams, tenants, and devices.
+                The Enterprise-Grade Ledger for Hardware, Paint, & Building Material Shops.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
-                HisabKit keeps the public landing page lightweight, then drops authenticated users into a protected
-                dashboard with tenant-aware ledger tools, admin controls, and Google sign-in support.
+                Manage customer credits, debits, and partial payments seamlessly with full multi-tenant security, multilingual support, and file attachments.
               </p>
             </div>
 
@@ -116,8 +115,8 @@ export const LandingPage = () => {
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900/80 p-6 shadow-[0_30px_80px_rgba(15,23,42,0.45)] backdrop-blur">
               <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Protected workspace</p>
-                  <h2 className="mt-2 text-2xl font-bold text-white">Built for quick handoff into auth</h2>
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Robust Architecture</p>
+                  <h2 className="mt-2 text-2xl font-bold text-white">Designed for scale & performance</h2>
                 </div>
                 <div className="rounded-2xl bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200">
                   Landing
@@ -128,25 +127,25 @@ export const LandingPage = () => {
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-slate-200">
                     <Building2 className="h-4 w-4 text-sky-300" />
-                    Tenant-aware routing
+                    Global Tenant Isolation
                   </div>
                   <p className="mt-3 text-sm leading-6 text-slate-300">
-                    Public users see the marketing page, while signed-in users move straight to `/dashboard`.
+                    Shared Database, Shared Schema with a robust Global Tenant Context Filter.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-slate-200">
                     <WalletCards className="h-4 w-4 text-amber-300" />
-                    Ledger entry flow
+                    Efficient API Caching
                   </div>
                   <p className="mt-3 text-sm leading-6 text-slate-300">
-                    Role checks continue to protect `/admin` and `/ledger` so the data surface stays guarded.
+                    Powered by TanStack Query for optimal performance and seamless data synchronization.
                   </p>
                 </div>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-5">
-                <p className="text-sm font-semibold text-white">Sign-in path</p>
+                <p className="text-sm font-semibold text-white">Get started in seconds</p>
                 <div className="mt-4 space-y-3">
                   {workflowSteps.map((step, index) => (
                     <div key={step} className="flex items-start gap-3">
