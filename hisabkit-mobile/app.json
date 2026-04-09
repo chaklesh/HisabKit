@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "HisabKit",
+    "slug": "hisabkit-mobile",
+    "scheme": "hisabkit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#0f172a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.nayag.hisabkit",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.nayag.hisabkit"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
