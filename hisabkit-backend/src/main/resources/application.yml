@@ -64,7 +64,7 @@ spring:
       on-profile: prod
   datasource:
     # host.docker.internal resolves to the Docker host (where HestiaCP MariaDB runs)
-    url: jdbc:mariadb://${DB_HOST:host.docker.internal}:${DB_PORT:3306}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Kolkata
+    url: jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Kolkata
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
