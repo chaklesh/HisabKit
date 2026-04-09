@@ -35,8 +35,7 @@ public class User {
     @Column(name = "full_name")
     private String fullName;
 
-    @Lob
-    @Column(name = "avatar_url")
+    @Column(name = "avatar_url", columnDefinition = "LONGTEXT")
     private String avatarUrl;
 
     @Column(name = "password_hash", nullable = false)

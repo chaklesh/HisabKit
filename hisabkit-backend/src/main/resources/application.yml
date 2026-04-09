@@ -72,6 +72,9 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       connection-timeout: 30000
+      max-lifetime: 600000        # 10 minutes (refresh before MariaDB timeout)
+      idle-timeout: 300000         # 5 minutes
+      keepalive-time: 60000        # Check every 1 minute
   jpa:
     database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate:
