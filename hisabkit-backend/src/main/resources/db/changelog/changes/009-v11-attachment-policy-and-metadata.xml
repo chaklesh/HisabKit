@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="9" author="hisabkit-release-agent">
+        <addColumn tableName="tenants">
+            <column name="attachment_quota_mb" type="INT" defaultValueNumeric="100">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_attachment_file_size_mb" type="INT" defaultValueNumeric="10">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attachment_retention_days" type="INT" defaultValueNumeric="365">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="attachments">
+            <column name="file_size_bytes" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP"/>
+        </addColumn>
+
+        <createIndex tableName="attachments" indexName="idx_attachments_tenant_expires_at">
+            <column name="tenant_id"/>
+            <column name="expires_at"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -15,3 +15,5 @@ databaseChangeLog:
       file: db/changelog/changes/007-tenant-profile-and-templates.xml
   - include:
       file: db/changelog/changes/008-user-avatar-clob.xml
+  - include:
+      file: db/changelog/changes/009-v11-attachment-policy-and-metadata.xml

@@ -129,6 +129,9 @@ public class ProfileController {
         tenant.setLogoUrl(trimToNull(request.getLogoUrl()));
         tenant.setSmsTemplate(trimToNull(request.getSmsTemplate()));
         tenant.setWhatsappTemplate(trimToNull(request.getWhatsappTemplate()));
+        tenant.setAttachmentQuotaMb(defaultIntValue(request.getAttachmentQuotaMb(), tenant.getAttachmentQuotaMb()));
+        tenant.setMaxAttachmentFileSizeMb(defaultIntValue(request.getMaxAttachmentFileSizeMb(), tenant.getMaxAttachmentFileSizeMb()));
+        tenant.setAttachmentRetentionDays(defaultIntValue(request.getAttachmentRetentionDays(), tenant.getAttachmentRetentionDays()));
 
         Tenant saved = tenantRepository.save(tenant);
         return ResponseEntity.ok(toTenantResponse(saved));
@@ -176,6 +179,9 @@ public class ProfileController {
         response.put("smsTemplate", tenant.getSmsTemplate());
         response.put("whatsappTemplate", tenant.getWhatsappTemplate());
         response.put("status", tenant.getStatus());
+        response.put("attachmentQuotaMb", tenant.getAttachmentQuotaMb());
+        response.put("maxAttachmentFileSizeMb", tenant.getMaxAttachmentFileSizeMb());
+        response.put("attachmentRetentionDays", tenant.getAttachmentRetentionDays());
         return response;
     }
 
@@ -194,6 +200,13 @@ public class ProfileController {
             return null;
         }
         return normalized;
+    }
+
+    private Integer defaultIntValue(Integer value, Integer fallback) {
+        if (value == null || value <= 0) {
+            return fallback;
+        }
+        return value;
     }
 
     @Data
@@ -225,5 +238,8 @@ public class ProfileController {
         private String logoUrl;
         private String smsTemplate;
         private String whatsappTemplate;
+        private Integer attachmentQuotaMb;
+        private Integer maxAttachmentFileSizeMb;
+        private Integer attachmentRetentionDays;
     }
 }

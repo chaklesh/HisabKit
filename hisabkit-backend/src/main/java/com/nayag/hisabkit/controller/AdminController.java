@@ -2,11 +2,13 @@ package com.nayag.hisabkit.controller;
 
 import com.nayag.hisabkit.dto.CreateCustomerRequest;
 import com.nayag.hisabkit.dto.CreateTransactionRequest;
+import com.nayag.hisabkit.model.AuditLog;
 import com.nayag.hisabkit.model.Customer;
 import com.nayag.hisabkit.model.Tenant;
 import com.nayag.hisabkit.model.Transaction;
 import com.nayag.hisabkit.model.User;
 import com.nayag.hisabkit.repository.AttachmentRepository;
+import com.nayag.hisabkit.repository.AuditLogRepository;
 import com.nayag.hisabkit.repository.CustomerRepository;
 import com.nayag.hisabkit.repository.TenantRepository;
 import com.nayag.hisabkit.repository.TransactionRepository;
@@ -38,6 +40,7 @@ public class AdminController {
     private final CustomerRepository customerRepository;
     private final TransactionRepository transactionRepository;
     private final AttachmentRepository attachmentRepository;
+    private final AuditLogRepository auditLogRepository;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/tenants")
@@ -70,6 +73,9 @@ public class AdminController {
                 .smsTemplate(defaultValue(request.getSmsTemplate(), "Hi {{customerName}}, your balance is {{balance}} ({{balanceType}}) with {{businessName}}."))
                 .whatsappTemplate(defaultValue(request.getWhatsappTemplate(), "Hi {{customerName}}, this is a reminder from {{businessName}}. Your balance is {{balance}} ({{balanceType}})."))
                 .status(defaultValue(request.getStatus(), "ACTIVE"))
+                .attachmentQuotaMb(defaultIntValue(request.getAttachmentQuotaMb(), 100))
+                .maxAttachmentFileSizeMb(defaultIntValue(request.getMaxAttachmentFileSizeMb(), 10))
+                .attachmentRetentionDays(defaultIntValue(request.getAttachmentRetentionDays(), 365))
                 .build();
         tenant = tenantRepository.save(tenant);
 
@@ -84,6 +90,7 @@ public class AdminController {
                 .build();
         adminUser = userRepository.save(adminUser);
 
+        logAdminMutation("TENANT", tenant.getId(), "CREATE", tenant.getId(), Map.of("slug", tenant.getSlug(), "name", tenant.getName()));
         return ResponseEntity.ok(Map.of("tenant", tenant, "adminUser", adminUser));
     }
 
@@ -93,7 +100,9 @@ public class AdminController {
         Tenant tenant = tenantRepository.findById(tenantId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found"));
         applyTenantUpdate(tenant, request);
-        return ResponseEntity.ok(tenantRepository.save(tenant));
+        Tenant saved = tenantRepository.save(tenant);
+        logAdminMutation("TENANT", saved.getId(), "UPDATE", saved.getId(), Map.of("name", saved.getName(), "status", saved.getStatus()));
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/tenants/{tenantId}")
@@ -119,6 +128,7 @@ public class AdminController {
         userRepository.deleteAll(users);
         tenantRepository.delete(tenant);
 
+        logAdminMutation("TENANT", tenantId, "DELETE", tenantId, Map.of("slug", tenant.getSlug()));
         return ResponseEntity.ok(Map.of("deleted", true, "tenantId", tenantId));
     }
 
@@ -145,7 +155,9 @@ public class AdminController {
         customer.setAddress(trimToNull(request.getAddress()));
         customer.setGstNumber(trimToNull(request.getGstNumber()));
         customer.setTotalBalance(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
-        return ResponseEntity.ok(customerRepository.save(customer));
+        Customer saved = customerRepository.save(customer);
+        logAdminMutation("CUSTOMER", saved.getId(), "CREATE", tenantId, Map.of("name", saved.getName()));
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/customers/{customerId}")
@@ -162,7 +174,9 @@ public class AdminController {
         customer.setEmail(trimToNull(request.getEmail()));
         customer.setAddress(trimToNull(request.getAddress()));
         customer.setGstNumber(trimToNull(request.getGstNumber()));
-        return ResponseEntity.ok(customerRepository.save(customer));
+        Customer saved = customerRepository.save(customer);
+        logAdminMutation("CUSTOMER", saved.getId(), "UPDATE", tenantId, Map.of("name", saved.getName()));
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/customers/{customerId}")
@@ -182,6 +196,7 @@ public class AdminController {
         transactionRepository.deleteAll(txns);
         customerRepository.delete(customer);
 
+        logAdminMutation("CUSTOMER", customerId, "DELETE", tenantId, Map.of("name", customer.getName()));
         return ResponseEntity.ok(Map.of("deleted", true, "customerId", customerId));
     }
 
@@ -217,6 +232,7 @@ public class AdminController {
         Transaction saved = transactionRepository.save(transaction);
 
         Customer customer = recalculateAndSaveCustomerBalance(tenantId, request.getCustomerId());
+        logAdminMutation("TRANSACTION", saved.getId(), "CREATE", tenantId, Map.of("type", saved.getType(), "customerId", saved.getCustomerId().toString()));
         return ResponseEntity.ok(Map.of("transaction", saved, "customer", customer));
     }
 
@@ -241,6 +257,7 @@ public class AdminController {
         Customer previous = recalculateAndSaveCustomerBalance(tenantId, previousCustomer);
         Customer current = recalculateAndSaveCustomerBalance(tenantId, request.getCustomerId());
 
+        logAdminMutation("TRANSACTION", updatedTransaction.getId(), "UPDATE", tenantId, Map.of("type", updatedTransaction.getType(), "customerId", updatedTransaction.getCustomerId().toString()));
         return ResponseEntity.ok(Map.of("transaction", updatedTransaction, "previousCustomer", previous, "customer", current));
     }
 
@@ -257,6 +274,7 @@ public class AdminController {
         attachmentRepository.deleteAll(attachmentRepository.findByTransactionId(transactionId));
         transactionRepository.delete(transaction);
         Customer customer = recalculateAndSaveCustomerBalance(tenantId, transaction.getCustomerId());
+        logAdminMutation("TRANSACTION", transactionId, "DELETE", tenantId, Map.of("customerId", transaction.getCustomerId().toString()));
         return ResponseEntity.ok(Map.of("deleted", true, "customer", customer));
     }
 
@@ -329,6 +347,40 @@ public class AdminController {
         return value.trim();
     }
 
+    private Integer defaultIntValue(Integer value, Integer fallback) {
+        if (value == null || value <= 0) {
+            return fallback;
+        }
+        return value;
+    }
+
+    private void logAdminMutation(String entityName, UUID entityId, String action, UUID tenantId, Map<String, Object> changes) {
+        try {
+            UUID userId = currentUserIdOrNull();
+            if (userId == null) {
+                return;
+            }
+            AuditLog log = new AuditLog();
+            log.setEntityName(entityName);
+            log.setEntityId(entityId);
+            log.setAction(action);
+            log.setTenantId(tenantId);
+            log.setUserId(userId);
+            log.setChanges(new java.util.LinkedHashMap<>(changes).toString());
+            auditLogRepository.save(log);
+        } catch (Exception ignored) {
+            // Keep admin write paths available even if audit persistence fails.
+        }
+    }
+
+    private UUID currentUserIdOrNull() {
+        String username = SecurityUtils.currentUsername();
+        if (username == null || username.isBlank()) {
+            return null;
+        }
+        return userRepository.findByUsername(username).map(User::getId).orElse(null);
+    }
+
     private void applyTenantUpdate(Tenant tenant, UpdateTenantRequest request) {
         tenant.setName(request.getName().trim());
         tenant.setBusinessType(trimToNull(request.getBusinessType()));
@@ -341,6 +393,9 @@ public class AdminController {
         tenant.setSmsTemplate(trimToNull(request.getSmsTemplate()));
         tenant.setWhatsappTemplate(trimToNull(request.getWhatsappTemplate()));
         tenant.setStatus(defaultValue(request.getStatus(), "ACTIVE"));
+        tenant.setAttachmentQuotaMb(defaultIntValue(request.getAttachmentQuotaMb(), tenant.getAttachmentQuotaMb()));
+        tenant.setMaxAttachmentFileSizeMb(defaultIntValue(request.getMaxAttachmentFileSizeMb(), tenant.getMaxAttachmentFileSizeMb()));
+        tenant.setAttachmentRetentionDays(defaultIntValue(request.getAttachmentRetentionDays(), tenant.getAttachmentRetentionDays()));
     }
 
     @Data
@@ -359,6 +414,9 @@ public class AdminController {
         private String smsTemplate;
         private String whatsappTemplate;
         private String status;
+        private Integer attachmentQuotaMb;
+        private Integer maxAttachmentFileSizeMb;
+        private Integer attachmentRetentionDays;
         @NotBlank
         private String adminUsername;
         @NotBlank
@@ -381,5 +439,8 @@ public class AdminController {
         private String smsTemplate;
         private String whatsappTemplate;
         private String status;
+        private Integer attachmentQuotaMb;
+        private Integer maxAttachmentFileSizeMb;
+        private Integer attachmentRetentionDays;
     }
 }

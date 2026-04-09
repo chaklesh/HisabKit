@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { KeyRound, Save, UserRound } from 'lucide-react';
+import { Building2, KeyRound, Save, UserRound } from 'lucide-react';
 import {
   changeMyPassword,
   getMyProfile,
@@ -13,6 +13,9 @@ import {
 import { useAuth } from '../context/AuthContext';
 
 const templateHelp = '{{customerName}}, {{balance}}, {{balanceType}}, {{businessName}}, {{customerPhone}}';
+const formInputClass =
+  'w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
+const formLabelClass = 'text-xs font-semibold uppercase tracking-[0.16em] text-slate-500';
 
 export const ProfilePage = () => {
   const { user, setUserProfile } = useAuth();
@@ -142,10 +145,18 @@ export const ProfilePage = () => {
   };
 
   return (
-    <div className="rounded-2xl bg-slate-100 p-3 sm:p-4">
+    <div className="rounded-2xl bg-[linear-gradient(180deg,#f5f7fb_0%,#eef2ff_100%)] p-3 sm:p-4">
       <div className="mx-auto max-w-6xl">
         {error && <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</div>}
         {notice && <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{notice}</div>}
+
+        <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/60">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Account Settings</p>
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">Profile, security and business templates</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Keep personal details updated, secure your account, and standardize reminder templates used in ledger follow-ups.
+          </p>
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <form onSubmit={saveProfile} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -153,7 +164,7 @@ export const ProfilePage = () => {
               <UserRound className="h-5 w-5" />
               My Profile
             </h2>
-            <div className="grid gap-3">
+            <div className="grid gap-4">
               <div className="flex items-center gap-3">
                 {profile.avatarUrl ? (
                   <img src={profile.avatarUrl} alt={profile.fullName || profile.username} className="h-14 w-14 rounded-full object-cover" />
@@ -163,22 +174,55 @@ export const ProfilePage = () => {
                   </div>
                 )}
                 <div className="flex-1">
+                  <p className={formLabelClass}>Profile photo</p>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none"
+                    className={formInputClass}
                   />
                 </div>
-                <button type="button" onClick={() => void saveAvatar()} className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700">
+                <button
+                  type="button"
+                  onClick={() => void saveAvatar()}
+                  disabled={!avatarFile}
+                  className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-60"
+                >
                   Upload
                 </button>
               </div>
-              <input value={profile.fullName || ''} onChange={(e) => setProfile((p) => ({ ...p, fullName: e.target.value }))} placeholder="Full name" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
-              <input value={profile.email || ''} onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))} placeholder="Email" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
-              <input value={profile.mobile || ''} onChange={(e) => setProfile((p) => ({ ...p, mobile: e.target.value }))} placeholder="Mobile" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
+
+              <div className="space-y-1">
+                <p className={formLabelClass}>Full name</p>
+                <input
+                  value={profile.fullName || ''}
+                  onChange={(e) => setProfile((p) => ({ ...p, fullName: e.target.value }))}
+                  placeholder="Owner or operator name"
+                  className={formInputClass}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <p className={formLabelClass}>Email</p>
+                <input
+                  value={profile.email || ''}
+                  onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
+                  placeholder="name@business.com"
+                  className={formInputClass}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <p className={formLabelClass}>Mobile</p>
+                <input
+                  value={profile.mobile || ''}
+                  onChange={(e) => setProfile((p) => ({ ...p, mobile: e.target.value }))}
+                  placeholder="+91xxxxxxxxxx"
+                  className={formInputClass}
+                />
+              </div>
             </div>
-            <button type="submit" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white">
+            <button type="submit" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white">
               <Save className="h-4 w-4" />
               Save profile
             </button>
@@ -189,11 +233,32 @@ export const ProfilePage = () => {
               <KeyRound className="h-5 w-5" />
               Change Password
             </h2>
-            <div className="grid gap-3">
-              <input type="password" value={passwordForm.currentPassword} onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))} placeholder="Current password" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
-              <input type="password" value={passwordForm.newPassword} onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))} placeholder="New password" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
+            <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              Use a strong password with at least 8 characters and a mix of letters, numbers, and symbols.
+            </p>
+            <div className="grid gap-4">
+              <div className="space-y-1">
+                <p className={formLabelClass}>Current password</p>
+                <input
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                  placeholder="Enter current password"
+                  className={formInputClass}
+                />
+              </div>
+              <div className="space-y-1">
+                <p className={formLabelClass}>New password</p>
+                <input
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
+                  placeholder="Enter new password"
+                  className={formInputClass}
+                />
+              </div>
             </div>
-            <button type="submit" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white">
+            <button type="submit" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-bold text-white">
               <Save className="h-4 w-4" />
               Update password
             </button>
@@ -202,21 +267,54 @@ export const ProfilePage = () => {
 
         {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
           <form onSubmit={saveTenant} className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="mb-1 text-xl font-black text-slate-900">Business Profile and Reminder Templates</h2>
+            <h2 className="mb-2 flex items-center gap-2 text-xl font-black text-slate-900">
+              <Building2 className="h-5 w-5" />
+              Business Profile and Reminder Templates
+            </h2>
             <p className="mb-4 text-xs text-slate-500">Template variables: {templateHelp}</p>
-            <div className="grid gap-3 md:grid-cols-2">
-              <input value={tenant.name || ''} onChange={(e) => setTenant((p) => ({ ...p, name: e.target.value }))} placeholder="Business name" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
-              <input value={tenant.businessType || ''} onChange={(e) => setTenant((p) => ({ ...p, businessType: e.target.value }))} placeholder="Business type" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
-              <input value={tenant.ownerName || ''} onChange={(e) => setTenant((p) => ({ ...p, ownerName: e.target.value }))} placeholder="Owner name" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
-              <input value={tenant.businessPhone || ''} onChange={(e) => setTenant((p) => ({ ...p, businessPhone: e.target.value }))} placeholder="Business phone" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
-              <input value={tenant.businessEmail || ''} onChange={(e) => setTenant((p) => ({ ...p, businessEmail: e.target.value }))} placeholder="Business email" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
-              <input value={tenant.gstNumber || ''} onChange={(e) => setTenant((p) => ({ ...p, gstNumber: e.target.value }))} placeholder="GST number" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none" />
-              <input value={tenant.logoUrl || ''} onChange={(e) => setTenant((p) => ({ ...p, logoUrl: e.target.value }))} placeholder="Logo URL" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none md:col-span-2" />
-              <input value={tenant.businessAddress || ''} onChange={(e) => setTenant((p) => ({ ...p, businessAddress: e.target.value }))} placeholder="Business address" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none md:col-span-2" />
-              <textarea value={tenant.smsTemplate || ''} onChange={(e) => setTenant((p) => ({ ...p, smsTemplate: e.target.value }))} placeholder="SMS template" className="min-h-24 rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none md:col-span-2" />
-              <textarea value={tenant.whatsappTemplate || ''} onChange={(e) => setTenant((p) => ({ ...p, whatsappTemplate: e.target.value }))} placeholder="WhatsApp template" className="min-h-24 rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none md:col-span-2" />
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1">
+                <p className={formLabelClass}>Business name</p>
+                <input value={tenant.name || ''} onChange={(e) => setTenant((p) => ({ ...p, name: e.target.value }))} placeholder="Business name" className={formInputClass} />
+              </div>
+              <div className="space-y-1">
+                <p className={formLabelClass}>Business type</p>
+                <input value={tenant.businessType || ''} onChange={(e) => setTenant((p) => ({ ...p, businessType: e.target.value }))} placeholder="Retail, Wholesale, Services..." className={formInputClass} />
+              </div>
+              <div className="space-y-1">
+                <p className={formLabelClass}>Owner name</p>
+                <input value={tenant.ownerName || ''} onChange={(e) => setTenant((p) => ({ ...p, ownerName: e.target.value }))} placeholder="Owner name" className={formInputClass} />
+              </div>
+              <div className="space-y-1">
+                <p className={formLabelClass}>Business phone</p>
+                <input value={tenant.businessPhone || ''} onChange={(e) => setTenant((p) => ({ ...p, businessPhone: e.target.value }))} placeholder="+91xxxxxxxxxx" className={formInputClass} />
+              </div>
+              <div className="space-y-1">
+                <p className={formLabelClass}>Business email</p>
+                <input value={tenant.businessEmail || ''} onChange={(e) => setTenant((p) => ({ ...p, businessEmail: e.target.value }))} placeholder="accounts@business.com" className={formInputClass} />
+              </div>
+              <div className="space-y-1">
+                <p className={formLabelClass}>GST number</p>
+                <input value={tenant.gstNumber || ''} onChange={(e) => setTenant((p) => ({ ...p, gstNumber: e.target.value }))} placeholder="GSTIN" className={formInputClass} />
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <p className={formLabelClass}>Logo URL</p>
+                <input value={tenant.logoUrl || ''} onChange={(e) => setTenant((p) => ({ ...p, logoUrl: e.target.value }))} placeholder="https://..." className={formInputClass} />
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <p className={formLabelClass}>Business address</p>
+                <input value={tenant.businessAddress || ''} onChange={(e) => setTenant((p) => ({ ...p, businessAddress: e.target.value }))} placeholder="Business address" className={formInputClass} />
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <p className={formLabelClass}>SMS template</p>
+                <textarea value={tenant.smsTemplate || ''} onChange={(e) => setTenant((p) => ({ ...p, smsTemplate: e.target.value }))} placeholder="SMS reminder template" className={`min-h-24 ${formInputClass}`} />
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <p className={formLabelClass}>WhatsApp template</p>
+                <textarea value={tenant.whatsappTemplate || ''} onChange={(e) => setTenant((p) => ({ ...p, whatsappTemplate: e.target.value }))} placeholder="WhatsApp reminder template" className={`min-h-24 ${formInputClass}`} />
+              </div>
             </div>
-            <button type="submit" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white">
+            <button type="submit" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white">
               <Save className="h-4 w-4" />
               Save tenant settings
             </button>

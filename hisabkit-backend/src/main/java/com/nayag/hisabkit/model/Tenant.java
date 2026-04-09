@@ -56,6 +56,18 @@ public class Tenant {
 
     private String status;
 
+    @Column(name = "attachment_quota_mb", nullable = false)
+    @Builder.Default
+    private Integer attachmentQuotaMb = 100;
+
+    @Column(name = "max_attachment_file_size_mb", nullable = false)
+    @Builder.Default
+    private Integer maxAttachmentFileSizeMb = 10;
+
+    @Column(name = "attachment_retention_days", nullable = false)
+    @Builder.Default
+    private Integer attachmentRetentionDays = 365;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

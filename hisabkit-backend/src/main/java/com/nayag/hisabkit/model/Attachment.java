@@ -26,6 +26,12 @@ public class Attachment {
     @Column(name = "file_url", nullable = false, length = 1000)
     private String fileUrl;
 
+    @Column(name = "file_size_bytes", nullable = false)
+    private Long fileSizeBytes;
+
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     @Column(name = "uploaded_at", nullable = false, updatable = false)
     private LocalDateTime uploadedAt = LocalDateTime.now();
 

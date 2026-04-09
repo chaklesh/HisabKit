@@ -17,6 +17,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     Optional<Transaction> findByIdAndTenantId(UUID id, UUID tenantId);
     List<Transaction> findByTenantIdAndCustomerId(UUID tenantId, UUID customerId);
     List<Transaction> findByCustomerId(UUID customerId);
+    List<Transaction> findByTenantIdAndCustomerIdAndTimestampBetweenOrderByTimestampAsc(UUID tenantId, UUID customerId, java.time.LocalDateTime from, java.time.LocalDateTime to);
 
     @Query("""
             select coalesce(sum(case when t.type = 'SALE' then t.dueAmount else -t.paidAmount end), 0)
@@ -24,4 +25,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             where t.tenantId = :tenantId and t.customerId = :customerId
             """)
     BigDecimal calculateCustomerBalance(UUID tenantId, UUID customerId);
+
+    @Query("""
+            select coalesce(sum(case when t.type = 'SALE' then t.dueAmount else -t.paidAmount end), 0)
+            from Transaction t
+            where t.tenantId = :tenantId and t.customerId = :customerId and t.timestamp < :from
+            """)
+    BigDecimal calculateCustomerBalanceBefore(UUID tenantId, UUID customerId, java.time.LocalDateTime from);
 }

@@ -5,10 +5,12 @@ import com.nayag.hisabkit.dto.CreateCustomerRequest;
 import com.nayag.hisabkit.dto.CreateTransactionRequest;
 import com.nayag.hisabkit.model.Attachment;
 import com.nayag.hisabkit.model.Customer;
+import com.nayag.hisabkit.model.Tenant;
 import com.nayag.hisabkit.model.Transaction;
 import com.nayag.hisabkit.model.User;
 import com.nayag.hisabkit.repository.AttachmentRepository;
 import com.nayag.hisabkit.repository.CustomerRepository;
+import com.nayag.hisabkit.repository.TenantRepository;
 import com.nayag.hisabkit.repository.TransactionRepository;
 import com.nayag.hisabkit.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -34,7 +36,9 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -46,6 +50,7 @@ public class LedgerController {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final AttachmentRepository attachmentRepository;
+    private final TenantRepository tenantRepository;
 
     @Value("${hisabkit.upload.dir:./uploads}")
     private String uploadDir;
@@ -187,6 +192,21 @@ public class LedgerController {
 
         Transaction transaction = transactionRepository.findByIdAndTenantId(transactionId, tenantId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+        Tenant tenant = tenantRepository.findById(tenantId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tenant not found"));
+
+        purgeExpiredAttachments(tenantId);
+        long fileSize = file.getSize();
+        long maxFileSize = mbToBytes(defaultInt(tenant.getMaxAttachmentFileSizeMb(), 10));
+        if (fileSize > maxFileSize) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Attachment file exceeds configured max size");
+        }
+
+        long usedStorage = attachmentRepository.totalStorageUsedByTenant(tenantId);
+        long quotaLimit = mbToBytes(defaultInt(tenant.getAttachmentQuotaMb(), 100));
+        if (usedStorage + fileSize > quotaLimit) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Attachment quota exceeded for tenant");
+        }
 
         try {
             Path baseDir = Path.of(uploadDir, tenantId.toString(), "transactions", transaction.getId().toString());
@@ -204,6 +224,8 @@ public class LedgerController {
             attachment.setFileName(originalName);
             attachment.setFileType(trimToNull(file.getContentType()));
             attachment.setFileUrl(target.toString().replace("\\", "/"));
+            attachment.setFileSizeBytes(fileSize);
+            attachment.setExpiresAt(LocalDateTime.now().plusDays(defaultInt(tenant.getAttachmentRetentionDays(), 365)));
 
             return ResponseEntity.ok(attachmentRepository.save(attachment));
         } catch (IOException ex) {
@@ -224,8 +246,136 @@ public class LedgerController {
         UUID tenantId = tenantIdOrThrow(currentTenantId());
         Attachment attachment = attachmentRepository.findByIdAndTenantId(attachmentId, tenantId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Attachment not found"));
+        deleteAttachmentFileIfPresent(attachment);
         attachmentRepository.delete(attachment);
         return ResponseEntity.ok(Map.of("deleted", true, "attachmentId", attachmentId));
+    }
+
+    @GetMapping("/customers/{customerId}/statement")
+    public ResponseEntity<Map<String, Object>> getCustomerStatement(
+            @PathVariable UUID customerId,
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to
+    ) {
+        UUID tenantId = tenantIdOrThrow(currentTenantId());
+        Customer customer = customerRepository.findByIdAndTenantId(customerId, tenantId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+
+        LocalDateTime fromTs = from != null ? from.atStartOfDay() : LocalDateTime.of(1970, 1, 1, 0, 0);
+        LocalDateTime toTs = to != null ? to.atTime(23, 59, 59) : LocalDateTime.now();
+
+        List<Transaction> transactions = transactionRepository.findByTenantIdAndCustomerIdAndTimestampBetweenOrderByTimestampAsc(
+                tenantId,
+                customerId,
+                fromTs,
+                toTs
+        );
+
+        BigDecimal opening = amountOrZero(transactionRepository.calculateCustomerBalanceBefore(tenantId, customerId, fromTs));
+        BigDecimal netChange = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalSales = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalPayments = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+
+        for (Transaction txn : transactions) {
+            if ("SALE".equalsIgnoreCase(txn.getType())) {
+                netChange = netChange.add(amountOrZero(txn.getDueAmount()));
+                totalSales = totalSales.add(amountOrZero(txn.getTotalAmount()));
+            } else {
+                netChange = netChange.subtract(amountOrZero(txn.getPaidAmount()));
+                totalPayments = totalPayments.add(amountOrZero(txn.getPaidAmount()));
+            }
+        }
+
+        BigDecimal closing = opening.add(netChange).setScale(2, RoundingMode.HALF_UP);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("customer", customer);
+        response.put("from", fromTs.toLocalDate().toString());
+        response.put("to", toTs.toLocalDate().toString());
+        response.put("openingBalance", opening);
+        response.put("closingBalance", closing);
+        response.put("totalSales", totalSales);
+        response.put("totalPayments", totalPayments);
+        response.put("transactions", transactions);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/customers/{customerId}/statement/export")
+    public ResponseEntity<byte[]> exportCustomerStatementCsv(
+            @PathVariable UUID customerId,
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to
+    ) {
+        UUID tenantId = tenantIdOrThrow(currentTenantId());
+        customerRepository.findByIdAndTenantId(customerId, tenantId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+
+        LocalDateTime fromTs = from != null ? from.atStartOfDay() : LocalDateTime.of(1970, 1, 1, 0, 0);
+        LocalDateTime toTs = to != null ? to.atTime(23, 59, 59) : LocalDateTime.now();
+
+        List<Transaction> transactions = transactionRepository.findByTenantIdAndCustomerIdAndTimestampBetweenOrderByTimestampAsc(
+                tenantId,
+                customerId,
+                fromTs,
+                toTs
+        );
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("Date,Reference,Type,TotalAmount,PaidAmount,DueAmount,Description\n");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        for (Transaction txn : transactions) {
+            csv.append(txn.getTimestamp().format(formatter)).append(",")
+                    .append(csvValue(txn.getReferenceNo())).append(",")
+                    .append(csvValue(txn.getType())).append(",")
+                    .append(amountOrZero(txn.getTotalAmount())).append(",")
+                    .append(amountOrZero(txn.getPaidAmount())).append(",")
+                    .append(amountOrZero(txn.getDueAmount())).append(",")
+                    .append(csvValue(txn.getDescription()))
+                    .append("\n");
+        }
+
+        String filename = "statement-" + customerId + "-" + LocalDate.now() + ".csv";
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filename).build().toString())
+                .body(csv.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<Map<String, Object>> getLedgerSummary(
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to
+    ) {
+        UUID tenantId = tenantIdOrThrow(currentTenantId());
+        LocalDateTime fromTs = from != null ? from.atStartOfDay() : LocalDateTime.of(1970, 1, 1, 0, 0);
+        LocalDateTime toTs = to != null ? to.atTime(23, 59, 59) : LocalDateTime.now();
+
+        List<Transaction> transactions = transactionRepository.findByTenantIdOrderByTimestampDesc(tenantId)
+                .stream()
+                .filter(txn -> !txn.getTimestamp().isBefore(fromTs) && !txn.getTimestamp().isAfter(toTs))
+                .toList();
+
+        BigDecimal totalSales = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalPayments = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal outstanding = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+
+        for (Transaction txn : transactions) {
+            if ("SALE".equalsIgnoreCase(txn.getType())) {
+                totalSales = totalSales.add(amountOrZero(txn.getTotalAmount()));
+                outstanding = outstanding.add(amountOrZero(txn.getDueAmount()));
+            } else {
+                totalPayments = totalPayments.add(amountOrZero(txn.getPaidAmount()));
+            }
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "from", fromTs.toLocalDate().toString(),
+                "to", toTs.toLocalDate().toString(),
+                "transactionCount", transactions.size(),
+                "totalSales", totalSales,
+                "totalPayments", totalPayments,
+                "outstandingDue", outstanding
+        ));
     }
 
     @GetMapping("/attachments/{attachmentId}/content")
@@ -366,5 +516,46 @@ public class LedgerController {
         if (lower.endsWith(".gif")) return MediaType.IMAGE_GIF;
         if (lower.endsWith(".webp")) return MediaType.valueOf("image/webp");
         return MediaType.APPLICATION_OCTET_STREAM;
+    }
+
+    private int defaultInt(Integer value, int fallback) {
+        if (value == null || value <= 0) {
+            return fallback;
+        }
+        return value;
+    }
+
+    private long mbToBytes(int valueMb) {
+        return valueMb * 1024L * 1024L;
+    }
+
+    private void purgeExpiredAttachments(UUID tenantId) {
+        List<Attachment> expired = attachmentRepository.findByTenantIdAndExpiresAtBefore(tenantId, LocalDateTime.now());
+        for (Attachment attachment : expired) {
+            deleteAttachmentFileIfPresent(attachment);
+        }
+        attachmentRepository.deleteAll(expired);
+    }
+
+    private void deleteAttachmentFileIfPresent(Attachment attachment) {
+        try {
+            if (attachment.getFileUrl() == null || attachment.getFileUrl().isBlank()) {
+                return;
+            }
+            Path path = Path.of(attachment.getFileUrl()).normalize().toAbsolutePath();
+            if (Files.exists(path)) {
+                Files.delete(path);
+            }
+        } catch (Exception ignored) {
+            // The database record is the source of truth even if filesystem cleanup fails.
+        }
+    }
+
+    private String csvValue(String value) {
+        if (value == null) {
+            return "";
+        }
+        String escaped = value.replace("\"", "\"\"");
+        return "\"" + escaped + "\"";
     }
 }
