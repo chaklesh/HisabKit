@@ -21,7 +21,7 @@ hisabkit:
   google:
     client-id: ${GOOGLE_CLIENT_ID:964754530671-a38f6mbkbod3mk99md0upp4onrbib9cs.apps.googleusercontent.com}
   security:
-    cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3010,https://hisabkit.nayag.com,http://hisabkit.nayag.com}
+    cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3010,https://hisabkit.nayag.com,http://hisabkit.nayag.com,https://hisabkitab.nayag.com,http://hisabkitab.nayag.com}
   bootstrap:
     enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
     tenant-name: ${BOOTSTRAP_ADMIN_TENANT_NAME:}
