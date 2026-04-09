@@ -14,7 +14,7 @@ const highlights = [
   {
     icon: ShieldCheck,
     title: 'Multi-Tenant Safety',
-    description: 'Absolute data isolation ensures hardware and paint shops manage records securely.',
+    description: 'Absolute data isolation ensures MSMEs manage their financial records securely.',
   },
   {
     icon: Network,
@@ -72,7 +72,7 @@ export const LandingPage = () => {
 
             <div className="space-y-5">
               <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-                The Enterprise-Grade Ledger for Hardware, Paint, & Building Material Shops.
+                The Enterprise-Grade Finance & Ledger Platform for MSMEs.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
                 Manage customer credits, debits, and partial payments seamlessly with full multi-tenant security, multilingual support, and file attachments.

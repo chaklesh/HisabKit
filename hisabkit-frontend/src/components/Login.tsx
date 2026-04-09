@@ -217,7 +217,7 @@ export const Login = () => {
               )}
 
               <p className="text-sm leading-6 text-slate-500">
-                Manage your building material or hardware business with peace of mind.
+                Manage your MSME business finances with peace of mind.
               </p>
             </div>
           </section>

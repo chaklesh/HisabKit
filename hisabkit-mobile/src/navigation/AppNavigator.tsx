@@ -1,7 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { ActivityIndicator, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
+import { useAuth } from '../context/AuthContext';
+import { LoginScreen } from '../screens/LoginScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LedgerScreen } from '../screens/LedgerScreen';
 import { ReportsScreen } from '../screens/ReportsScreen';
@@ -17,6 +20,20 @@ export type AppTabParamList = {
 const Tab = createBottomTabNavigator<AppTabParamList>();
 
 export function AppNavigator() {
+  const { isLoading, isLoggedIn } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.brand} />
+      </View>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return <LoginScreen />;
+  }
+
   return (
     <Tab.Navigator
       screenOptions={{

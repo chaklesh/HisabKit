@@ -96,7 +96,7 @@ export const DashboardHomePage = () => {
               Ledger Management
             </div>
             <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900">
-              Maintain precise financial records for your hardware and building material sales.
+              Maintain precise financial records for your business operations.
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
               Open the ledger to handle customer credits, debits, partial payments, and attach proof documents securely under your shop's isolated data context.
