@@ -7,14 +7,14 @@ import { appModules, type AppModule } from '../modules/moduleRegistry';
 import { listModuleCatalog, type ModuleCatalogItem } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
-const titleByRoute: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/ledger': 'Customer Ledger',
-  '/inventory': 'Inventory',
-  '/suppliers': 'Suppliers',
-  '/lending': 'Money Lending',
-  '/admin': 'Admin Console',
-  '/profile': 'Profile Settings',
+const titleKeyByRoute: Record<string, string> = {
+  '/dashboard': 'shell.titles.dashboard',
+  '/ledger': 'shell.titles.ledger',
+  '/inventory': 'shell.titles.inventory',
+  '/suppliers': 'shell.titles.suppliers',
+  '/lending': 'shell.titles.lending',
+  '/admin': 'shell.titles.admin',
+  '/profile': 'shell.titles.profile',
 };
 
 type AppShellProps = {
@@ -70,7 +70,7 @@ export const AppShell = ({ children }: AppShellProps) => {
     });
   }, [catalog]);
 
-  const title = titleByRoute[location.pathname] || 'HisabKit';
+  const title = t(titleKeyByRoute[location.pathname] || 'shell.titles.default', 'HisabKit');
 
   const handleLogout = () => {
     logout();
@@ -78,12 +78,12 @@ export const AppShell = ({ children }: AppShellProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f6fb] text-slate-900">
-      <aside className="hidden border-r border-slate-200 bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:block lg:w-64">
+    <div className="min-h-screen bg-surface-app text-text-primary">
+      <aside className="hidden border-r border-border-soft bg-surface-panel lg:fixed lg:inset-y-0 lg:left-0 lg:block lg:w-64">
         <div className="flex h-full flex-col">
-          <div className="border-b border-slate-200 px-5 py-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">HisabKit</p>
-            <h1 className="mt-1 text-lg font-black text-slate-900">MSME Finance</h1>
+          <div className="border-b border-border-soft px-5 py-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-text-secondary">HisabKit</p>
+            <h1 className="mt-1 text-lg font-black text-text-primary">{t('shell.productTagline', 'MSME Finance')}</h1>
           </div>
 
           <nav className="flex-1 space-y-1 px-3 py-4">
@@ -110,7 +110,7 @@ export const AppShell = ({ children }: AppShellProps) => {
                   key={module.id}
                   to={module.route}
                   className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                    isActive ? 'bg-[#1e293b] text-white' : 'text-slate-700 hover:bg-slate-100'
+                    isActive ? 'bg-brand-primary text-text-inverse' : 'text-text-secondary hover:bg-surface-subtle'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -123,30 +123,30 @@ export const AppShell = ({ children }: AppShellProps) => {
               <Link
                 to="/admin"
                 className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                  location.pathname === '/admin' ? 'bg-[#1e293b] text-white' : 'text-slate-700 hover:bg-slate-100'
+                  location.pathname === '/admin' ? 'bg-brand-primary text-text-inverse' : 'text-text-secondary hover:bg-surface-subtle'
                 }`}
               >
                 <ShieldCheck className="h-4 w-4" />
-                Admin Console
+                {t('shell.adminConsole', 'Admin Console')}
               </Link>
             ) : null}
 
             <Link
               to="/profile"
               className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                location.pathname === '/profile' ? 'bg-[#1e293b] text-white' : 'text-slate-700 hover:bg-slate-100'
+                location.pathname === '/profile' ? 'bg-brand-primary text-text-inverse' : 'text-text-secondary hover:bg-surface-subtle'
               }`}
             >
               <UserRound className="h-4 w-4" />
-              Profile
+              {t('shell.profileSettings', 'Profile')}
             </Link>
           </nav>
 
-          <div className="border-t border-slate-200 p-3">
+          <div className="border-t border-border-soft p-3">
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface-subtle px-3 py-2 text-sm font-semibold text-text-secondary hover:bg-slate-100"
             >
               <LogOut className="h-4 w-4" />
               {t('common.logout', 'Logout')}
@@ -156,13 +156,13 @@ export const AppShell = ({ children }: AppShellProps) => {
       </aside>
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur sm:px-6">
+        <header className="sticky top-0 z-20 border-b border-border-soft bg-surface-panel/90 px-4 py-3 backdrop-blur sm:px-6">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">{t('shell.workspace', 'Workspace')}</p>
-              <h2 className="text-lg font-black text-slate-900">{title}</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-secondary">{t('shell.workspace', 'Workspace')}</p>
+              <h2 className="text-lg font-black text-text-primary">{title}</h2>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700">
+            <div className="inline-flex items-center gap-2 rounded-xl border border-border-soft bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-text-secondary">
               {user?.username}
             </div>
           </div>

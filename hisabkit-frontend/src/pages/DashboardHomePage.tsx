@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Building2, Settings, ShieldCheck, Users, WalletCards } from 'lucide-react';
-import api from '../api/api';
+import dashboardService from '../features/dashboard/dashboardService';
 import { useAuth } from '../context/AuthContext';
+import type { CustomerBase } from '../shared/types/ledger';
 
-type Customer = {
-  id: string;
-  totalBalance?: number;
-};
+type Customer = Pick<CustomerBase, 'id' | 'totalBalance'>;
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(value);
@@ -19,8 +17,8 @@ export const DashboardHomePage = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get('/ledger/customers');
-        setCustomers(Array.isArray(res.data) ? (res.data as Customer[]) : []);
+        const list = await dashboardService.fetchCustomers();
+        setCustomers(list as Customer[]);
       } catch {
         setCustomers([]);
       }

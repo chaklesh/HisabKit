@@ -9,8 +9,29 @@
     "loading": "Logging in...",
     "switch_language": "Switch Language",
     "switch_to_english": "English",
-    "switch_to_hindi": "हिन्दी",
-    "error": "Invalid username or password"
+    "switch_to_hindi": "Hindi",
+    "error": "Invalid username or password",
+    "google_no_token": "Google did not return an ID token. Please try again.",
+    "google_failed": "Google sign-in failed. Please try again.",
+    "google_start_failed": "Google sign-in could not start. Please try again.",
+    "back_to_landing": "Back to landing",
+    "secure_access": "Secure access to HisabKit",
+    "hero_title": "Login to your Shop",
+    "hero_description": "Access your enterprise ledger to manage customer accounts, credits, and file attachments securely.",
+    "feature_data_title": "Isolated Shop Data",
+    "feature_data_description": "Every request is scoped to your specific shop ensuring absolute data privacy.",
+    "feature_i18n_title": "Multilingual Support",
+    "feature_i18n_description": "Switch seamlessly between English and Hindi interface after logging in.",
+    "sign_in": "Sign in",
+    "shopkeeper_login": "Shopkeeper Login",
+    "enterprise_security": "Enterprise Security",
+    "username_placeholder": "Enter your username",
+    "password_placeholder": "Enter your password",
+    "signing_in": "Signing in...",
+    "sign_in_password": "Sign in with password",
+    "google_not_configured_prefix": "Google sign-in is not configured yet. Add",
+    "google_not_configured_suffix": "to enable it. Password sign-in is still available.",
+    "footer_note": "Manage your MSME business finances with peace of mind."
   },
   "common": {
     "login": "Login",
@@ -21,7 +42,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "loading": "Loading...",
-    "error_occurred": "An error occurred"
+    "error_occurred": "An error occurred",
+    "or": "or"
   },
   "ledger": {
     "title": "Ledger",
@@ -36,7 +58,20 @@
     "workspace": "Workspace",
     "admin": "Admin",
     "profile": "Profile",
+    "adminConsole": "Admin Console",
+    "profileSettings": "Profile Settings",
+    "productTagline": "MSME Finance",
     "soon": "Soon",
+    "titles": {
+      "dashboard": "Dashboard",
+      "ledger": "Customer Ledger",
+      "inventory": "Inventory",
+      "suppliers": "Suppliers",
+      "lending": "Money Lending",
+      "admin": "Admin Console",
+      "profile": "Profile Settings",
+      "default": "HisabKit"
+    },
     "modules": {
       "dashboard": "Dashboard",
       "ledger": "Customer Ledger",

@@ -1,12 +1,7 @@
-export type Customer = {
-  id: string;
-  name: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  gstNumber?: string;
+import type { CustomerBase, LedgerTransactionBase } from '../shared/types/ledger';
+
+export type Customer = CustomerBase & {
   dueDate?: string;
-  totalBalance?: number;
   createdAt?: string;
   updatedAt?: string;
   lastTransactionAt?: string;
@@ -15,17 +10,7 @@ export type Customer = {
 export type CustomerFilter = 'ALL' | 'TO_COLLECT' | 'TO_PAY' | 'ZERO_BALANCE' | 'WITH_CONTACT';
 export type CustomerSort = 'MOST_RECENT' | 'HIGHEST_AMOUNT' | 'LEAST_AMOUNT' | 'BY_NAME' | 'OLDEST';
 
-export type LedgerTransaction = {
-  id: string;
-  referenceNo: string;
-  type: 'SALE' | 'PAYMENT';
-  totalAmount: number;
-  paidAmount: number;
-  dueAmount: number;
-  description?: string;
-  timestamp: string;
-  customerId: string;
-};
+export type LedgerTransaction = LedgerTransactionBase;
 
 export type CustomerForm = {
   name: string;

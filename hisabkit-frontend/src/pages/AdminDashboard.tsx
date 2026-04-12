@@ -1,45 +1,17 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { Building2, Database, Layers, Pencil, Plus, Trash2, Users } from 'lucide-react';
 import {
-  createTenantCustomer,
-  createTenantTransaction,
-  createTenant,
-  deleteTenant,
-  deleteTenantCustomer,
-  deleteTenantTransaction,
-  listTenantCustomers,
-  listTenantTransactions,
-  listTenants,
   Tenant,
-  updateTenant,
-  updateTenantCustomer,
-  updateTenantTransaction,
 } from '../api/api';
+import adminService from '../features/admin/adminService';
 import { useAuth } from '../context/AuthContext';
+import type { CustomerBase, LedgerTransactionBase } from '../shared/types/ledger';
 
 type TabKey = 'tenants' | 'customers' | 'transactions';
 
-type Customer = {
-  id: string;
-  name: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  gstNumber?: string;
-  totalBalance?: number;
-};
+type Customer = CustomerBase;
 
-type LedgerTransaction = {
-  id: string;
-  referenceNo: string;
-  type: 'SALE' | 'PAYMENT';
-  totalAmount: number;
-  paidAmount: number;
-  dueAmount: number;
-  description?: string;
-  timestamp: string;
-  customerId: string;
-};
+type LedgerTransaction = LedgerTransactionBase;
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(value);
@@ -161,7 +133,7 @@ export const AdminDashboard = () => {
     setIsLoading(true);
     setError('');
     try {
-      const res = await listTenants();
+      const res = await adminService.listTenants();
       const list = Array.isArray(res.data) ? (res.data as Tenant[]) : [];
       setTenants(list);
       const next = list.some((t) => t.id === selectedTenantId) ? selectedTenantId : list[0]?.id || '';
@@ -180,7 +152,7 @@ export const AdminDashboard = () => {
       return;
     }
     try {
-      const res = await listTenantCustomers(tenantId);
+      const res = await adminService.listTenantCustomers(tenantId);
       setCustomers(Array.isArray(res.data) ? (res.data as Customer[]) : []);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Unable to load tenant customers.');
@@ -194,7 +166,7 @@ export const AdminDashboard = () => {
       return;
     }
     try {
-      const res = await listTenantTransactions(tenantId);
+      const res = await adminService.listTenantTransactions(tenantId);
       setTransactions(Array.isArray(res.data) ? (res.data as LedgerTransaction[]) : []);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Unable to load tenant transactions.');
@@ -269,7 +241,7 @@ export const AdminDashboard = () => {
     setNotice('');
     try {
       if (tenantForm.id) {
-        await updateTenant(tenantForm.id, {
+        await adminService.updateTenant(tenantForm.id, {
           name: tenantForm.name,
           businessType: tenantForm.businessType || undefined,
           ownerName: tenantForm.ownerName || undefined,
@@ -283,7 +255,7 @@ export const AdminDashboard = () => {
           status: tenantForm.status || undefined,
         });
       } else {
-        await createTenant({
+        await adminService.createTenant({
           name: tenantForm.name,
           slug: tenantForm.slug,
           businessType: tenantForm.businessType || undefined,
@@ -316,7 +288,7 @@ export const AdminDashboard = () => {
     setError('');
     setNotice('');
     try {
-      await deleteTenant(tenantId);
+      await adminService.deleteTenant(tenantId);
       await loadTenants();
       setNotice('Tenant deleted.');
     } catch (err: any) {
@@ -329,7 +301,7 @@ export const AdminDashboard = () => {
     setError('');
     setNotice('');
     try {
-      await updateTenantCustomer(selectedTenantId, customerEdit.id, {
+      await adminService.updateTenantCustomer(selectedTenantId, customerEdit.id, {
         name: customerEdit.name,
         phone: customerEdit.phone || undefined,
         email: customerEdit.email || undefined,
@@ -349,7 +321,7 @@ export const AdminDashboard = () => {
     setError('');
     setNotice('');
     try {
-      await createTenantCustomer(selectedTenantId, {
+      await adminService.createTenantCustomer(selectedTenantId, {
         name: customerCreate.name.trim(),
         phone: customerCreate.phone || undefined,
         email: customerCreate.email || undefined,
@@ -369,7 +341,7 @@ export const AdminDashboard = () => {
     setError('');
     setNotice('');
     try {
-      await deleteTenantCustomer(selectedTenantId, customerId);
+      await adminService.deleteTenantCustomer(selectedTenantId, customerId);
       await loadCustomers(selectedTenantId);
       await loadTransactions(selectedTenantId);
       setNotice('Customer deleted.');
@@ -383,7 +355,7 @@ export const AdminDashboard = () => {
     setError('');
     setNotice('');
     try {
-      await updateTenantTransaction(selectedTenantId, transactionEdit.id, {
+      await adminService.updateTenantTransaction(selectedTenantId, transactionEdit.id, {
         customerId: transactionEdit.customerId,
         type: transactionEdit.type,
         totalAmount: Number(transactionEdit.totalAmount || 0),
@@ -413,7 +385,7 @@ export const AdminDashboard = () => {
     setError('');
     setNotice('');
     try {
-      await createTenantTransaction(selectedTenantId, {
+      await adminService.createTenantTransaction(selectedTenantId, {
         customerId: transactionCreate.customerId,
         type: transactionCreate.type,
         totalAmount: Number(transactionCreate.totalAmount || 0),
@@ -442,7 +414,7 @@ export const AdminDashboard = () => {
     setError('');
     setNotice('');
     try {
-      await deleteTenantTransaction(selectedTenantId, transactionId);
+      await adminService.deleteTenantTransaction(selectedTenantId, transactionId);
       await loadTransactions(selectedTenantId);
       await loadCustomers(selectedTenantId);
       setNotice('Transaction deleted.');

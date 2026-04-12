@@ -1,15 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Building2, KeyRound, Save, UserRound } from 'lucide-react';
-import {
-  changeMyPassword,
-  getMyProfile,
-  getTenantProfile,
-  Tenant,
-  uploadMyAvatar,
-  updateMyProfile,
-  updateTenantProfile,
-  UserProfile,
-} from '../api/api';
+import { Tenant, UserProfile } from '../api/api';
+import profileService from '../features/profile/profileService';
 import { useAuth } from '../context/AuthContext';
 
 const templateHelp = '{{customerName}}, {{balance}}, {{balanceType}}, {{businessName}}, {{customerPhone}}';
@@ -41,14 +33,14 @@ export const ProfilePage = () => {
     const load = async () => {
       setError('');
       try {
-        const profileRes = await getMyProfile();
+        const profileRes = await profileService.getMyProfile();
         setProfile(profileRes.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Unable to load profile.');
       }
 
       try {
-        const tenantRes = await getTenantProfile();
+        const tenantRes = await profileService.getTenantProfile();
         setTenant(tenantRes.data);
       } catch (err: any) {
         if (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
@@ -64,7 +56,7 @@ export const ProfilePage = () => {
     setError('');
     setNotice('');
     try {
-      const res = await updateMyProfile({
+      const res = await profileService.updateMyProfile({
         fullName: profile.fullName || undefined,
         email: profile.email || undefined,
         mobile: profile.mobile || undefined,
@@ -89,7 +81,7 @@ export const ProfilePage = () => {
     setError('');
     setNotice('');
     try {
-      const res = await uploadMyAvatar(avatarFile);
+      const res = await profileService.uploadMyAvatar(avatarFile);
       const avatarUrl = res.data?.avatarUrl as string;
       setProfile((p) => ({ ...p, avatarUrl }));
       setUserProfile({
@@ -112,7 +104,7 @@ export const ProfilePage = () => {
     setError('');
     setNotice('');
     try {
-      await changeMyPassword(passwordForm);
+      await profileService.changeMyPassword(passwordForm);
       setPasswordForm({ currentPassword: '', newPassword: '' });
       setNotice('Password updated.');
     } catch (err: any) {
@@ -125,7 +117,7 @@ export const ProfilePage = () => {
     setError('');
     setNotice('');
     try {
-      const res = await updateTenantProfile({
+      const res = await profileService.updateTenantProfile({
         name: tenant.name,
         businessType: tenant.businessType || undefined,
         ownerName: tenant.ownerName || undefined,

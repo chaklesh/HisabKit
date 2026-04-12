@@ -8,6 +8,6 @@ if (isProd && !rawApiUrl) {
 }
 
 export const env = {
-  apiUrl: rawApiUrl || 'http://localhost:8080/api',
+  apiUrl: rawApiUrl || '/api',
   googleClientId: rawGoogleClientId || '',
 } as const;

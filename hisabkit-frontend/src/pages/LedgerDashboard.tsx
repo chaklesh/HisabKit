@@ -13,15 +13,8 @@ import {
   Users,
   Wallet,
 } from 'lucide-react';
-import api, {
-  Attachment,
-  deleteAttachment,
-  fetchAttachmentContent,
-  getTenantProfile,
-  listTransactionAttachments,
-  Tenant,
-  uploadTransactionAttachment,
-} from '../api/api';
+import { Attachment, fetchAttachmentContent, getTenantProfile, Tenant } from '../api/api';
+import ledgerService from '../features/ledger/ledgerService';
 import type {
   Customer,
   CustomerFilter,
@@ -33,6 +26,14 @@ import type {
   TransactionForm,
 } from './ledgerTypes';
 import { csvCell, formatCurrency, formatDate, today } from './ledgerUtils';
+import { buildReminderMessage, detectAttachmentType, parseCsvLine } from './ledgerDashboardHelpers';
+import {
+  applyDueDateMap,
+  buildDueDateReport,
+  computeTotals,
+  countOverdueCustomers,
+  filterAndSortCustomers,
+} from './ledgerDashboardSelectors';
 
 const initialCustomerForm: CustomerForm = { name: '', phone: '', email: '', address: '', gstNumber: '', dueDate: '' };
 const initialTransactionForm: TransactionForm = {
@@ -87,93 +88,25 @@ export const LedgerDashboard: React.FC = () => {
   );
 
   const customersWithDueDate = useMemo(
-    () => customers.map((customer) => ({ ...customer, dueDate: dueDateByCustomer[customer.id] || customer.dueDate })),
+    () => applyDueDateMap(customers, dueDateByCustomer),
     [customers, dueDateByCustomer]
   );
 
 
-  const filteredCustomers = useMemo(() => {
-    const q = searchTerm.trim().toLowerCase();
-    const filtered = customersWithDueDate.filter((customer) => {
-      const matchesQuery =
-        !q ||
-        customer.name.toLowerCase().includes(q) ||
-        (customer.phone || '').toLowerCase().includes(q) ||
-        (customer.email || '').toLowerCase().includes(q) ||
-        (customer.address || '').toLowerCase().includes(q);
+  const filteredCustomers = useMemo(
+    () =>
+      filterAndSortCustomers({
+        customers: customersWithDueDate,
+        searchTerm,
+        customerFilter,
+        customerSort,
+      }),
+    [customersWithDueDate, searchTerm, customerFilter, customerSort]
+  );
 
-      if (!matchesQuery) {
-        return false;
-      }
+  const totals = useMemo(() => computeTotals(customersWithDueDate), [customersWithDueDate]);
 
-      const balance = Number(customer.totalBalance || 0);
-      if (customerFilter === 'TO_COLLECT') {
-        return balance > 0;
-      }
-      if (customerFilter === 'TO_PAY') {
-        return balance < 0;
-      }
-      if (customerFilter === 'ZERO_BALANCE') {
-        return balance === 0;
-      }
-      if (customerFilter === 'WITH_CONTACT') {
-        return Boolean(customer.phone || customer.email);
-      }
-
-      return true;
-    });
-
-    const safeTime = (value?: string) => {
-      if (!value) return 0;
-      const t = new Date(value).getTime();
-      return Number.isNaN(t) ? 0 : t;
-    };
-
-    const withSort = [...filtered].sort((a, b) => {
-      if (customerSort === 'HIGHEST_AMOUNT') {
-        return Math.abs(Number(b.totalBalance || 0)) - Math.abs(Number(a.totalBalance || 0));
-      }
-      if (customerSort === 'LEAST_AMOUNT') {
-        return Math.abs(Number(a.totalBalance || 0)) - Math.abs(Number(b.totalBalance || 0));
-      }
-      if (customerSort === 'BY_NAME') {
-        return a.name.localeCompare(b.name);
-      }
-
-      const aTime = safeTime(a.lastTransactionAt || a.updatedAt || a.createdAt);
-      const bTime = safeTime(b.lastTransactionAt || b.updatedAt || b.createdAt);
-
-      if (customerSort === 'MOST_RECENT') {
-        return bTime - aTime;
-      }
-
-      return aTime - bTime;
-    });
-
-    return withSort;
-  }, [customersWithDueDate, searchTerm, customerFilter, customerSort]);
-
-  const totals = useMemo(() => {
-    return customersWithDueDate.reduce(
-      (acc, customer) => {
-        const balance = Number(customer.totalBalance || 0);
-        if (balance >= 0) acc.toCollect += balance;
-        else acc.toPay += Math.abs(balance);
-        return acc;
-      },
-      { toCollect: 0, toPay: 0 }
-    );
-  }, [customersWithDueDate]);
-
-  const overdueCustomerCount = useMemo(() => {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    return customersWithDueDate.filter((customer) => {
-      if (!customer.dueDate) return false;
-      const due = new Date(`${customer.dueDate}T00:00:00`);
-      return due.getTime() < now.getTime();
-    }).length;
-  }, [customersWithDueDate]);
+  const overdueCustomerCount = useMemo(() => countOverdueCustomers(customersWithDueDate), [customersWithDueDate]);
 
   const sortedTransactions = useMemo(
     () => [...transactions].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
@@ -184,40 +117,22 @@ export const LedgerDashboard: React.FC = () => {
     return sortedTransactions;
   }, [sortedTransactions]);
 
-  const detectAttachmentType = (attachment: Attachment): 'image' | 'pdf' | 'other' => {
-    const fileType = (attachment.fileType || '').toLowerCase();
-    const name = (attachment.fileName || '').toLowerCase();
-    if (fileType.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(name)) return 'image';
-    if (fileType.includes('pdf') || name.endsWith('.pdf')) return 'pdf';
-    return 'other';
-  };
-
-  const buildReminderFromTemplate = (template?: string) => {
-    if (!selectedCustomer) {
-      return 'Please review your ledger balance in HisabKit.';
-    }
-    const balance = Number(selectedCustomer.totalBalance || 0);
-    const vars = {
-      customerName: selectedCustomer.name,
-      balance: formatCurrency(Math.abs(balance)),
-      balanceType: balance >= 0 ? 'to pay' : 'to receive',
-      businessName: tenantProfile?.name || 'our business',
-      customerPhone: selectedCustomer.phone || '',
-    };
-    if (!template) {
-      return `Hi ${vars.customerName}, this is a reminder from ${vars.businessName}. Your current balance is ${vars.balance} (${vars.balanceType}). Please settle when possible.`;
-    }
-    return template
-      .split('{{customerName}}').join(vars.customerName)
-      .split('{{balance}}').join(vars.balance)
-      .split('{{balanceType}}').join(vars.balanceType)
-      .split('{{businessName}}').join(vars.businessName)
-      .split('{{customerPhone}}').join(vars.customerPhone);
-  };
-
-  const smsMessage = useMemo(() => buildReminderFromTemplate(tenantProfile?.smsTemplate), [selectedCustomer, tenantProfile]);
+  const smsMessage = useMemo(
+    () =>
+      buildReminderMessage({
+        template: tenantProfile?.smsTemplate,
+        selectedCustomer,
+        businessName: tenantProfile?.name,
+      }),
+    [selectedCustomer, tenantProfile]
+  );
   const whatsappMessage = useMemo(
-    () => buildReminderFromTemplate(tenantProfile?.whatsappTemplate || tenantProfile?.smsTemplate),
+    () =>
+      buildReminderMessage({
+        template: tenantProfile?.whatsappTemplate || tenantProfile?.smsTemplate,
+        selectedCustomer,
+        businessName: tenantProfile?.name,
+      }),
     [selectedCustomer, tenantProfile]
   );
 
@@ -236,90 +151,16 @@ export const LedgerDashboard: React.FC = () => {
     setDrawerMode(null);
   };
 
-  const parseCsvLine = (line: string) => {
-    const values: string[] = [];
-    let current = '';
-    let inQuotes = false;
-
-    for (let i = 0; i < line.length; i += 1) {
-      const ch = line[i];
-      if (ch === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          current += '"';
-          i += 1;
-        } else {
-          inQuotes = !inQuotes;
-        }
-      } else if (ch === ',' && !inQuotes) {
-        values.push(current.trim());
-        current = '';
-      } else {
-        current += ch;
-      }
-    }
-
-    values.push(current.trim());
-    return values;
-  };
-
-  const dueDateByCustomerReport = useMemo(() => {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    const next7 = new Date(now);
-    next7.setDate(now.getDate() + 7);
-
-    const query = reportSearchTerm.trim().toLowerCase();
-
-    const filtered = customersWithDueDate.filter((customer) => {
-      if (query) {
-        const searchable = [
-          customer.name,
-          customer.phone,
-          customer.email,
-          customer.address,
-          customer.gstNumber,
-          customer.dueDate,
-          customer.totalBalance == null ? '' : String(customer.totalBalance),
-        ]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase();
-
-        if (!searchable.includes(query)) {
-          return false;
-        }
-      }
-
-      const due = customer.dueDate ? new Date(`${customer.dueDate}T00:00:00`) : null;
-      if (reportDueFilter === 'OVERDUE') {
-        return Boolean(due && due.getTime() < now.getTime());
-      }
-      if (reportDueFilter === 'UPCOMING_7_DAYS') {
-        return Boolean(due && due.getTime() >= now.getTime() && due.getTime() <= next7.getTime());
-      }
-      if (reportDueFilter === 'NO_DUE_DATE') {
-        return !due;
-      }
-
-      return true;
-    });
-
-    const sorted = [...filtered].sort((a, b) => {
-      if (reportSortField === 'NAME') {
-        return a.name.localeCompare(b.name);
-      }
-
-      if (reportSortField === 'DUE_DATE') {
-        const aDue = a.dueDate ? new Date(`${a.dueDate}T00:00:00`).getTime() : Number.POSITIVE_INFINITY;
-        const bDue = b.dueDate ? new Date(`${b.dueDate}T00:00:00`).getTime() : Number.POSITIVE_INFINITY;
-        return aDue - bDue;
-      }
-
-      return Math.abs(Number(b.totalBalance || 0)) - Math.abs(Number(a.totalBalance || 0));
-    });
-
-    return sorted;
-  }, [customersWithDueDate, reportSearchTerm, reportDueFilter, reportSortField]);
+  const dueDateByCustomerReport = useMemo(
+    () =>
+      buildDueDateReport({
+        customers: customersWithDueDate,
+        reportSearchTerm,
+        reportDueFilter,
+        reportSortField,
+      }),
+    [customersWithDueDate, reportSearchTerm, reportDueFilter, reportSortField]
+  );
 
   const openCustomerDrawer = (forceNew = false) => {
     if (selectedCustomer && !forceNew) {
@@ -375,14 +216,13 @@ export const LedgerDashboard: React.FC = () => {
     setIsLoadingCustomers(true);
     setError('');
     try {
-      const res = await api.get('/ledger/customers');
-      const list = Array.isArray(res.data) ? (res.data as Customer[]) : [];
-      setCustomers(list);
+      const list = await ledgerService.fetchCustomers();
+      setCustomers(list as Customer[]);
 
-      const keepSelection = list.some((c) => c.id === selectedCustomerId) ? selectedCustomerId : list[0]?.id || '';
+      const keepSelection = list.some((c: Customer) => c.id === selectedCustomerId) ? selectedCustomerId : list[0]?.id || '';
       setSelectedCustomerId(keepSelection);
       setTransactionForm((prev) => ({ ...prev, customerId: keepSelection || prev.customerId }));
-      const selected = list.find((c) => c.id === keepSelection);
+      const selected = list.find((c: Customer) => c.id === keepSelection);
       if (selected) {
         selectCustomer(selected);
       } else {
@@ -410,26 +250,13 @@ export const LedgerDashboard: React.FC = () => {
     setIsLoadingTransactions(true);
     setError('');
     try {
-      const res = await api.get(`/ledger/customers/${customerId}/transactions`);
-      const list = Array.isArray(res.data) ? (res.data as LedgerTransaction[]) : [];
-      setTransactions(list);
-
-      const attachmentPairs = await Promise.all(
-        list.map(async (txn) => {
-          try {
-            const attachmentRes = await listTransactionAttachments(txn.id);
-            const attachments = Array.isArray(attachmentRes.data) ? attachmentRes.data : [];
-            return [txn.id, attachments] as const;
-          } catch {
-            return [txn.id, []] as const;
-          }
-        })
-      );
-      setAttachmentsByTransaction(Object.fromEntries(attachmentPairs));
+      const { transactions: list, attachmentsByTransaction: fetchedAttachments } = await ledgerService.fetchTransactions(customerId as string);
+      setTransactions(list as LedgerTransaction[]);
+      setAttachmentsByTransaction(fetchedAttachments as Record<string, Attachment[]>);
 
       const previewEntries = await Promise.all(
-        attachmentPairs.flatMap(([, attachments]) =>
-          attachments.map(async (attachment) => {
+        (Object.values(fetchedAttachments) as Attachment[][]).flatMap((attachments) =>
+          attachments.map(async (attachment: Attachment) => {
             const attachmentType = detectAttachmentType(attachment);
             if (attachmentType === 'other') {
               return [attachment.id, ''] as const;
@@ -446,7 +273,7 @@ export const LedgerDashboard: React.FC = () => {
 
       setAttachmentPreviewUrls((prev) => {
         Object.values(prev).forEach((url) => URL.revokeObjectURL(url));
-        return Object.fromEntries(previewEntries.filter(([, url]) => Boolean(url)));
+        return Object.fromEntries(previewEntries.filter(([, url]) => Boolean(url)) as Array<[string, string]>);
       });
     } catch (err: unknown) {
       const apiError = err as { response?: { data?: { message?: string } } };
@@ -524,7 +351,7 @@ export const LedgerDashboard: React.FC = () => {
     setError('');
     setNotice('');
     try {
-      await deleteAttachment(attachmentId);
+      await ledgerService.deleteAttachment(attachmentId);
       await fetchTransactions(selectedCustomerId);
       setNotice('Attachment deleted.');
     } catch (err: any) {
@@ -538,14 +365,14 @@ export const LedgerDashboard: React.FC = () => {
     setError('');
     setNotice('');
     try {
-      const response = await api.post('/ledger/customers', {
+      const response = await ledgerService.createCustomer({
         name: customerForm.name,
         phone: customerForm.phone || null,
         email: customerForm.email || null,
         address: customerForm.address || null,
         gstNumber: customerForm.gstNumber || null,
       });
-      const created = response.data as Customer;
+      const created = response as Customer;
       if (customerForm.dueDate && created.id) {
         setDueDateByCustomer((prev) => ({ ...prev, [created.id]: customerForm.dueDate }));
       }
@@ -570,7 +397,7 @@ export const LedgerDashboard: React.FC = () => {
     setError('');
     setNotice('');
     try {
-      await api.put(`/ledger/customers/${selectedCustomerId}`, {
+      await ledgerService.updateCustomer(selectedCustomerId, {
         name: customerForm.name,
         phone: customerForm.phone || null,
         email: customerForm.email || null,
@@ -596,7 +423,7 @@ export const LedgerDashboard: React.FC = () => {
     setError('');
     setNotice('');
     try {
-      await api.delete(`/ledger/customers/${customerId}`);
+      await ledgerService.deleteCustomer(customerId);
       setSelectedCustomerId('');
       setTransactions([]);
       setCustomerForm(initialCustomerForm);
@@ -650,15 +477,15 @@ export const LedgerDashboard: React.FC = () => {
 
       let transactionId = editingTransactionId;
       if (editingTransactionId) {
-        const updateRes = await api.put(`/ledger/transactions/${editingTransactionId}`, payload);
-        transactionId = updateRes.data?.transaction?.id || editingTransactionId;
+        const updateRes = await ledgerService.updateTransaction(editingTransactionId, payload);
+        transactionId = updateRes?.transaction?.id || editingTransactionId;
       } else {
-        const createRes = await api.post('/ledger/transactions', payload);
-        transactionId = createRes.data?.transaction?.id;
+        const createRes = await ledgerService.createTransaction(payload);
+        transactionId = createRes?.transaction?.id;
       }
 
       if (attachmentFile && transactionId) {
-        await uploadTransactionAttachment(transactionId, attachmentFile);
+        await ledgerService.uploadTransactionAttachment(transactionId, attachmentFile);
       }
 
       resetTransactionForm(transactionForm.customerId);
@@ -694,7 +521,7 @@ export const LedgerDashboard: React.FC = () => {
     setError('');
     setNotice('');
     try {
-      await api.delete(`/ledger/transactions/${transactionId}`);
+      await ledgerService.deleteTransaction(transactionId);
       if (editingTransactionId === transactionId) {
         resetTransactionForm();
       }
@@ -847,14 +674,14 @@ export const LedgerDashboard: React.FC = () => {
         if (type === 'CUSTOMER') {
           if (!row.name?.trim()) continue;
 
-          const createRes = await api.post('/ledger/customers', {
-            name: row.name.trim(),
-            phone: row.phone?.trim() || null,
-            email: row.email?.trim() || null,
-            address: row.address?.trim() || null,
-            gstNumber: row.gstnumber?.trim() || null,
-          });
-          const createdId = createRes.data?.id as string;
+              const createRes = await ledgerService.createCustomer({
+                name: row.name.trim(),
+                phone: row.phone?.trim() || null,
+                email: row.email?.trim() || null,
+                address: row.address?.trim() || null,
+                gstNumber: row.gstnumber?.trim() || null,
+              });
+              const createdId = createRes?.id as string;
           if (createdId) {
             customerMap.set(row.name.trim().toLowerCase(), createdId);
             if (row.duedate?.trim()) {
@@ -876,7 +703,7 @@ export const LedgerDashboard: React.FC = () => {
         const paidAmount = Number(row.paidamount || 0);
         const totalAmount = Number(row.totalamount || 0);
 
-        await api.post('/ledger/transactions', {
+        await ledgerService.createTransaction({
           customerId,
           type: trxnType,
           totalAmount: trxnType === 'PAYMENT' ? paidAmount : totalAmount,

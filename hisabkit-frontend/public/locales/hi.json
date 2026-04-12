@@ -10,7 +10,28 @@
     "switch_language": "भाषा बदलें",
     "switch_to_english": "English",
     "switch_to_hindi": "हिन्दी",
-    "error": "गलत उपयोगकर्ता नाम या पासवर्ड"
+    "error": "गलत उपयोगकर्ता नाम या पासवर्ड",
+    "google_no_token": "Google से ID token नहीं मिला। कृपया फिर से प्रयास करें।",
+    "google_failed": "Google साइन-इन विफल रहा। कृपया फिर से प्रयास करें।",
+    "google_start_failed": "Google साइन-इन शुरू नहीं हो सका। कृपया फिर से प्रयास करें।",
+    "back_to_landing": "लैंडिंग पेज पर वापस जाएं",
+    "secure_access": "HisabKit के लिए सुरक्षित एक्सेस",
+    "hero_title": "अपनी दुकान में लॉगिन करें",
+    "hero_description": "अपने एंटरप्राइज लेजर में जाकर ग्राहक खाते, उधारी और अटैचमेंट सुरक्षित रूप से मैनेज करें।",
+    "feature_data_title": "अलग दुकान डेटा",
+    "feature_data_description": "हर रिक्वेस्ट आपकी दुकान तक सीमित रहती है, जिससे पूर्ण डेटा गोपनीयता सुनिश्चित होती है।",
+    "feature_i18n_title": "बहुभाषी सपोर्ट",
+    "feature_i18n_description": "लॉगिन के बाद इंटरफेस को English और Hindi में आसानी से बदलें।",
+    "sign_in": "साइन इन",
+    "shopkeeper_login": "दुकानदार लॉगिन",
+    "enterprise_security": "एंटरप्राइज सुरक्षा",
+    "username_placeholder": "अपना उपयोगकर्ता नाम दर्ज करें",
+    "password_placeholder": "अपना पासवर्ड दर्ज करें",
+    "signing_in": "साइन इन हो रहा है...",
+    "sign_in_password": "पासवर्ड से साइन इन करें",
+    "google_not_configured_prefix": "Google साइन-इन अभी कॉन्फ़िगर नहीं है। सक्षम करने के लिए",
+    "google_not_configured_suffix": "जोड़ें। पासवर्ड साइन-इन अभी भी उपलब्ध है।",
+    "footer_note": "निश्चिंत होकर अपने MSME व्यवसाय की वित्तीय जानकारी मैनेज करें।"
   },
   "common": {
     "login": "लॉगिन",
@@ -21,7 +42,8 @@
     "save": "सहेजें",
     "cancel": "रद्द करें",
     "loading": "लोड हो रहा है...",
-    "error_occurred": "एक त्रुटि हुई"
+    "error_occurred": "एक त्रुटि हुई",
+    "or": "या"
   },
   "ledger": {
     "title": "हिसाब-किताब",
@@ -36,7 +58,20 @@
     "workspace": "वर्कस्पेस",
     "admin": "एडमिन",
     "profile": "प्रोफाइल",
+    "adminConsole": "एडमिन कंसोल",
+    "profileSettings": "प्रोफाइल सेटिंग्स",
+    "productTagline": "MSME फाइनेंस",
     "soon": "जल्द",
+    "titles": {
+      "dashboard": "डैशबोर्ड",
+      "ledger": "कस्टमर लेजर",
+      "inventory": "इन्वेंटरी",
+      "suppliers": "सप्लायर्स",
+      "lending": "मनी लेंडिंग",
+      "admin": "एडमिन कंसोल",
+      "profile": "प्रोफाइल सेटिंग्स",
+      "default": "HisabKit"
+    },
     "modules": {
       "dashboard": "डैशबोर्ड",
       "ledger": "कस्टमर लेजर",
