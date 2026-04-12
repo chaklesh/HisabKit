@@ -42,7 +42,7 @@
 ## Desktop UX Direction
 - Adaptation target is pattern-level alignment with popular MSME ledger desktop workflows.
 - Standard structure: left module rail + sticky workspace header + task-first content.
-- Reference doc: docs/KHATABOOK_UI_UX_ADAPTATION.md
+- Reference doc: docs/architecture.md
 - Frontend shell now prefers the live `/api/modules` catalog and falls back to static module definitions if the API is unavailable.
 - Ledger dashboard now includes a compact top status strip for visible customer count, current focus, and selected balance so the operator can orient quickly before editing.
 
@@ -55,5 +55,5 @@
   - Use targeted validation at critical boundaries.
   - Reserve full validation for handoff/release gates.
 - All agents should maintain context continuity via:
-  - docs/AGENT_CONTEXT.md (architecture/domain deltas)
-  - docs/AGENT_HANDOFF_LOG.md (package handoffs)
+  - docs/agent-context.md (architecture/domain deltas)
+  - docs/agent-handoff-log.md (package handoffs)
