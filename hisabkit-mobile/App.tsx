@@ -6,20 +6,31 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './src/context/AuthContext';
 import { NetworkProvider } from './src/context/NetworkContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
+
+function RootApp() {
+  const { navigationTheme, statusBarStyle } = useTheme();
+
+  return (
+    <NavigationContainer theme={navigationTheme}>
+      <StatusBar style={statusBarStyle} />
+      <AppNavigator />
+    </NavigationContainer>
+  );
+}
 
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <NetworkProvider>
-            <NavigationContainer>
-              <StatusBar style="light" />
-              <AppNavigator />
-            </NavigationContainer>
-          </NetworkProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <NetworkProvider>
+              <RootApp />
+            </NetworkProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

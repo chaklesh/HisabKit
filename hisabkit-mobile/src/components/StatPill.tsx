@@ -1,21 +1,23 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 export function StatPill({ label, value, tone = 'neutral' }: { label: string; value: string; tone?: 'brand' | 'success' | 'danger' | 'neutral' }) {
+  const { colors } = useTheme();
+
   const toneStyle =
     tone === 'brand'
-      ? styles.brand
+      ? { backgroundColor: colors.brandSoft, borderColor: colors.border }
       : tone === 'success'
-        ? styles.success
+        ? { backgroundColor: colors.successSoft, borderColor: colors.border }
         : tone === 'danger'
-          ? styles.danger
-          : styles.neutral;
+          ? { backgroundColor: colors.dangerSoft, borderColor: colors.border }
+          : { backgroundColor: colors.surfaceSoft, borderColor: colors.border };
 
   return (
     <View style={[styles.wrap, toneStyle]}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value}</Text>
+      <Text style={[styles.label, { color: colors.textMuted }]}>{label}</Text>
+      <Text style={[styles.value, { color: colors.text }]}>{value}</Text>
     </View>
   );
 }
@@ -23,37 +25,20 @@ export function StatPill({ label, value, tone = 'neutral' }: { label: string; va
 const styles = StyleSheet.create({
   wrap: {
     flex: 1,
-    borderRadius: 20,
-    padding: 14,
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     borderWidth: 1,
-    gap: 6,
+    gap: 4,
   },
   label: {
     fontSize: 11,
     fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 1,
-    color: colors.textMuted,
+    letterSpacing: 0.6,
   },
   value: {
-    color: colors.text,
     fontSize: 18,
     fontWeight: '900',
-  },
-  brand: {
-    backgroundColor: '#1b2438',
-    borderColor: 'rgba(245, 158, 11, 0.25)',
-  },
-  success: {
-    backgroundColor: '#10261f',
-    borderColor: 'rgba(16, 185, 129, 0.25)',
-  },
-  danger: {
-    backgroundColor: '#28121a',
-    borderColor: 'rgba(244, 63, 94, 0.25)',
-  },
-  neutral: {
-    backgroundColor: '#121a2a',
-    borderColor: colors.border,
   },
 });

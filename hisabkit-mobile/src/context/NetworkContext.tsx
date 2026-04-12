@@ -35,13 +35,6 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-sync when coming back online
-  useEffect(() => {
-    if (isOnline && pendingCount > 0) {
-      syncNow();
-    }
-  }, [isOnline]);
-
   const syncNow = useCallback(async () => {
     if (syncingRef.current) return 0;
     syncingRef.current = true;
@@ -54,6 +47,13 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
       syncingRef.current = false;
     }
   }, []);
+
+  // Auto-sync when coming back online
+  useEffect(() => {
+    if (isOnline && pendingCount > 0) {
+      syncNow();
+    }
+  }, [isOnline, pendingCount, syncNow]);
 
   return (
     <NetworkContext.Provider value={{ isOnline, pendingCount, syncNow }}>

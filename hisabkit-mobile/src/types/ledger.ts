@@ -22,6 +22,25 @@ export type LedgerTransaction = {
   customerId: string;
 };
 
+export type TransactionAttachment = {
+  id: string;
+  fileName: string;
+  fileType?: string;
+  fileUrl?: string;
+  fileSizeBytes?: number;
+  uploadedAt?: string;
+  transactionId: string;
+};
+
+export type LedgerSummary = {
+  from: string;
+  to: string;
+  transactionCount: number;
+  totalSales: number;
+  totalPayments: number;
+  outstandingDue: number;
+};
+
 export type SummaryCard = {
   label: string;
   value: string;

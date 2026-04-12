@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 export function Card({ title, subtitle, children }: { title?: string; subtitle?: string; children?: React.ReactNode }) {
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.card}>
-      {title ? <Text style={styles.title}>{title}</Text> : null}
-      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadow }]}>
+      {title ? <Text style={[styles.title, { color: colors.text }]}>{title}</Text> : null}
+      {subtitle ? <Text style={[styles.subtitle, { color: colors.textMuted }]}>{subtitle}</Text> : null}
       {children}
     </View>
   );
@@ -14,20 +16,20 @@ export function Card({ title, subtitle, children }: { title?: string; subtitle?:
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 24,
+    borderRadius: 22,
     padding: 16,
-    gap: 8,
+    gap: 10,
+    shadowOpacity: 1,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 18,
+    elevation: 3,
   },
   title: {
-    color: colors.text,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '800',
   },
   subtitle: {
-    color: colors.textMuted,
     fontSize: 13,
     lineHeight: 18,
   },

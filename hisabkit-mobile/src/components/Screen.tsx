@@ -1,8 +1,8 @@
 import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, ScrollView } from 'react-native';
-import { colors } from '../theme/colors';
+import { StyleSheet, ScrollView, View } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface ScreenProps {
   children: React.ReactNode;
@@ -10,16 +10,20 @@ interface ScreenProps {
 }
 
 export function Screen({ children, refreshControl }: ScreenProps) {
+  const { colors } = useTheme();
+
   return (
-    <LinearGradient colors={[colors.background, '#111b31', '#0b1120']} style={styles.flex}>
-      <SafeAreaView style={styles.flex}>
-        <ScrollView
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-          refreshControl={refreshControl}
-        >
-          {children}
-        </ScrollView>
+    <LinearGradient colors={[colors.backgroundAccent, colors.background]} style={styles.flex}>
+      <SafeAreaView style={styles.flex} edges={['top']}>
+        <View style={styles.flex}>
+          <ScrollView
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+            refreshControl={refreshControl}
+          >
+            {children}
+          </ScrollView>
+        </View>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -28,8 +32,9 @@ export function Screen({ children, refreshControl }: ScreenProps) {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: {
-    padding: 16,
-    paddingBottom: 32,
+    paddingHorizontal: 18,
+    paddingTop: 10,
+    paddingBottom: 40,
     gap: 16,
   },
 });

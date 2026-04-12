@@ -4,6 +4,7 @@ import { api, setAuthToken } from './api';
 const TOKEN_KEY = '@hisabkit_token';
 const USER_KEY = '@hisabkit_user';
 const TENANT_KEY = '@hisabkit_tenant';
+const BIOMETRIC_KEY = '@hisabkit_biometric_enabled';
 
 export interface UserSummary {
   username: string;
@@ -61,4 +62,12 @@ async function persistAuth(data: AuthData) {
     [USER_KEY, JSON.stringify(data.user)],
     [TENANT_KEY, JSON.stringify({ tenantId: data.tenantId, tenantSlug: data.tenantSlug })],
   ]);
+}
+
+export async function getBiometricEnabled(): Promise<boolean> {
+  return (await AsyncStorage.getItem(BIOMETRIC_KEY)) === 'true';
+}
+
+export async function setBiometricEnabled(enabled: boolean) {
+  await AsyncStorage.setItem(BIOMETRIC_KEY, enabled ? 'true' : 'false');
 }
