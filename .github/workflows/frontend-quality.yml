@@ -1,0 +1,48 @@
+name: Frontend Quality
+
+on:
+  pull_request:
+    paths:
+      - hisabkit-frontend/**
+      - .github/workflows/frontend-quality.yml
+  push:
+    branches:
+      - master
+      - main
+      - develop
+    paths:
+      - hisabkit-frontend/**
+      - .github/workflows/frontend-quality.yml
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hisabkit-frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: hisabkit-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
