@@ -25,7 +25,7 @@ import type {
   LedgerTransaction,
   TransactionForm,
 } from './ledgerTypes';
-import { csvCell, formatCurrency, formatDate, today } from './ledgerUtils';
+import { csvCell, formatCurrency, formatDate, today } from '../shared/utils/ledgerUtils';
 import { buildReminderMessage, detectAttachmentType, parseCsvLine } from './ledgerDashboardHelpers';
 import {
   applyDueDateMap,

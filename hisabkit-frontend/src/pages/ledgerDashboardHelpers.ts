@@ -1,6 +1,6 @@
 import type { Attachment } from '../api/api';
 import type { Customer } from './ledgerTypes';
-import { formatCurrency } from './ledgerUtils';
+import { formatCurrency } from '../shared/utils/ledgerUtils';
 
 export const detectAttachmentType = (attachment: Attachment): 'image' | 'pdf' | 'other' => {
   const fileType = (attachment.fileType || '').toLowerCase();

@@ -1,4 +1,4 @@
-import { csvCell, formatCurrency, formatDate, monthStart, today } from './ledgerUtils';
+import { csvCell, formatCurrency, formatDate, monthStart, today } from '../shared/utils/ledgerUtils';
 
 describe('ledgerUtils', () => {
   it('today returns yyyy-mm-dd', () => {
