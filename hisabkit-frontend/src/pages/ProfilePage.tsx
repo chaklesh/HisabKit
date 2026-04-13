@@ -45,8 +45,8 @@ export const ProfilePage = () => {
   const updateTenant = useUpdateTenantProfile();
 
   useEffect(() => {
-    if (profileQuery.data) setProfile(profileQuery.data as UserProfile);
-    if (tenantQuery.data) setTenant(tenantQuery.data as Tenant);
+    if (profileQuery.data) setProfile(profileQuery.data as unknown as UserProfile);
+    if (tenantQuery.data) setTenant(tenantQuery.data as unknown as Tenant);
     if (profileQuery.isError) setError('Unable to load profile.');
     if (tenantQuery.isError && (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN')) setError((prev) => prev || 'Unable to load business profile.');
   }, [profileQuery.data, tenantQuery.data, profileQuery.isError, tenantQuery.isError, user?.role]);
