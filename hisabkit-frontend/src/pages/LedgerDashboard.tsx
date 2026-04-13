@@ -13,7 +13,7 @@ import {
   Users,
   Wallet,
 } from 'lucide-react';
-import { Attachment, fetchAttachmentContent, getTenantProfile, Tenant } from '../api/api';
+import { Attachment, Tenant } from '../api/api';
 import ledgerService from '../features/ledger/ledgerService';
 import type {
   Customer,
@@ -25,7 +25,7 @@ import type {
   LedgerTransaction,
   TransactionForm,
 } from './ledgerTypes';
-import { csvCell, formatCurrency, formatDate, today } from './ledgerUtils';
+import { csvCell, formatCurrency, formatDate, today } from '../shared/utils/ledgerUtils';
 import { buildReminderMessage, detectAttachmentType, parseCsvLine } from './ledgerDashboardHelpers';
 import {
   applyDueDateMap,
@@ -262,7 +262,7 @@ export const LedgerDashboard: React.FC = () => {
               return [attachment.id, ''] as const;
             }
             try {
-              const blob = await fetchAttachmentContent(attachment.id);
+              const blob = await ledgerService.fetchAttachmentContent(attachment.id);
               return [attachment.id, URL.createObjectURL(blob.data as Blob)] as const;
             } catch {
               return [attachment.id, ''] as const;
@@ -287,7 +287,7 @@ export const LedgerDashboard: React.FC = () => {
 
   useEffect(() => {
     void fetchCustomers();
-    void getTenantProfile().then((res) => setTenantProfile(res.data)).catch(() => null);
+    void ledgerService.getTenantProfile().then((res: any) => setTenantProfile(res.data)).catch(() => null);
   }, []);
 
   useEffect(() => {
@@ -332,7 +332,7 @@ export const LedgerDashboard: React.FC = () => {
 
   const downloadAttachment = async (attachment: Attachment) => {
     try {
-      const blob = await fetchAttachmentContent(attachment.id);
+      const blob = await ledgerService.fetchAttachmentContent(attachment.id);
       const url = URL.createObjectURL(blob.data as Blob);
       const anchor = document.createElement('a');
       anchor.href = url;

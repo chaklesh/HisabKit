@@ -9,6 +9,8 @@ vi.mock('../../api/api', () => {
       delete: vi.fn(),
     },
     listTransactionAttachments: vi.fn(),
+    fetchAttachmentContent: vi.fn(),
+    getTenantProfile: vi.fn(),
   };
 });
 
