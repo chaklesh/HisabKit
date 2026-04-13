@@ -1,4 +1,4 @@
-import api, { listTransactionAttachments } from '../../api/api';
+import api, { listTransactionAttachments, fetchAttachmentContent, getTenantProfile } from '../../api/api';
 
 export type { default as Api } from '../../api/api';
 
@@ -80,4 +80,6 @@ export default {
   deleteTransaction,
   uploadTransactionAttachment,
   deleteAttachment,
+  fetchAttachmentContent,
+  getTenantProfile,
 };
