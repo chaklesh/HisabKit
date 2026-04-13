@@ -1,27 +1,34 @@
-import api from '../../api/api';
+import {
+  getMyProfile as apiGetMyProfile,
+  updateMyProfile as apiUpdateMyProfile,
+  changeMyPassword as apiChangeMyPassword,
+  uploadMyAvatar as apiUploadMyAvatar,
+  getTenantProfile as apiGetTenantProfile,
+  updateTenantProfile as apiUpdateTenantProfile,
+} from '../../api/api';
 
 async function getMyProfile() {
-  return api.get('/me/profile');
+  return apiGetMyProfile();
 }
 
 async function updateMyProfile(payload: unknown) {
-  return api.put('/me/profile', payload);
+  return apiUpdateMyProfile(payload as any);
 }
 
 async function changeMyPassword(payload: unknown) {
-  return api.post('/me/change-password', payload);
+  return apiChangeMyPassword(payload as any);
 }
 
 async function uploadMyAvatar(file: File) {
-  return (api as any).uploadMyAvatar(file);
+  return apiUploadMyAvatar(file);
 }
 
 async function getTenantProfile() {
-  return api.get('/tenant/profile');
+  return apiGetTenantProfile();
 }
 
 async function updateTenantProfile(payload: unknown) {
-  return api.put('/tenant/profile', payload);
+  return apiUpdateTenantProfile(payload as any);
 }
 
 export default {
