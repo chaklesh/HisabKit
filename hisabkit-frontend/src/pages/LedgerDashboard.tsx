@@ -13,7 +13,7 @@ import {
   Users,
   Wallet,
 } from 'lucide-react';
-import { Attachment, Tenant } from '../api/api';
+import type { Attachment, Tenant } from '../shared/types/domain';
 import ledgerService from '../features/ledger/ledgerService';
 import type {
   Customer,

@@ -1,8 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { Building2, Database, Layers, Pencil, Plus, Trash2, Users } from 'lucide-react';
-import {
-  Tenant,
-} from '../api/api';
+import type { Tenant } from '../shared/types/domain';
 import adminService from '../features/admin/adminService';
 import { useAuth } from '../context/AuthContext';
 import type { CustomerBase, LedgerTransactionBase } from '../shared/types/ledger';

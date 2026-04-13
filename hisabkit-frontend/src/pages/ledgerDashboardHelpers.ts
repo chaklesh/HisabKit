@@ -1,4 +1,4 @@
-import type { Attachment } from '../api/api';
+import type { Attachment } from '../shared/types/domain';
 import type { Customer } from './ledgerTypes';
 import { formatCurrency } from '../shared/utils/ledgerUtils';
 

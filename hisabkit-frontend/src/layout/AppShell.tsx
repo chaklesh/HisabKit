@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { appModules, type AppModule } from '../modules/moduleRegistry';
-import { listModuleCatalog, type ModuleCatalogItem } from '../api/api';
+import { listModuleCatalog } from '../api/api';
+import type { ModuleCatalogItem } from '../shared/types/domain';
 import { useAuth } from '../context/AuthContext';
 
 const titleKeyByRoute: Record<string, string> = {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { AuthUserSummary } from '../api/api';
+import type { AuthUserSummary } from '../shared/types/domain';
 
 interface AuthContextType {
   user: AuthUserSummary | null;
