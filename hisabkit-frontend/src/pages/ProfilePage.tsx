@@ -1,7 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Building2, KeyRound, Save, UserRound } from 'lucide-react';
 import type { Tenant, UserProfile } from '../shared/types/domain';
-import profileService from '../features/profile/profileService';
 import {
   useProfileQuery,
   useTenantProfileQuery,
@@ -40,19 +39,24 @@ export const ProfilePage = () => {
   const profileQuery = useProfileQuery();
   const tenantQuery = useTenantProfileQuery();
 
+  const updateProfile = useUpdateProfile();
+  const uploadAvatar = useUploadAvatar();
+  const changePassword = useChangePassword();
+  const updateTenant = useUpdateTenantProfile();
+
   useEffect(() => {
-    if (profileQuery.data) setProfile(profileQuery.data);
-    if (tenantQuery.data) setTenant(tenantQuery.data);
-    if (profileQuery.error) setError('Unable to load profile.');
-    if (tenantQuery.error && (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN')) setError((prev) => prev || 'Unable to load business profile.');
-  }, [profileQuery.data, tenantQuery.data, profileQuery.error, tenantQuery.error, user?.role]);
+    if (profileQuery.data) setProfile(profileQuery.data as UserProfile);
+    if (tenantQuery.data) setTenant(tenantQuery.data as Tenant);
+    if (profileQuery.isError) setError('Unable to load profile.');
+    if (tenantQuery.isError && (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN')) setError((prev) => prev || 'Unable to load business profile.');
+  }, [profileQuery.data, tenantQuery.data, profileQuery.isError, tenantQuery.isError, user?.role]);
 
   const saveProfile = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setNotice('');
     try {
-      const res = await useUpdateProfile().mutateAsync({
+      const res = await updateProfile.mutateAsync({
         fullName: profile.fullName || undefined,
         email: profile.email || undefined,
         mobile: profile.mobile || undefined,
@@ -77,7 +81,7 @@ export const ProfilePage = () => {
     setError('');
     setNotice('');
     try {
-      const res = await useUploadAvatar().mutateAsync(avatarFile);
+      const res = await uploadAvatar.mutateAsync(avatarFile as File);
       const avatarUrl = res.data?.avatarUrl as string;
       setProfile((p: UserProfile) => ({ ...p, avatarUrl }));
       setUserProfile({
@@ -100,7 +104,7 @@ export const ProfilePage = () => {
     setError('');
     setNotice('');
     try {
-      await useChangePassword().mutateAsync(passwordForm);
+      await changePassword.mutateAsync(passwordForm);
       setPasswordForm({ currentPassword: '', newPassword: '' });
       setNotice('Password updated.');
     } catch (err: any) {
@@ -113,7 +117,7 @@ export const ProfilePage = () => {
     setError('');
     setNotice('');
     try {
-      const res = await useUpdateTenantProfile().mutateAsync({
+      const res = await updateTenant.mutateAsync({
         name: tenant.name,
         businessType: tenant.businessType || undefined,
         ownerName: tenant.ownerName || undefined,
