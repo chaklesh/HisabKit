@@ -1,4 +1,4 @@
-import type { CustomerBase, LedgerTransactionBase } from '../shared/types/ledger';
+import type { CustomerBase, LedgerTransactionBase } from '../../../shared/types/ledger';
 
 export type Customer = CustomerBase & {
   dueDate?: string;

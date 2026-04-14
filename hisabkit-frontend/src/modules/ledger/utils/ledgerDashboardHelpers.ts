@@ -1,6 +1,6 @@
-import type { Attachment } from '../shared/types/domain';
-import type { Customer } from './ledgerTypes';
-import { formatCurrency } from '../shared/utils/ledgerUtils';
+import type { Attachment } from '../../../shared/types/domain';
+import type { Customer } from '../types/ledgerTypes';
+import { formatCurrency } from '../../../shared/utils/ledgerUtils';
 
 export const detectAttachmentType = (attachment: Attachment): 'image' | 'pdf' | 'other' => {
   const fileType = (attachment.fileType || '').toLowerCase();

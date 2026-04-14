@@ -1,7 +1,7 @@
 # Engineering Standards And Approved Stack
 
 **Owner:** Architect  
-**Last Updated:** 2026-04-10  
+**Last Updated:** 2026-04-14  
 **Authority:** This document is the single source of truth for engineering standards, framework/library approvals, and architecture implementation policies.
 
 ## Purpose
@@ -42,6 +42,11 @@ No agent may choose or introduce new core frameworks/libraries or architecture p
 - React Query (`@tanstack/react-query`)
 - Tailwind CSS
 - i18next + react-i18next
+- shadcn/ui
+- Radix UI primitives
+- next-themes
+- sonner
+- class-variance-authority
 
 ### Mobile
 
@@ -56,11 +61,25 @@ No agent may choose or introduce new core frameworks/libraries or architecture p
 Use these patterns where appropriate:
 
 - Layered architecture for backend (controller -> service -> repository).
+- Modular monolith structure for web and mobile clients (single deployable app with clear internal module boundaries).
 - DTO boundary pattern for API contracts.
 - Strategy pattern for variable business rules (e.g., reminder channel handling, balance policy variants).
 - Factory pattern for module/plugin instantiation.
 - Adapter pattern for third-party integrations (SMS/WhatsApp providers).
 - Observer/event-style pattern for audit and side-effect workflows.
+
+## Approved UI Modernization Additions
+
+For the frontend modernization track, the following libraries are approved:
+
+- shadcn/ui as the frontend component composition system
+- Radix UI primitives for accessible low-level interaction building blocks
+- TanStack Table for production-grade data table composition
+
+Conditions:
+- Adoption must preserve centralized tokens and brand governance.
+- Reusable UI belongs in shared layers; business behavior stays in modules.
+- Documentation must be updated in the same change set when these libraries are introduced or materially expanded.
 
 ## Required Architecture Artifacts By Scope
 

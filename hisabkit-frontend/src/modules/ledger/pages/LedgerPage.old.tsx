@@ -13,8 +13,10 @@ import {
   Users,
   Wallet,
 } from 'lucide-react';
-import type { Attachment, Tenant } from '../shared/types/domain';
-import ledgerService from '../features/ledger/ledgerService';
+import type { Attachment, Tenant } from '../../../shared/types/domain';
+import ledgerService from '../../../features/ledger/ledgerService';
+import { useCustomersQuery, useTransactionsQuery } from '../../../features/ledger/useLedger';
+import { useTenantProfileQuery } from '../../../features/profile/useProfile';
 import type {
   Customer,
   CustomerFilter,
@@ -24,16 +26,16 @@ import type {
   LedgerRightTab,
   LedgerTransaction,
   TransactionForm,
-} from './ledgerTypes';
-import { csvCell, formatCurrency, formatDate, today } from '../shared/utils/ledgerUtils';
-import { buildReminderMessage, detectAttachmentType, parseCsvLine } from './ledgerDashboardHelpers';
+} from '../types/ledgerTypes';
+import { csvCell, formatCurrency, formatDate, today } from '../../../shared/utils/ledgerUtils';
+import { buildReminderMessage, detectAttachmentType, parseCsvLine } from '../utils/ledgerDashboardHelpers';
 import {
   applyDueDateMap,
   buildDueDateReport,
   computeTotals,
   countOverdueCustomers,
   filterAndSortCustomers,
-} from './ledgerDashboardSelectors';
+} from '../selectors/ledgerDashboardSelectors';
 
 const initialCustomerForm: CustomerForm = { name: '', phone: '', email: '', address: '', gstNumber: '', dueDate: '' };
 const initialTransactionForm: TransactionForm = {
@@ -45,12 +47,11 @@ const initialTransactionForm: TransactionForm = {
   transactionDate: today(),
 };
 
-export const LedgerDashboard: React.FC = () => {
+export const LedgerPage: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [transactions, setTransactions] = useState<LedgerTransaction[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
-  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
-  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+  // Loading state comes from React Query hooks (customersQuery, transactionsQuery)
   const [isSubmittingCustomer, setIsSubmittingCustomer] = useState(false);
   const [isSubmittingTransaction, setIsSubmittingTransaction] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -212,11 +213,13 @@ export const LedgerDashboard: React.FC = () => {
     setIsEditingCustomer(true);
   };
 
-  const fetchCustomers = async () => {
-    setIsLoadingCustomers(true);
-    setError('');
-    try {
-      const list = await ledgerService.fetchCustomers();
+  const customersQuery = useCustomersQuery();
+  const transactionsQuery = useTransactionsQuery(selectedCustomerId);
+  const tenantQuery = useTenantProfileQuery();
+
+  useEffect(() => {
+    if (customersQuery.data) {
+      const list = customersQuery.data as Customer[];
       setCustomers(list as Customer[]);
 
       const keepSelection = list.some((c: Customer) => c.id === selectedCustomerId) ? selectedCustomerId : list[0]?.id || '';
@@ -228,17 +231,33 @@ export const LedgerDashboard: React.FC = () => {
       } else {
         setIsEditingCustomer(false);
       }
-    } catch (err: unknown) {
-      const apiError = err as { response?: { data?: { message?: string } } };
-      setError(apiError.response?.data?.message || 'Unable to load customers right now.');
-      setCustomers([]);
-    } finally {
-      setIsLoadingCustomers(false);
     }
-  };
 
-  const fetchTransactions = async (customerId: string) => {
-    if (!customerId) {
+    if (tenantQuery.data) {
+      setTenantProfile(tenantQuery.data as any);
+    }
+  }, [customersQuery.data, tenantQuery.data]);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(dueStorageKey);
+    if (!raw) {
+      setDueDateByCustomer({});
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw) as Record<string, string>;
+      setDueDateByCustomer(parsed || {});
+    } catch {
+      setDueDateByCustomer({});
+    }
+  }, [dueStorageKey]);
+
+  useEffect(() => {
+    localStorage.setItem(dueStorageKey, JSON.stringify(dueDateByCustomer));
+  }, [dueDateByCustomer, dueStorageKey]);
+
+  useEffect(() => {
+    if (!transactionsQuery.data) {
       setTransactions([]);
       setAttachmentsByTransaction({});
       setAttachmentPreviewUrls((prev) => {
@@ -247,13 +266,16 @@ export const LedgerDashboard: React.FC = () => {
       });
       return;
     }
-    setIsLoadingTransactions(true);
-    setError('');
-    try {
-      const { transactions: list, attachmentsByTransaction: fetchedAttachments } = await ledgerService.fetchTransactions(customerId as string);
-      setTransactions(list as LedgerTransaction[]);
-      setAttachmentsByTransaction(fetchedAttachments as Record<string, Attachment[]>);
 
+    const { transactions: list, attachmentsByTransaction: fetchedAttachments } = transactionsQuery.data as {
+      transactions: LedgerTransaction[];
+      attachmentsByTransaction: Record<string, Attachment[]>;
+    };
+
+    setTransactions(list as LedgerTransaction[]);
+    setAttachmentsByTransaction(fetchedAttachments as Record<string, Attachment[]>);
+
+    (async () => {
       const previewEntries = await Promise.all(
         (Object.values(fetchedAttachments) as Attachment[][]).flatMap((attachments) =>
           attachments.map(async (attachment: Attachment) => {
@@ -275,42 +297,8 @@ export const LedgerDashboard: React.FC = () => {
         Object.values(prev).forEach((url) => URL.revokeObjectURL(url));
         return Object.fromEntries(previewEntries.filter(([, url]) => Boolean(url)) as Array<[string, string]>);
       });
-    } catch (err: unknown) {
-      const apiError = err as { response?: { data?: { message?: string } } };
-      setError(apiError.response?.data?.message || 'Unable to load transactions right now.');
-      setTransactions([]);
-      setAttachmentsByTransaction({});
-    } finally {
-      setIsLoadingTransactions(false);
-    }
-  };
-
-  useEffect(() => {
-    void fetchCustomers();
-    void ledgerService.getTenantProfile().then((res: any) => setTenantProfile(res.data)).catch(() => null);
-  }, []);
-
-  useEffect(() => {
-    const raw = localStorage.getItem(dueStorageKey);
-    if (!raw) {
-      setDueDateByCustomer({});
-      return;
-    }
-    try {
-      const parsed = JSON.parse(raw) as Record<string, string>;
-      setDueDateByCustomer(parsed || {});
-    } catch {
-      setDueDateByCustomer({});
-    }
-  }, [dueStorageKey]);
-
-  useEffect(() => {
-    localStorage.setItem(dueStorageKey, JSON.stringify(dueDateByCustomer));
-  }, [dueDateByCustomer, dueStorageKey]);
-
-  useEffect(() => {
-    void fetchTransactions(selectedCustomerId);
-  }, [selectedCustomerId]);
+    })();
+  }, [transactionsQuery.data]);
 
   useEffect(() => {
     if (!error) return;
@@ -352,7 +340,7 @@ export const LedgerDashboard: React.FC = () => {
     setNotice('');
     try {
       await ledgerService.deleteAttachment(attachmentId);
-      await fetchTransactions(selectedCustomerId);
+      await transactionsQuery.refetch();
       setNotice('Attachment deleted.');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Unable to delete attachment.');
@@ -377,7 +365,7 @@ export const LedgerDashboard: React.FC = () => {
         setDueDateByCustomer((prev) => ({ ...prev, [created.id]: customerForm.dueDate }));
       }
       setCustomerForm(initialCustomerForm);
-      await fetchCustomers();
+      await customersQuery.refetch();
       setSelectedCustomerId(created.id);
       setTransactionForm((prev) => ({ ...prev, customerId: created.id }));
       setIsEditingCustomer(true);
@@ -405,7 +393,7 @@ export const LedgerDashboard: React.FC = () => {
         gstNumber: customerForm.gstNumber || null,
       });
       setDueDateByCustomer((prev) => ({ ...prev, [selectedCustomerId]: customerForm.dueDate || '' }));
-      await fetchCustomers();
+      await customersQuery.refetch();
       setIsEditingCustomer(true);
       setNotice('Customer updated successfully.');
       closeDrawer();
@@ -428,7 +416,7 @@ export const LedgerDashboard: React.FC = () => {
       setTransactions([]);
       setCustomerForm(initialCustomerForm);
       setIsEditingCustomer(false);
-      await fetchCustomers();
+      await customersQuery.refetch();
       setNotice('Customer deleted.');
       closeDrawer();
     } catch (err: unknown) {
@@ -489,8 +477,15 @@ export const LedgerDashboard: React.FC = () => {
       }
 
       resetTransactionForm(transactionForm.customerId);
-      await fetchCustomers();
-      await fetchTransactions(transactionForm.customerId);
+      await customersQuery.refetch();
+      if (transactionForm.customerId === selectedCustomerId) {
+        await transactionsQuery.refetch();
+      } else if (transactionForm.customerId) {
+        const res = await ledgerService.fetchTransactions(transactionForm.customerId);
+        const { transactions: list, attachmentsByTransaction: fetchedAttachments } = res as any;
+        setTransactions(list as LedgerTransaction[]);
+        setAttachmentsByTransaction(fetchedAttachments as Record<string, Attachment[]>);
+      }
       setNotice(editingTransactionId ? 'Transaction updated successfully.' : 'Transaction added successfully.');
       closeDrawer();
     } catch (err: unknown) {
@@ -525,8 +520,8 @@ export const LedgerDashboard: React.FC = () => {
       if (editingTransactionId === transactionId) {
         resetTransactionForm();
       }
-      await fetchCustomers();
-      await fetchTransactions(selectedCustomerId);
+      await customersQuery.refetch();
+      await transactionsQuery.refetch();
       setNotice('Transaction deleted.');
     } catch (err: unknown) {
       const apiError = err as { response?: { data?: { message?: string } } };
@@ -713,9 +708,9 @@ export const LedgerDashboard: React.FC = () => {
         });
       }
 
-      await fetchCustomers();
+      await customersQuery.refetch();
       if (selectedCustomerId) {
-        await fetchTransactions(selectedCustomerId);
+        await transactionsQuery.refetch();
       }
       setNotice('Bulk import completed.');
     } catch (err: any) {
@@ -945,7 +940,7 @@ export const LedgerDashboard: React.FC = () => {
               </div>
 
               <div className="mt-2 max-h-[62vh] space-y-2 overflow-y-auto pr-1 lg:max-h-[68vh]">
-                {isLoadingCustomers ? (
+                {customersQuery.isLoading ? (
                   <p className="py-6 text-center text-sm text-slate-500">Loading customers...</p>
                 ) : filteredCustomers.length === 0 ? (
                   <p className="py-6 text-center text-sm text-slate-500">No customers found.</p>
@@ -1143,7 +1138,7 @@ export const LedgerDashboard: React.FC = () => {
                         <p className="text-right">Actions</p>
                       </div>
                       <div className="max-h-[58vh] space-y-3 overflow-y-auto pr-1 lg:max-h-[62vh]">
-                        {isLoadingTransactions ? (
+                        {transactionsQuery.isLoading ? (
                           <p className="py-6 text-center text-sm text-slate-500">Loading transactions...</p>
                         ) : reportTransactions.length === 0 ? (
                           <p className="py-6 text-center text-sm text-slate-500">No transactions for this customer yet.</p>

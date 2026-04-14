@@ -1,4 +1,4 @@
-import { LogOut, ShieldCheck, UserRound } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck, UserRound } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ const titleKeyByRoute: Record<string, string> = {
   '/lending': 'shell.titles.lending',
   '/admin': 'shell.titles.admin',
   '/profile': 'shell.titles.profile',
+  '/settings': 'shell.titles.settings',
 };
 
 type AppShellProps = {
@@ -141,6 +142,16 @@ export const AppShell = ({ children }: AppShellProps) => {
               <UserRound className="h-4 w-4" />
               {t('shell.profileSettings', 'Profile')}
             </Link>
+
+            <Link
+              to="/settings"
+              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                location.pathname === '/settings' ? 'bg-brand-primary text-text-inverse' : 'text-text-secondary hover:bg-surface-subtle'
+              }`}
+            >
+              <Settings className="h-4 w-4" />
+              {t('shell.settings', 'Settings')}
+            </Link>
           </nav>
 
           <div className="border-t border-border-soft p-3">
@@ -208,6 +219,16 @@ export const AppShell = ({ children }: AppShellProps) => {
               }`}
             >
               {t('shell.profile', 'Profile')}
+            </Link>
+            <Link
+              to="/settings"
+              className={`whitespace-nowrap rounded-xl border px-3 py-1.5 text-xs font-semibold ${
+                location.pathname === '/settings'
+                  ? 'border-slate-900 bg-slate-900 text-white'
+                  : 'border-slate-200 bg-slate-50 text-slate-700'
+              }`}
+            >
+              {t('shell.settings', 'Settings')}
             </Link>
           </div>
         </header>

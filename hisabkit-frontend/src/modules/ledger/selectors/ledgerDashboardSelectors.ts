@@ -1,4 +1,4 @@
-import type { Customer, CustomerFilter, CustomerSort } from './ledgerTypes';
+import type { Customer, CustomerFilter, CustomerSort } from '../types/ledgerTypes';
 
 const safeTime = (value?: string): number => {
   if (!value) return 0;

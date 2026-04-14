@@ -46,18 +46,117 @@
     "or": "or"
   },
   "ledger": {
-    "title": "Ledger",
-    "add_transaction": "Add Transaction",
-    "customer_name": "Customer Name",
-    "amount": "Amount",
-    "credit": "You Gave",
-    "debit": "You Got",
-    "balance": "Balance"
+    "title": "Customer-wise account book",
+    "subtitle": "Manage customers, track sales and payments, and view due dates",
+    "header": {
+      "title": "HisabKit Ledger",
+      "show_totals": "Show totals",
+      "hide_totals": "Hide totals",
+      "add_customer": "Add customer",
+      "edit_customer": "Edit customer",
+      "sale": "Sale",
+      "payment": "Payment"
+    },
+    "totals": {
+      "you_collect": "You collect",
+      "you_pay": "You pay",
+      "visible_customers": "Visible customers",
+      "overdue": "Overdue"
+    },
+    "customer": {
+      "title": "Customer",
+      "name": "Customer name",
+      "phone": "Phone number",
+      "email": "Email",
+      "address": "Address",
+      "gst_number": "GST number",
+      "due_date": "Due date",
+      "no_contact": "No contact added",
+      "no_address": "No address added",
+      "due": "Due",
+      "to_collect": "To collect",
+      "to_pay": "To pay",
+      "zero_balance": "Zero balance",
+      "search_placeholder": "Name, phone or address"
+    },
+    "transaction": {
+      "title": "Transaction",
+      "type": "Entry type",
+      "sale": "Sale (Udhar)",
+      "payment": "Payment (Jama)",
+      "total_amount": "Total amount",
+      "paid_amount": "Paid amount",
+      "paid_now_optional": "Paid now (optional)",
+      "payment_amount": "Payment amount",
+      "date": "Transaction date",
+      "description": "Description",
+      "attachment": "Attach proof (PDF/Image) - optional",
+      "no_transactions": "No transactions yet",
+      "timestamp": "Timestamp",
+      "paid": "Paid",
+      "new": "New Transaction",
+      "edit": "Edit transaction",
+      "record_sale": "Record a sale",
+      "record_payment": "Record a payment"
+    },
+    "report": {
+      "title": "Reports",
+      "search_placeholder": "Customer name or phone",
+      "filter_label": "Filter",
+      "sort_label": "Sort by",
+      "all": "All customers",
+      "overdue": "Overdue",
+      "upcoming_7_days": "Due in 7 days",
+      "no_due_date": "No due date",
+      "by_balance": "Balance",
+      "by_due_date": "Due date",
+      "by_name": "Name",
+      "most_recent": "Most Recent",
+      "highest_amount": "Highest Amount",
+      "least_amount": "Least Amount",
+      "oldest": "Oldest",
+      "export_csv": "Export csv",
+      "no_matches": "No customers match filters"
+    },
+    "buttons": {
+      "add": "Add",
+      "create": "Create",
+      "update": "Update customer",
+      "save": "Save",
+      "update_transaction": "Update",
+      "delete": "Delete",
+      "cancel": "Close",
+      "clear": "Clear",
+      "close": "Close",
+      "saving": "Saving..."
+    },
+    "empty_state": "Select a customer to view transactions and reports",
+    "messages": {
+      "loading": "Loading...",
+      "loading_customers": "Loading customers...",
+      "loading_transactions": "Loading transactions...",
+      "customer_added": "Customer added successfully.",
+      "customer_updated": "Customer updated successfully.",
+      "customer_deleted": "Customer deleted.",
+      "transaction_added": "Transaction added successfully.",
+      "transaction_updated": "Transaction updated successfully.",
+      "transaction_deleted": "Transaction deleted.",
+      "attachment_deleted": "Attachment deleted.",
+      "error_general": "An error occurred. Please try again."
+    },
+    "filters": {
+      "all": "All customers",
+      "to_collect": "To collect",
+      "to_pay": "To pay",
+      "zero_balance": "Zero balance",
+      "with_contact": "With contact"
+    }
   },
   "shell": {
     "workspace": "Workspace",
     "admin": "Admin",
     "profile": "Profile",
+    "settings": "Settings",
     "adminConsole": "Admin Console",
     "profileSettings": "Profile Settings",
     "productTagline": "MSME Finance",
@@ -70,6 +169,7 @@
       "lending": "Money Lending",
       "admin": "Admin Console",
       "profile": "Profile Settings",
+      "settings": "Settings",
       "default": "HisabKit"
     },
     "modules": {
@@ -78,6 +178,69 @@
       "inventory": "Inventory",
       "suppliers": "Suppliers",
       "lending": "Money Lending"
+    }
+  },
+  "settings": {
+    "badge": "Workspace preferences",
+    "title": "Settings",
+    "subtitle": "Tune appearance, language, and app behavior before we expand this into the full business control center.",
+    "tabs": {
+      "appearance": "Appearance",
+      "language": "Language",
+      "roadmap": "What is next"
+    },
+    "alert": {
+      "title": "Settings foundation is live",
+      "description": "Theme and language controls are wired into the app now. Business, security, and reminder preferences are next."
+    },
+    "appearance": {
+      "title": "Theme preference",
+      "description": "Keep the app readable in bright shops, low-light counters, and device-driven system mode.",
+      "active_theme": "Active resolved theme"
+    },
+    "theme": {
+      "light": {
+        "label": "Light",
+        "description": "Bright and clear for daytime store operations."
+      },
+      "dark": {
+        "label": "Dark",
+        "description": "Lower glare for evening work and long sessions."
+      },
+      "system": {
+        "label": "System",
+        "description": "Match the device theme automatically."
+      }
+    },
+    "language": {
+      "title": "Language preference",
+      "description": "Choose the working language for operators. This will later align with mobile and printable communication flows.",
+      "en": {
+        "label": "English",
+        "description": "Best for mixed-language teams and administrative work."
+      },
+      "hi": {
+        "label": "Hindi",
+        "description": "Useful for day-to-day operator workflows in Hindi."
+      }
+    },
+    "roadmap": {
+      "title": "Next settings milestones",
+      "description": "These are the next product-level controls planned as we streamline the web and mobile apps.",
+      "planned": "Planned",
+      "items": {
+        "business": "Business profile and brand assets",
+        "reminders": "Reminder templates and notification defaults",
+        "security": "Security, session controls, and device management",
+        "layout": "Dashboard density, default views, and navigation preferences"
+      }
+    },
+    "actions": {
+      "open_profile": "Open profile settings"
+    },
+    "toast": {
+      "theme_updated": "Appearance updated",
+      "language_updated": "Language updated"
     }
   }
 }

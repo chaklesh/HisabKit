@@ -23,28 +23,34 @@ Equivalent playbooks should be added for backend and mobile with the same struct
 - Do not merge code that fails lint, typecheck, or build.
 - Keep components focused and small. Avoid mega components.
 - Keep one source of truth for domain types.
-- Keep all network calls behind the API layer or feature service layer.
+- Keep all network calls behind the API layer or module service layer.
 - Avoid any and avoid disabling lint rules unless justified in code review.
 - No hardcoded user-facing strings on multilingual surfaces.
 
 ## 3) Preferred Frontend Structure
 
-Use feature-first organization:
+Use a modular monolith organization:
 
-- src/app: app bootstrap, providers, routing setup
-- src/features/<feature-name>:
-  - api
-  - hooks
-  - components
-  - pages
-  - types
-- src/shared:
-  - ui
-  - lib
-  - types
-  - config
+- `src/app`: app bootstrap, providers, routing setup
+- `src/modules/<module-name>`:
+  - `api`
+  - `hooks`
+  - `components`
+  - `pages`
+  - `types`
+  - `selectors`
+  - `services`
+- `src/shared`:
+  - `ui`
+  - `lib`
+  - `types`
+  - `config`
 
-Current code does not fully follow this yet. Migration should be incremental.
+Rules for the modular monolith:
+- Modules own their UI, orchestration, and local domain helpers.
+- Cross-module reuse belongs in `src/shared`, not in another module.
+- Pages should compose modules; they should not become the module.
+- Migration should be incremental, starting with extraction from oversized pages into module folders.
 
 ## 4) File Size Guidance
 
@@ -54,19 +60,19 @@ Current code does not fully follow this yet. Migration should be incremental.
 ## 5) State And Data Rules
 
 - Server state: React Query (queries, mutations, cache, retries).
-- UI state: useState/useReducer local to the feature/component.
+- UI state: useState/useReducer local to the module/component.
 - Do not mix server orchestration and heavy presentation in one file.
 
 ## 6) Type Rules
 
-- Domain types live in one place per feature.
+- Domain types live in one place per module.
 - Shared cross-feature types live in src/shared/types.
 - API response normalization should happen at the boundary.
 
 ## 7) i18n Rules
 
 - All user-visible text must use i18n keys.
-- Keep keys grouped by feature/page.
+- Keep keys grouped by module/page.
 - English and Hindi entries must be added in the same change.
 
 ## 8) Git Workflow (Simple And Safe)
@@ -97,7 +103,7 @@ Current code does not fully follow this yet. Migration should be incremental.
 
 - Phase 1: Add guardrails (docs + scripts + CI).
 - Phase 2: Extract shared types and API services.
-- Phase 3: Split large pages into feature modules.
+- Phase 3: Split large pages into modular-monolith modules.
 - Phase 4: Adopt React Query for server state flows.
 - Phase 5: Full i18n coverage across pages.
 
@@ -111,7 +117,9 @@ Current code does not fully follow this yet. Migration should be incremental.
 
 - Keep this playbook focused on policy and short status. Do not maintain per-change deltas here.
 - Per-package/delta handoffs and detailed refactor logs belong in `docs/agent-handoff-log.md` (one entry per completed package).
-- Short status: frontend refactor work is ongoing; current active work is focused on safely extracting feature services and tests.
+- Frontend refactor work is ongoing:
+  - **Ledger decomposition (2026-04-14)**: Refactored `LedgerDashboard.tsx` (1622 lines) into modular `src/modules/ledger` with clean boundaries: types, selectors, utils, pages. Added route-level lazy loading with `React.lazy()` + `Suspense`. Code-splits into separate 51.6 kB chunk. ✓ Tests, lint, typecheck, build all pass.
+  - **Settings expansion (2026-04-14)**: Expanded `src/modules/settings` into full workspace control center with 7 sections (Appearance, Language, Business Profile, Reminders, Security, Layout, Roadmap). Extracted each section into separate modular component (<200 lines each). All components use shadcn/ui primitives for consistency. ✓ Tests, lint, typecheck, build all pass.
 
 For full change history and per-package validation records, see `docs/agent-handoff-log.md`.
 
