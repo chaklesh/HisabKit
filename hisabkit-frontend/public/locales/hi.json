@@ -66,6 +66,7 @@
     "customer": {
       "title": "ग्राहक",
       "name": "ग्राहक का नाम",
+      "search_label": "ग्राहकों के लिए खोजें",
       "phone": "फोन नंबर",
       "email": "ईमेल",
       "address": "पता",
@@ -187,6 +188,10 @@
     "tabs": {
       "appearance": "अपियरेंस",
       "language": "भाषा",
+      "business": "व्यापार",
+      "reminders": "रिमाइंडर्स",
+      "security": "सुरक्षा",
+      "layout": "लेआउट",
       "roadmap": "आगे क्या है"
     },
     "alert": {

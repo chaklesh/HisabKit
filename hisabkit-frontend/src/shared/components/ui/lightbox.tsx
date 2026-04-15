@@ -1,0 +1,136 @@
+import * as React from "react"
+import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from "lucide-react"
+import { cn } from "@/shared/lib/utils"
+
+interface LightboxProps {
+  isOpen: boolean
+  onClose: () => void
+  images: { url: string; title?: string }[]
+  currentIndex: number
+  onNavigate: (index: number) => void
+}
+
+export function Lightbox({ isOpen, onClose, images, currentIndex, onNavigate }: LightboxProps) {
+  const [scale, setScale] = React.useState(1)
+  const [rotation, setRotation] = React.useState(0)
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onNavigate((currentIndex + 1) % images.length)
+    resetTransform()
+  }
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onNavigate((currentIndex - 1 + images.length) % images.length)
+    resetTransform()
+  }
+
+  const resetTransform = () => {
+    setScale(1)
+    setRotation(0)
+  }
+
+  const zoomIn = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setScale(prev => Math.min(prev + 0.2, 3))
+  }
+
+  const zoomOut = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setScale(prev => Math.max(prev - 0.2, 0.5))
+  }
+
+  const rotate = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setRotation(prev => (prev + 90) % 360)
+  }
+
+  if (!isOpen || images.length === 0) return null
+
+  const currentImage = images[currentIndex]
+
+  return (
+    <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm animate-in fade-in duration-300" />
+        <DialogPrimitive.Content className="fixed inset-0 z-[101] flex flex-col items-center justify-center outline-none animate-in zoom-in-95 duration-300">
+          
+          {/* Header/Toolbar */}
+          <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent z-[102]">
+            <div className="text-white text-sm font-medium truncate max-w-[50%]">
+              {currentImage.title || `Image ${currentIndex + 1} of ${images.length}`}
+            </div>
+            <div className="flex items-center gap-4">
+              <button onClick={zoomIn} className="text-white/80 hover:text-white transition-colors p-2">
+                <ZoomIn className="w-5 h-5" />
+              </button>
+              <button onClick={zoomOut} className="text-white/80 hover:text-white transition-colors p-2">
+                <ZoomOut className="w-5 h-5" />
+              </button>
+              <button onClick={rotate} className="text-white/80 hover:text-white transition-colors p-2">
+                <RotateCw className="w-5 h-5" />
+              </button>
+              <button onClick={onClose} className="text-white/80 hover:text-white transition-colors p-2 ml-2">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Image Container */}
+          <div className="relative w-full h-full flex items-center justify-center p-4 md:p-12" onClick={onClose}>
+            <div 
+              className="relative transition-transform duration-200 ease-out"
+              style={{ transform: `scale(${scale}) rotate(${rotation}deg)` }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img 
+                src={currentImage.url} 
+                alt={currentImage.title || "Preview"} 
+                className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm"
+              />
+            </div>
+
+            {/* Navigation Controls */}
+            {images.length > 1 && (
+              <>
+                <button 
+                  onClick={handlePrev}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all backdrop-blur-md z-[103]"
+                >
+                  <ChevronLeft className="w-8 h-8" />
+                </button>
+                <button 
+                  onClick={handleNext}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all backdrop-blur-md z-[103]"
+                >
+                  <ChevronRight className="w-8 h-8" />
+                </button>
+              </>
+            )}
+          </div>
+          
+          {/* Thumbnail Bar (Optional) */}
+          {images.length > 1 && (
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 p-4 animate-in slide-in-from-bottom-4 duration-500 z-[102]">
+              {images.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={(e) => { e.stopPropagation(); onNavigate(idx); resetTransform(); }}
+                  className={cn(
+                    "w-12 h-12 rounded-md overflow-hidden border-2 transition-all",
+                    currentIndex === idx ? "border-primary scale-110 shadow-lg" : "border-transparent opacity-50 hover:opacity-100"
+                  )}
+                >
+                  <img src={img.url} className="w-full h-full object-cover" alt={`Thumbnail ${idx}`} />
+                </button>
+              ))}
+            </div>
+          )}
+
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
+  )
+}

@@ -7,9 +7,9 @@ import { Check, Layout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Separator } from '@/shared/components/ui/separator';
+import { cn } from '@/shared/lib/utils';
 import type { DashboardDensity, LayoutSettings } from '../types/settingsTypes';
 import { useLayoutSettings } from '../hooks/useSettingsHooks';
 

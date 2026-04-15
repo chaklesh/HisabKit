@@ -5,8 +5,8 @@
  */
 
 import { useCallback } from 'react';
-import ledgerService from '../../../features/ledger/ledgerService';
-import type { Attachment } from '../../../shared/types/domain';
+import ledgerService from '../services/ledgerService';
+import type { Attachment } from '@/shared/types';
 import type { Customer, CustomerForm, TransactionForm } from '../types/ledgerTypes';
 
 /**

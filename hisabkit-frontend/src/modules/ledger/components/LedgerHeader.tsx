@@ -1,86 +1,82 @@
 /**
  * LedgerHeader component
- * Displays title, action buttons, and optional totals summary
+ * Displays title, action buttons, and optional totals summary.
+ * Intentionally minimal: Sale/Payment/Edit are in CustomerDetailsHeader.
  */
 
 import { useTranslation } from 'react-i18next';
-import { Plus, UserPlus, Pencil } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { UserPlus, Download, Upload, PieChart, Wallet } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
 import { formatCurrency } from '../../../shared/utils/ledgerUtils';
-import type { Customer } from '../types/ledgerTypes';
 
 interface LedgerHeaderProps {
-  selectedCustomer: Customer | null;
   showTotals: boolean;
   totals: { toCollect: number; toPay: number };
   overdueCount: number;
   customerCount: number;
   onToggleTotals: () => void;
   onAddCustomer: () => void;
-  onEditCustomer: () => void;
-  onAddSale: () => void;
-  onAddPayment: () => void;
 }
 
 export function LedgerHeader({
-  selectedCustomer,
   showTotals,
   totals,
   overdueCount,
   customerCount,
   onToggleTotals,
   onAddCustomer,
-  onEditCustomer,
-  onAddSale,
-  onAddPayment,
 }: LedgerHeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="sticky top-2 z-20 mb-4 rounded-lg border border-border bg-background/95 p-4 shadow-sm backdrop-blur">
+    <div className="sticky top-0 z-30 mb-6 glass-card rounded-2xl p-6 transition-all duration-300">
       {/* Title section */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-            {t('ledger.header.title', 'HisabKit Ledger')}
-          </p>
-          <h1 className="mt-1 text-xl font-black tracking-tight text-foreground">
-            {t('ledger.title', 'Customer-wise account book')}
+          <div className="flex items-center gap-2 mb-1">
+             <div className="p-1.5 rounded-lg bg-indigo-100 text-indigo-600">
+               <Wallet className="w-4 h-4" />
+             </div>
+             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-indigo-500/80">
+               {t('ledger.header.title', 'Workspace Account Book')}
+             </p>
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+            Dashboard overview
           </h1>
         </div>
 
         {/* Action buttons */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onToggleTotals}>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+            onClick={onToggleTotals}
+          >
+            <PieChart className="w-4 h-4 mr-2 text-indigo-500" />
             {showTotals ? t('ledger.header.hide_totals') : t('ledger.header.show_totals')}
           </Button>
-          <Button variant="outline" size="sm" onClick={onAddCustomer}>
-            <UserPlus className="mr-1 h-3.5 w-3.5" />
-            {t('ledger.header.add_customer')}
-          </Button>
-          <Button variant="outline" size="sm" disabled={!selectedCustomer} onClick={onEditCustomer}>
-            <Pencil className="mr-1 h-3.5 w-3.5" />
-            {t('ledger.header.edit_customer')}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!selectedCustomer}
-            onClick={onAddSale}
-            className="border-rose-200 bg-rose-50/50 text-rose-700 hover:bg-rose-100"
+          
+          <div className="flex h-9 items-center rounded-xl border border-slate-200 bg-white/50 px-1 overflow-hidden transition-all hover:bg-white">
+             <Button variant="ghost" size="sm" className="h-7 px-2 rounded-lg text-slate-600 hover:text-indigo-600" onClick={() => alert('Import features coming soon!')}>
+               <Upload className="w-3.5 h-3.5 mr-1.5" />
+               {t('ledger.header.import', 'Import')}
+             </Button>
+             <div className="w-px h-4 bg-slate-200 mx-1" />
+             <Button variant="ghost" size="sm" className="h-7 px-2 rounded-lg text-slate-600 hover:text-indigo-600" onClick={() => alert('Export features coming soon!')}>
+               <Download className="w-3.5 h-3.5 mr-1.5" />
+               {t('ledger.header.export', 'Export')}
+             </Button>
+          </div>
+
+          <Button 
+            variant="default" 
+            className="rounded-xl px-5 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 bg-gradient-to-r from-indigo-600 to-violet-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            onClick={onAddCustomer}
           >
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            {t('ledger.header.sale')}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!selectedCustomer}
-            onClick={onAddPayment}
-            className="border-emerald-200 bg-emerald-50/50 text-emerald-700 hover:bg-emerald-100"
-          >
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            {t('ledger.header.payment')}
+            <UserPlus className="mr-2 h-4 w-4" />
+            {t('ledger.header.add_customer', 'Add Customer')}
           </Button>
         </div>
       </div>

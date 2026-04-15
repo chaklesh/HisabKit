@@ -4,7 +4,7 @@
  */
 
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/alert';
 
 interface MessageAlertProps {
   message: string;

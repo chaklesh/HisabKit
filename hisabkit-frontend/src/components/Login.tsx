@@ -8,9 +8,9 @@ import {
   loginWithGoogleCredential,
   loginWithUsernamePassword,
   normalizeAuthSession,
-} from '../api/api';
-import { env } from '../config/env';
-import { useAuth } from '../context/AuthContext';
+} from '@/shared/api/client';
+import { env } from '@/shared/config/env';
+import { useAuth } from '@/context/AuthContext';
 
 const googleClientId = env.googleClientId;
 

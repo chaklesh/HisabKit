@@ -1,155 +1,284 @@
 /**
- * TransactionFormDrawer component
- * Form for creating/editing transactions
- * Uses shadcn/ui components with i18n
+ * modules/ledger/components/TransactionFormDrawer.tsx
+ * Transaction create/edit form in a Sheet drawer.
+ * Uses React Hook Form + Zod for validation.
+ * Financial amounts use HALF_UP precision consistent with the backend.
  */
-
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { FormEvent } from 'react';
-import { FileUp, CalendarDays, Plus } from 'lucide-react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { CalendarDays, FileUp, Loader2, Save } from 'lucide-react';
+
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/shared/components/ui/sheet';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { FormField } from '@/shared/components/ui/form-field';
 import type { TransactionForm } from '../types/ledgerTypes';
+
+// ── Validation schema ─────────────────────────────────────────────────────────
+const schema = z
+  .object({
+    type: z.enum(['SALE', 'PAYMENT']),
+    totalAmount: z.string(),
+    paidAmount: z.string(),
+    description: z.string().max(255).optional().or(z.literal('')),
+    transactionDate: z.string().min(1, 'Transaction date is required'),
+    customerId: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    const total = Number(data.totalAmount || 0);
+    const paid = Number(data.paidAmount || 0);
+
+    if (data.type === 'SALE') {
+      if (total <= 0) {
+        ctx.addIssue({ code: 'custom', path: ['totalAmount'], message: 'Sale amount must be greater than 0' });
+      }
+      if (paid < 0) {
+        ctx.addIssue({ code: 'custom', path: ['paidAmount'], message: 'Paid amount cannot be negative' });
+      }
+      if (paid > total) {
+        ctx.addIssue({ code: 'custom', path: ['paidAmount'], message: 'Paid amount cannot exceed total amount' });
+      }
+    }
+
+    if (data.type === 'PAYMENT') {
+      if (paid <= 0) {
+        ctx.addIssue({ code: 'custom', path: ['paidAmount'], message: 'Payment amount must be greater than 0' });
+      }
+    }
+  });
+
+type FormValues = z.infer<typeof schema>;
 
 interface TransactionFormDrawerProps {
   isOpen: boolean;
   isSubmitting: boolean;
-  form: TransactionForm;
   isEditing: boolean;
-  onClose: () => void;
-  onFormChange: (field: keyof TransactionForm, value: string) => void;
-  onFileChange: (file: File | null) => void;
-  onSubmit: (e: FormEvent) => void;
+  initialValues: TransactionForm;
   attachmentFile?: File | null;
+  onClose: () => void;
+  onSubmit: (values: TransactionForm) => void;
+  onFileChange: (file: File | null) => void;
 }
 
 export function TransactionFormDrawer({
   isOpen,
   isSubmitting,
-  form,
   isEditing,
-  onClose,
-  onFormChange,
-  onFileChange,
-  onSubmit,
+  initialValues,
   attachmentFile,
+  onClose,
+  onSubmit,
+  onFileChange,
 }: TransactionFormDrawerProps) {
   const { t } = useTranslation();
-  const labelClasses = 'text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground';
-  const isSale = form.type === 'SALE';
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: initialValues,
+  });
+
+  const txType = watch('type');
+  const isSale = txType === 'SALE';
+
+  useEffect(() => {
+    reset(initialValues);
+  }, [initialValues, reset]);
+
+  const handleClose = () => {
+    reset(initialValues);
+    onClose();
+  };
+
+  const handleTypeChange = (value: 'SALE' | 'PAYMENT') => {
+    setValue('type', value, { shouldValidate: false });
+    // Clear irrelevant amounts when switching type
+    if (value === 'PAYMENT') setValue('totalAmount', '');
+    if (value === 'SALE') setValue('paidAmount', '');
+  };
+
+  const handleFormSubmit = (values: FormValues) => {
+    onSubmit({
+      customerId: values.customerId,
+      type: values.type,
+      totalAmount: values.totalAmount,
+      paidAmount: values.paidAmount,
+      description: values.description ?? '',
+      transactionDate: values.transactionDate,
+    });
+  };
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Sheet open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <SheetContent side="right" className="overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
-            {isEditing ? t('ledger.transaction.edit') : t('ledger.transaction.new')}
+            {isEditing
+              ? t('ledger.transaction.edit', 'Edit Transaction')
+              : t('ledger.transaction.new', 'New Transaction')}
           </SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={onSubmit} className="mt-6 space-y-4">
+        <form
+          id="transaction-form"
+          onSubmit={handleSubmit(handleFormSubmit)}
+          noValidate
+          className="mt-6 space-y-4"
+        >
           {/* Transaction Type */}
-          <div className="space-y-2">
-            <label className={labelClasses}>
-              {t('ledger.transaction.type')}
-            </label>
-            <select
-              value={form.type}
-              onChange={(e) => onFormChange('type', e.target.value as any)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-1"
-            >
-              <option value="SALE">{t('ledger.transaction.sale')}</option>
-              <option value="PAYMENT">{t('ledger.transaction.payment')}</option>
-            </select>
-          </div>
+          <FormField
+            label={t('ledger.transaction.type', 'Type')}
+            htmlFor="txn-type"
+            error={errors.type?.message}
+          >
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                id="txn-type"
+                size="sm"
+                variant={isSale ? 'default' : 'outline'}
+                onClick={() => handleTypeChange('SALE')}
+                className="flex-1"
+                aria-pressed={isSale}
+              >
+                {t('ledger.transaction.sale', 'Sale / Credit')}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={!isSale ? 'default' : 'outline'}
+                onClick={() => handleTypeChange('PAYMENT')}
+                className="flex-1"
+                aria-pressed={!isSale}
+              >
+                {t('ledger.transaction.payment', 'Payment Received')}
+              </Button>
+            </div>
+          </FormField>
 
-          {/* Amount fields */}
+          {/* Amounts */}
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <label className={labelClasses}>
-                {t('ledger.transaction.total_amount')}
-              </label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                value={form.totalAmount}
-                onChange={(e) => onFormChange('totalAmount', e.target.value)}
-                placeholder="0.00"
+            {isSale && (
+              <FormField
+                label={t('ledger.transaction.total_amount', 'Total Amount')}
                 required={isSale}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className={labelClasses}>
-                {isSale
-                  ? t('ledger.transaction.paid_now_optional')
-                  : t('ledger.transaction.payment_amount')}
-              </label>
+                htmlFor="txn-total"
+                error={errors.totalAmount?.message}
+              >
+                <Input
+                  id="txn-total"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  aria-invalid={!!errors.totalAmount}
+                  {...register('totalAmount')}
+                />
+              </FormField>
+            )}
+            <FormField
+              label={
+                isSale
+                  ? t('ledger.transaction.paid_now_optional', 'Paid Now (optional)')
+                  : t('ledger.transaction.payment_amount', 'Payment Amount')
+              }
+              required={!isSale}
+              htmlFor="txn-paid"
+              error={errors.paidAmount?.message}
+            >
               <Input
+                id="txn-paid"
                 type="number"
                 step="0.01"
                 min="0"
-                value={form.paidAmount}
-                onChange={(e) => onFormChange('paidAmount', e.target.value)}
                 placeholder="0.00"
-                required={!isSale}
+                aria-invalid={!!errors.paidAmount}
+                {...register('paidAmount')}
               />
-            </div>
+            </FormField>
           </div>
 
           {/* Date */}
-          <div className="space-y-2">
-            <label className={labelClasses}>
-              {t('ledger.transaction.date')}
-            </label>
+          <FormField
+            label={t('ledger.transaction.date', 'Date')}
+            required
+            htmlFor="txn-date"
+            error={errors.transactionDate?.message}
+          >
             <div className="relative">
               <CalendarDays className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
+                id="txn-date"
                 type="date"
-                value={form.transactionDate}
-                onChange={(e) => onFormChange('transactionDate', e.target.value)}
                 className="pl-9"
+                aria-invalid={!!errors.transactionDate}
+                {...register('transactionDate')}
               />
             </div>
-          </div>
+          </FormField>
 
           {/* Description */}
-          <div className="space-y-2">
-            <label className={labelClasses}>
-              {t('ledger.transaction.description')}
-            </label>
+          <FormField
+            label={t('ledger.transaction.description', 'Description')}
+            htmlFor="txn-description"
+            error={errors.description?.message}
+          >
             <Input
+              id="txn-description"
               type="text"
-              value={form.description}
-              onChange={(e) => onFormChange('description', e.target.value)}
-              placeholder={t('ledger.transaction.description')}
+              placeholder={t('ledger.transaction.description_placeholder', 'e.g. Paint, Hardware purchase')}
+              {...register('description')}
             />
-          </div>
+          </FormField>
 
           {/* Attachment */}
-          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted/50">
-            <FileUp className="h-4 w-4" />
-            <span>{attachmentFile ? attachmentFile.name : t('ledger.transaction.attachment')}</span>
-            <input
-              type="file"
-              onChange={(e) => onFileChange(e.target.files?.[0] || null)}
-              className="hidden"
-            />
-          </label>
+          {!isEditing && (
+            <div>
+              <label
+                htmlFor="txn-attachment"
+                className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50"
+              >
+                <FileUp className="h-4 w-4 shrink-0" />
+                <span className="truncate">
+                  {attachmentFile ? attachmentFile.name : t('ledger.transaction.attachment', 'Attach invoice / receipt')}
+                </span>
+                <input
+                  id="txn-attachment"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
+                  className="sr-only"
+                />
+              </label>
+            </div>
+          )}
 
           {/* Buttons */}
           <div className="mt-6 grid grid-cols-2 gap-2 border-t pt-4">
             <Button
               type="submit"
+              form="transaction-form"
               disabled={isSubmitting}
               className="flex items-center justify-center gap-2"
             >
-              <Plus className="h-4 w-4" />
-              {isEditing ? t('ledger.transaction.edit') : t('ledger.buttons.save')}
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              {isEditing ? t('ledger.buttons.update', 'Update') : t('ledger.buttons.save', 'Save')}
             </Button>
-            <Button type="button" onClick={onClose} variant="outline">
-              {t('ledger.buttons.close')}
+            <Button type="button" onClick={handleClose} variant="outline">
+              {t('ledger.buttons.cancel', 'Cancel')}
             </Button>
           </div>
         </form>

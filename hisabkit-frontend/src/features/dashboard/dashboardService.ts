@@ -1,4 +1,4 @@
-import api from '../../api/api';
+import api from '@/shared/api/client';
 
 async function fetchCustomers() {
   const res = await api.get('/ledger/customers');

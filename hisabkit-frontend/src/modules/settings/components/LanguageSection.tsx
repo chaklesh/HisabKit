@@ -6,8 +6,8 @@
 import { Check, Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { cn } from '@/shared/lib/utils';
 
 const languageChoices = ['en', 'hi'] as const;
 

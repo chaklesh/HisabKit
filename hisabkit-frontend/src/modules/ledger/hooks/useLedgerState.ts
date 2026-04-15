@@ -1,31 +1,43 @@
 /**
- * useLedgerState hook
- * Centralizes all UI state management for the ledger module
- * Keeps state organized by concern: customers, transactions, UI, forms
+ * useLedgerState.ts
+ * Centralizes all UI state for the Ledger module.
+ * Pure state – no side effects, no API calls.
  */
-
-import { useState, useRef, useCallback, useMemo } from 'react';
-import type { Attachment } from '../../../shared/types/domain';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import type { Attachment } from '@/shared/types';
+import { today } from '@/shared/utils/ledgerUtils';
 import type {
   Customer,
   CustomerFilter,
-  CustomerSort,
   CustomerForm,
-  TransactionForm,
-  LedgerTransaction,
+  CustomerSort,
   DrawerMode,
   LedgerRightTab,
+  LedgerTransaction,
+  TransactionForm,
 } from '../types/ledgerTypes';
-import { today } from '../../../shared/utils/ledgerUtils';
 
-const initialCustomerForm: CustomerForm = { name: '', phone: '', email: '', address: '', gstNumber: '', dueDate: '' };
-const initialTransactionForm: TransactionForm = { customerId: '', type: 'SALE', totalAmount: '', paidAmount: '', description: '', transactionDate: today() };
+// ── Initial form values ───────────────────────────────────────────────────────
+export const INITIAL_CUSTOMER_FORM: CustomerForm = {
+  name: '',
+  phone: '',
+  email: '',
+  address: '',
+  gstNumber: '',
+  dueDate: '',
+};
 
-/**
- * All ledger UI state in one place for easier management
- */
+export const makeInitialTransactionForm = (customerId = '', date = today()): TransactionForm => ({
+  customerId,
+  type: 'SALE',
+  totalAmount: '',
+  paidAmount: '',
+  description: '',
+  transactionDate: date,
+});
+
 export function useLedgerState() {
-  // Customer list state
+  // ── Customer list ──────────────────────────────────────────────────────────
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,141 +46,109 @@ export function useLedgerState() {
   const [showTotals, setShowTotals] = useState(false);
   const [dueDateByCustomer, setDueDateByCustomer] = useState<Record<string, string>>({});
 
-  // Transaction/ledger state
+  // ── Transactions ───────────────────────────────────────────────────────────
   const [transactions, setTransactions] = useState<LedgerTransaction[]>([]);
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [attachmentsByTransaction, setAttachmentsByTransaction] = useState<Record<string, Attachment[]>>({});
-  const [attachmentPreviewUrls, setAttachmentPreviewUrls] = useState<Record<string, string>>({});
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [lightbox, setLightbox] = useState<{ name: string; type: 'image' | 'pdf'; url: string } | null>(null);
 
-  // Report/filter state
+  // ── Report / filter ────────────────────────────────────────────────────────
   const [rightTab, setRightTab] = useState<LedgerRightTab>('LEDGER');
   const [reportSearchTerm, setReportSearchTerm] = useState('');
   const [reportDueFilter, setReportDueFilter] = useState<'ALL' | 'OVERDUE' | 'UPCOMING_7_DAYS' | 'NO_DUE_DATE'>('ALL');
   const [reportSortField, setReportSortField] = useState<'NAME' | 'BALANCE' | 'DUE_DATE'>('BALANCE');
 
-  // Form state
-  const [customerForm, setCustomerForm] = useState<CustomerForm>(initialCustomerForm);
-  const [transactionForm, setTransactionForm] = useState<TransactionForm>(initialTransactionForm);
+  // ── Forms ──────────────────────────────────────────────────────────────────
+  const [customerForm, setCustomerForm] = useState<CustomerForm>(INITIAL_CUSTOMER_FORM);
+  const [transactionForm, setTransactionForm] = useState<TransactionForm>(makeInitialTransactionForm());
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
-  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
 
-  // Drawer/modal state
+  // ── Drawer / Confirm state ─────────────────────────────────────────────────
   const [drawerMode, setDrawerMode] = useState<DrawerMode>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [confirmDeleteCustomer, setConfirmDeleteCustomer] = useState(false);
+  const [confirmDeleteTransactionId, setConfirmDeleteTransactionId] = useState<string | null>(null);
 
-  // Loading/submission state
+  // ── Loading & messages ─────────────────────────────────────────────────────
   const [isSubmittingCustomer, setIsSubmittingCustomer] = useState(false);
   const [isSubmittingTransaction, setIsSubmittingTransaction] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-
-  // Messages
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
-  // Refs
-  const totalAmountInputRef = useRef<HTMLInputElement | null>(null);
-  const paidAmountInputRef = useRef<HTMLInputElement | null>(null);
+  // ── Refs (for focus management) ────────────────────────────────────────────
   const importFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Computed values
+  // ── Derived ────────────────────────────────────────────────────────────────
   const selectedCustomer = useMemo(
-    () => customers.find((c) => c.id === selectedCustomerId) || null,
+    () => customers.find((c) => c.id === selectedCustomerId) ?? null,
     [customers, selectedCustomerId]
   );
 
-  // Drawer helpers
+  // ── Helpers ────────────────────────────────────────────────────────────────
   const closeDrawer = useCallback(() => {
     setIsDrawerOpen(false);
     setDrawerMode(null);
   }, []);
 
-  const resetTransactionForm = useCallback((customerId = selectedCustomerId) => {
-    setEditingTransactionId(null);
-    setAttachmentFile(null);
-    setTransactionForm({ ...initialTransactionForm, customerId, transactionDate: today() });
-  }, [selectedCustomerId]);
+  const resetTransactionForm = useCallback(
+    (customerId = selectedCustomerId) => {
+      setEditingTransactionId(null);
+      setAttachmentFile(null);
+      setTransactionForm(makeInitialTransactionForm(customerId));
+    },
+    [selectedCustomerId]
+  );
 
-  // Return all state and helpers in organized groups
   return {
     // Customer list
-    customers,
-    setCustomers,
-    selectedCustomerId,
-    setSelectedCustomerId,
+    customers, setCustomers,
+    selectedCustomerId, setSelectedCustomerId,
     selectedCustomer,
-    searchTerm,
-    setSearchTerm,
-    customerFilter,
-    setCustomerFilter,
-    customerSort,
-    setCustomerSort,
-    showTotals,
-    setShowTotals,
-    dueDateByCustomer,
-    setDueDateByCustomer,
+    searchTerm, setSearchTerm,
+    customerFilter, setCustomerFilter,
+    customerSort, setCustomerSort,
+    showTotals, setShowTotals,
+    dueDateByCustomer, setDueDateByCustomer,
 
     // Transactions
-    transactions,
-    setTransactions,
-    editingTransactionId,
-    setEditingTransactionId,
-    attachmentsByTransaction,
-    setAttachmentsByTransaction,
-    attachmentPreviewUrls,
-    setAttachmentPreviewUrls,
-    lightbox,
-    setLightbox,
+    transactions, setTransactions,
+    editingTransactionId, setEditingTransactionId,
+    attachmentsByTransaction, setAttachmentsByTransaction,
+    attachmentFile, setAttachmentFile,
+    lightbox, setLightbox,
 
     // Reports
-    rightTab,
-    setRightTab,
-    reportSearchTerm,
-    setReportSearchTerm,
-    reportDueFilter,
-    setReportDueFilter,
-    reportSortField,
-    setReportSortField,
+    rightTab, setRightTab,
+    reportSearchTerm, setReportSearchTerm,
+    reportDueFilter, setReportDueFilter,
+    reportSortField, setReportSortField,
 
     // Forms
-    customerForm,
-    setCustomerForm,
-    transactionForm,
-    setTransactionForm,
-    isEditingCustomer,
-    setIsEditingCustomer,
-    attachmentFile,
-    setAttachmentFile,
+    customerForm, setCustomerForm,
+    transactionForm, setTransactionForm,
+    isEditingCustomer, setIsEditingCustomer,
 
-    // Drawer/modal
-    drawerMode,
-    setDrawerMode,
-    isDrawerOpen,
-    setIsDrawerOpen,
+    // Drawer / confirm
+    drawerMode, setDrawerMode,
+    isDrawerOpen, setIsDrawerOpen,
     closeDrawer,
+    confirmDeleteCustomer, setConfirmDeleteCustomer,
+    confirmDeleteTransactionId, setConfirmDeleteTransactionId,
 
     // Loading
-    isSubmittingCustomer,
-    setIsSubmittingCustomer,
-    isSubmittingTransaction,
-    setIsSubmittingTransaction,
-    isImporting,
-    setIsImporting,
+    isSubmittingCustomer, setIsSubmittingCustomer,
+    isSubmittingTransaction, setIsSubmittingTransaction,
 
     // Messages
-    error,
-    setError,
-    notice,
-    setNotice,
+    error, setError,
+    notice, setNotice,
 
     // Refs
-    totalAmountInputRef,
-    paidAmountInputRef,
     importFileInputRef,
 
     // Helpers
     resetTransactionForm,
-    initialCustomerForm,
-    initialTransactionForm,
+    INITIAL_CUSTOMER_FORM,
   };
 }

@@ -66,6 +66,7 @@
     "customer": {
       "title": "Customer",
       "name": "Customer name",
+      "search_label": "Search for customers",
       "phone": "Phone number",
       "email": "Email",
       "address": "Address",
@@ -187,6 +188,10 @@
     "tabs": {
       "appearance": "Appearance",
       "language": "Language",
+      "business": "Business",
+      "reminders": "Reminders",
+      "security": "Security",
+      "layout": "Layout",
       "roadmap": "What is next"
     },
     "alert": {

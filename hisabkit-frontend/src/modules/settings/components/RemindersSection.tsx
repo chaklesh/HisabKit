@@ -7,11 +7,11 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Bell, Copy, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import type { Tenant } from '../../../shared/types/domain';
-import { useUpdateTenantProfile } from '../../../features/profile/useProfile';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import type { Tenant } from '@/shared/types';
+import { useUpdateTenantProfile } from '@/modules/profile/services/useProfile';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Separator } from '@/shared/components/ui/separator';
 
 const TEMPLATE_HELP = {
   customerName: 'Customer name',
@@ -54,8 +54,9 @@ export function RemindersSection({ businessData }: RemindersSectionProps) {
         whatsappTemplate: whatsappTemplate || undefined,
       });
       toast.success(t('settings.reminders.saved', 'Templates updated'));
-    } catch (err: any) {
-      const message = err.response?.data?.message || t('settings.reminders.error', 'Unable to save templates');
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message
+        || t('settings.reminders.error', 'Unable to save templates');
       setError(message);
       toast.error(message);
     } finally {

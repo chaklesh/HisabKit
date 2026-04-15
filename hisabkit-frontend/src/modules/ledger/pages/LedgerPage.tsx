@@ -1,21 +1,12 @@
 /**
- * LedgerPage - REFACTORED
- * Main orchestrator component that composes all ledger module components
- * Keeps business logic in hooks, rendering in components
- * ~190 lines total
+ * LedgerPage - module orchestrator
+ * Composes ledger surfaces and delegates state/actions to useLedgerPageState.
  */
 
-import { useEffect } from 'react';
-import { useCustomersQuery, useTransactionsQuery } from '../../../features/ledger/useLedger';
-import { useLedgerState } from '../hooks/useLedgerState';
-import {
-  applyDueDateMap,
-  filterAndSortCustomers,
-  computeTotals,
-  countOverdueCustomers,
-  buildDueDateReport,
-} from '../selectors/ledgerDashboardSelectors';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { X } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog';
+import { Lightbox } from '@/shared/components/ui/lightbox';
 import { LedgerHeader } from '../components/LedgerHeader';
 import { CustomerListPane } from '../components/CustomerListPane';
 import { CustomerDetailsHeader } from '../components/CustomerDetailsHeader';
@@ -25,59 +16,22 @@ import { ReportPanel } from '../components/ReportPanel';
 import { CustomerFormDrawer } from '../components/CustomerFormDrawer';
 import { TransactionFormDrawer } from '../components/TransactionFormDrawer';
 import { MessageAlert } from '../components/MessageAlert';
+import { useLedgerPageState } from '../hooks/useLedgerPageState';
 
 export function LedgerPage() {
-  const state = useLedgerState();
-  const customersQuery = useCustomersQuery();
-  const transactionsQuery = useTransactionsQuery(state.selectedCustomerId);
-
-  // Sync queries with state
-  useEffect(() => {
-    if (customersQuery.data) {
-      state.setCustomers(customersQuery.data as any);
-    }
-  }, [customersQuery.data]);
-
-  useEffect(() => {
-    if (transactionsQuery.data) {
-      const { transactions, attachmentsByTransaction } = transactionsQuery.data as any;
-      state.setTransactions(transactions);
-      state.setAttachmentsByTransaction(attachmentsByTransaction);
-    }
-  }, [transactionsQuery.data]);
-
-  // Derive state once
-  const customersWithDueDate = applyDueDateMap(state.customers, state.dueDateByCustomer);
-  const filteredCustomers = filterAndSortCustomers({
-    customers: customersWithDueDate,
-    searchTerm: state.searchTerm,
-    customerFilter: state.customerFilter,
-    customerSort: state.customerSort,
-  });
-  const totals = computeTotals(customersWithDueDate);
-  const overdueCount = countOverdueCustomers(customersWithDueDate);
-  const reportData = buildDueDateReport({
-    customers: customersWithDueDate,
-    reportSearchTerm: state.reportSearchTerm,
-    reportDueFilter: state.reportDueFilter,
-    reportSortField: state.reportSortField,
-  });
+  const { state, queries, derived, actions } = useLedgerPageState();
 
   return (
-    <div className="rounded-2xl bg-[linear-gradient(180deg,#f5f7fb_0%,#edf2ff_100%)] p-3 sm:p-4">
-      <div className="mx-auto max-w-7xl">
+    <div className="w-full max-w-[1600px] mx-auto animate-in fade-in duration-700">
+      <div className="space-y-6">
         {/* Header */}
         <LedgerHeader
-          selectedCustomer={state.selectedCustomer}
           showTotals={state.showTotals}
-          totals={totals}
-          overdueCount={overdueCount}
-          customerCount={filteredCustomers.length}
+          totals={derived.totals}
+          overdueCount={derived.overdueCount}
+          customerCount={derived.filteredCustomers.length}
           onToggleTotals={() => state.setShowTotals(!state.showTotals)}
-          onAddCustomer={() => { state.setDrawerMode('CUSTOMER'); state.setIsDrawerOpen(true); }}
-          onEditCustomer={() => { state.setDrawerMode('CUSTOMER'); state.setIsDrawerOpen(true); }}
-          onAddSale={() => { state.setDrawerMode('TRANSACTION'); state.setIsDrawerOpen(true); }}
-          onAddPayment={() => { state.setDrawerMode('TRANSACTION'); state.setIsDrawerOpen(true); }}
+          onAddCustomer={() => actions.openCustomerDrawer(true)}
         />
 
         {/* Messages */}
@@ -85,20 +39,19 @@ export function LedgerPage() {
         <MessageAlert message={state.notice} type="success" />
 
         {/* Main layout */}
-        <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
+        <div className="grid gap-6 xl:grid-cols-[390px_1fr]">
           {/* Left: Customer list */}
           <CustomerListPane
-            customers={filteredCustomers}
+            customers={derived.filteredCustomers}
             selectedCustomerId={state.selectedCustomerId}
             searchTerm={state.searchTerm}
             customerFilter={state.customerFilter}
             customerSort={state.customerSort}
-            isLoading={customersQuery.isLoading}
+            isLoading={queries.customersQuery.isLoading}
             onSearchChange={state.setSearchTerm}
             onFilterChange={state.setCustomerFilter}
             onSortChange={state.setCustomerSort}
-            onSelectCustomer={(customer) => state.setSelectedCustomerId(customer.id)}
-            onAddCustomer={() => { state.setDrawerMode('CUSTOMER'); state.setIsDrawerOpen(true); }}
+            onSelectCustomer={actions.selectCustomer}
           />
 
           {/* Right: Transactions/Reports */}
@@ -109,16 +62,16 @@ export function LedgerPage() {
               <>
                 <CustomerDetailsHeader
                   customer={state.selectedCustomer}
-                  onEdit={() => { state.setDrawerMode('CUSTOMER'); state.setIsDrawerOpen(true); }}
-                  onAddSale={() => { state.setDrawerMode('TRANSACTION'); state.setIsDrawerOpen(true); }}
-                  onAddPayment={() => { state.setDrawerMode('TRANSACTION'); state.setIsDrawerOpen(true); }}
+                  onEdit={() => actions.openCustomerDrawer(false)}
+                  onAddSale={() => actions.openTransactionDrawer('SALE')}
+                  onAddPayment={() => actions.openTransactionDrawer('PAYMENT')}
                   onSendSMS={() => {}}
                   onSendWhatsApp={() => {}}
-                  smsLink={state.selectedCustomer?.phone ? `sms:${state.selectedCustomer.phone}` : ''}
-                  whatsappLink={state.selectedCustomer?.phone ? `https://wa.me/${state.selectedCustomer.phone}` : ''}
+                  smsLink={derived.smsLink}
+                  whatsappLink={derived.whatsappLink}
                 />
 
-                <Tabs value={state.rightTab} onValueChange={(tab) => state.setRightTab(tab as any)}>
+                <Tabs value={state.rightTab} onValueChange={(tab) => state.setRightTab(tab as 'LEDGER' | 'REPORTS')}>
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="LEDGER">Ledger</TabsTrigger>
                     <TabsTrigger value="REPORTS">Reports</TabsTrigger>
@@ -128,20 +81,16 @@ export function LedgerPage() {
                     <TransactionListView
                       transactions={state.transactions}
                       attachmentsByTransaction={state.attachmentsByTransaction}
-                      isLoading={transactionsQuery.isLoading}
-                      onEdit={(txn) => {
-                        state.setEditingTransactionId(txn.id);
-                        state.setDrawerMode('TRANSACTION');
-                        state.setIsDrawerOpen(true);
-                      }}
-                      onDelete={() => {}}
-                      onViewAttachment={() => {}}
+                      isLoading={queries.transactionsQuery.isLoading}
+                      onEdit={actions.handleOpenTransactionEdit}
+                      onDelete={(id) => state.setConfirmDeleteTransactionId(id)}
+                      onViewAttachment={actions.handleViewAttachment}
                     />
                   </TabsContent>
 
                   <TabsContent value="REPORTS">
                     <ReportPanel
-                      report={reportData}
+                      report={derived.reportData}
                       searchTerm={state.reportSearchTerm}
                       dueFilter={state.reportDueFilter}
                       sortField={state.reportSortField}
@@ -149,7 +98,7 @@ export function LedgerPage() {
                       onSearchChange={state.setReportSearchTerm}
                       onFilterChange={state.setReportDueFilter}
                       onSortChange={state.setReportSortField}
-                      onExportCsv={() => {}}
+                      onExportCsv={actions.handleExportReportCsv}
                     />
                   </TabsContent>
                 </Tabs>
@@ -164,11 +113,10 @@ export function LedgerPage() {
             isOpen={state.isDrawerOpen}
             isEditing={state.isEditingCustomer}
             isSubmitting={state.isSubmittingCustomer}
-            form={state.customerForm}
+            initialValues={state.customerForm}
             onClose={state.closeDrawer}
-            onFormChange={(field, value) => state.setCustomerForm({ ...state.customerForm, [field]: value })}
-            onSubmit={(e) => e.preventDefault()}
-            onDelete={() => {}}
+            onSubmit={actions.handleCustomerSubmit}
+            onDelete={() => state.setConfirmDeleteCustomer(true)}
           />
         )}
 
@@ -176,14 +124,55 @@ export function LedgerPage() {
           <TransactionFormDrawer
             isOpen={state.isDrawerOpen}
             isSubmitting={state.isSubmittingTransaction}
-            form={state.transactionForm}
             isEditing={!!state.editingTransactionId}
+            initialValues={state.transactionForm}
             onClose={state.closeDrawer}
-            onFormChange={(field, value) => state.setTransactionForm({ ...state.transactionForm, [field]: value })}
             onFileChange={state.setAttachmentFile}
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={actions.handleTransactionSubmit}
             attachmentFile={state.attachmentFile}
           />
+        )}
+
+        {/* Confirm Dialogs */}
+        <ConfirmDialog
+          open={state.confirmDeleteCustomer}
+          onCancel={() => state.setConfirmDeleteCustomer(false)}
+          onConfirm={actions.handleDeleteCustomer}
+          title="Delete Customer"
+          description="Are you sure you want to delete this customer? This action will also delete all associated transactions."
+          isLoading={state.isSubmittingCustomer}
+        />
+
+        <ConfirmDialog
+          open={!!state.confirmDeleteTransactionId}
+          onCancel={() => state.setConfirmDeleteTransactionId(null)}
+          onConfirm={actions.handleDeleteTransaction}
+          title="Delete Transaction"
+          description="Are you sure you want to delete this transaction?"
+          isLoading={false}
+        />
+
+        <Lightbox 
+          isOpen={!!state.lightbox && state.lightbox.type === 'image'} 
+          onClose={() => state.setLightbox(null)}
+          images={state.lightbox ? [{ url: state.lightbox.url, title: state.lightbox.name }] : []}
+          currentIndex={0}
+          onNavigate={() => {}} 
+        />
+        
+        {/* PDF Fallback remains Dialog for now or simple iframe */}
+        {state.lightbox && state.lightbox.type === 'pdf' && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => state.setLightbox(null)}>
+            <div className="relative w-full max-w-5xl h-[90vh] bg-white rounded-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+               <iframe src={state.lightbox.url} title={state.lightbox.name} className="w-full h-full" />
+               <button 
+                 onClick={() => state.setLightbox(null)}
+                 className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors"
+               >
+                 <X className="w-6 h-6" />
+               </button>
+            </div>
+          </div>
         )}
       </div>
     </div>

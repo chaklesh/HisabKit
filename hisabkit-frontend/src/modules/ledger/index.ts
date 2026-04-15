@@ -15,6 +15,7 @@ export { MessageAlert } from './components/MessageAlert';
 // Hooks
 export { useLedgerState } from './hooks/useLedgerState';
 export { useLedgerHandlers } from './hooks/useLedgerHandlers';
+export { useLedgerPageState } from './hooks/useLedgerPageState';
 
 // Types
 export type {
@@ -43,4 +44,3 @@ export {
   detectAttachmentType,
   parseCsvLine,
 } from './utils/ledgerDashboardHelpers';
-

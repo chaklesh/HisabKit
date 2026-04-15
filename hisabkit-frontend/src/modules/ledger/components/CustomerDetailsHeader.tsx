@@ -5,7 +5,7 @@
  */
 
 import { Edit, Plus, MessageCircleMore, MessageSquareText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/components/ui/button';
 import type { Customer } from '../types/ledgerTypes';
 
 interface CustomerDetailsHeaderProps {

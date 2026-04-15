@@ -1,19 +1,14 @@
-/**
- * Security settings component
- * Manages password and session controls
- */
-
 import { FormEvent, useState } from 'react';
-import { Eye, EyeOff, Lock } from 'lucide-react';
+import { Eye, EyeOff, ShieldAlert, KeyRound, Fingerprint } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { useChangePassword } from '../../../features/profile/useProfile';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { useChangePassword } from '@/modules/profile/services/useProfile';
+import { Button } from '@/shared/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
 
 export function SecuritySection() {
-  const { t } = useTranslation();
+  const { } = useTranslation();
   const changePassword = useChangePassword();
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
@@ -22,15 +17,15 @@ export function SecuritySection() {
 
   const validatePasswords = (): boolean => {
     if (!passwordForm.currentPassword) {
-      setError(t('settings.security.current_password_required', 'Current password is required'));
+      setError('Authorization required: Current password is missing.');
       return false;
     }
     if (passwordForm.newPassword.length < 8) {
-      setError(t('settings.security.password_min_length', 'New password must be at least 8 characters'));
+      setError('Constraint violation: Minimum 8 characters required.');
       return false;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setError(t('settings.security.passwords_mismatch', 'Passwords do not match'));
+      setError('Confirmation mismatch: Passwords do not correlate.');
       return false;
     }
     return true;
@@ -39,7 +34,6 @@ export function SecuritySection() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validatePasswords()) return;
-
     setError('');
     setIsLoading(true);
 
@@ -49,9 +43,12 @@ export function SecuritySection() {
         newPassword: passwordForm.newPassword,
       });
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      toast.success(t('settings.security.password_changed', 'Password changed successfully'));
-    } catch (err: any) {
-      const message = err.response?.data?.message || t('settings.security.error', 'Unable to change password');
+      toast.success('Security credential updated', {
+        description: 'Your authentication token has been refreshed.'
+      });
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message
+        || 'Network layer error: Request rejected by server.';
       setError(message);
       toast.error(message);
     } finally {
@@ -59,11 +56,11 @@ export function SecuritySection() {
     }
   };
 
-  const inputClasses = 'w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
-  const labelClasses = 'text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground';
+  const inputClasses = 'w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 dark:bg-slate-900 dark:border-slate-800 outline-none pr-11';
+  const labelClasses = 'text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1 mb-1.5 block';
 
-  const PasswordInput = ({ label, field, show }: { label: string; field: 'current' | 'new' | 'confirm'; show: boolean }) => (
-    <div className="space-y-2">
+  const PasswordInput = ({ label, field, show, placeholder }: { label: string; field: 'current' | 'new' | 'confirm'; show: boolean; placeholder: string }) => (
+    <div className="space-y-1">
       <label className={labelClasses}>{label}</label>
       <div className="relative">
         <input
@@ -71,64 +68,77 @@ export function SecuritySection() {
           value={passwordForm[field === 'current' ? 'currentPassword' : field === 'new' ? 'newPassword' : 'confirmPassword']}
           onChange={(e) => setPasswordForm((p) => ({ ...p, [field === 'current' ? 'currentPassword' : field === 'new' ? 'newPassword' : 'confirmPassword']: e.target.value }))}
           className={inputClasses}
-          placeholder={field === 'current' ? 'Current password' : field === 'new' ? 'New password' : 'Confirm new password'}
+          placeholder={placeholder}
         />
         <button
           type="button"
           onClick={() => setShowPasswords((p) => ({ ...p, [field]: !p[field] }))}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
         >
-          {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
       </div>
     </div>
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-2">
-            <Lock className="size-5 text-primary" />
-          </div>
-          <div>
-            <CardTitle>{t('settings.security.title', 'Security')}</CardTitle>
-            <CardDescription>{t('settings.security.description', 'Manage your password and session security')}</CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && <div className="rounded-lg border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>}
+    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+      <Card className="border-none shadow-sm ring-1 ring-slate-200 overflow-hidden">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-8">
+           <div className="flex items-center gap-2 mb-1">
+              <Badge variant="outline" className="text-[10px] font-bold border-rose-100 bg-rose-50 text-rose-700 uppercase tracking-widest px-2">
+                <ShieldAlert className="w-3 h-3 mr-1" /> Critical security
+              </Badge>
+           </div>
+           <CardTitle className="text-xl font-black tracking-tight">Access Credentials</CardTitle>
+           <CardDescription>
+              Maintain the integrity of your account by regularly cycling your secret key.
+           </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700 flex items-center gap-3">
+                 <div className="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0" />
+                 {error}
+              </div>
+            )}
 
-          <div className="space-y-4">
-            <PasswordInput label={t('settings.security.current_password', 'Current password')} field="current" show={showPasswords.current} />
-            <PasswordInput label={t('settings.security.new_password', 'New password')} field="new" show={showPasswords.new} />
-            <PasswordInput label={t('settings.security.confirm_password', 'Confirm new password')} field="confirm" show={showPasswords.confirm} />
-
-            <p className="text-xs text-muted-foreground">{t('settings.security.password_requirements', 'Password must be at least 8 characters')}</p>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-4">
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-              <p className="text-sm font-medium text-amber-900">{t('settings.security.session_note', 'Session management')}</p>
-              <p className="mt-1 text-xs text-amber-800">
-                {t('settings.security.session_note_details', 'Changing your password will end all active sessions for security.')}
-              </p>
+            <div className="max-w-md space-y-5">
+              <PasswordInput label="Verify Identity (Current Password)" field="current" show={showPasswords.current} placeholder="Enter your existing pasword" />
+              
+              <div className="pt-4 border-t border-slate-100 space-y-5">
+                 <PasswordInput label="Propose New Key" field="new" show={showPasswords.new} placeholder="Min. 8 complex characters" />
+                 <PasswordInput label="Authorize New Key" field="confirm" show={showPasswords.confirm} placeholder="Repeat new key exactly" />
+              </div>
             </div>
-          </div>
 
-          <Separator />
+            <div className="rounded-2xl bg-amber-50 border border-amber-100 p-5 flex items-start gap-4">
+               <div className="p-2 bg-white rounded-lg border border-amber-200 shadow-sm shrink-0">
+                  <Fingerprint className="w-5 h-5 text-amber-600" />
+               </div>
+               <div>
+                  <p className="text-sm font-bold text-amber-900">Protocol notice</p>
+                  <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                    Executing a key rotation will terminate all active session tokens across your devices. 
+                    You will be required to re-authenticate immediately.
+                  </p>
+               </div>
+            </div>
 
-          <div className="flex gap-3">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? t('common.saving', 'Updating...') : t('settings.security.change_password', 'Change Password')}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+               <Button 
+                 type="submit" 
+                 disabled={isLoading}
+                 className="rounded-xl h-11 px-8 bg-slate-900 hover:bg-slate-800 transition-all font-bold shadow-lg shadow-slate-200"
+               >
+                 <KeyRound className="w-4 h-4 mr-2" />
+                 {isLoading ? 'Rotating Key...' : 'Update Credentials'}
+               </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

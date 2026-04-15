@@ -1,69 +1,89 @@
+/**
+ * app/AppRouter.tsx
+ * Root router: defines all routes, handles auth-guarding, and code-splits
+ * every module entry point via React.lazy.
+ */
 import React, { Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { GoogleOneTapAuth } from '../components/GoogleOneTapAuth';
-import { ProtectedRoute } from '../components/ProtectedRoute';
-import { env } from '../config/env';
-import { useAuth } from '../context/AuthContext';
-import { ProtectedAppLayout } from '../layout/ProtectedAppLayout';
-import { AdminDashboard } from '../pages/AdminDashboard';
-import { DashboardHomePage } from '../pages/DashboardHomePage';
-import { LandingPage } from '../pages/LandingPage';
-import { LoginPage } from '../pages/LoginPage';
-import { ModuleComingSoonPage } from '../pages/ModuleComingSoonPage';
-import { ProfilePage } from '../pages/ProfilePage';
-import { SettingsPage } from '../modules/settings/pages/SettingsPage';
+import { GoogleOneTapAuth } from '@/shared/components/GoogleOneTapAuth';
+import { ProtectedRoute } from '@/shared/components/ProtectedRoute';
+import { PageLoader } from '@/shared/components/ui/page-loader';
+import { env } from '@/shared/config/env';
+import { useAuth } from '@/context/AuthContext';
+import { ProtectedAppLayout } from '@/layout/ProtectedAppLayout';
+import { LandingPage } from '@/pages/LandingPage';
+import { LoginPage } from '@/pages/LoginPage';
+import { ModuleComingSoonPage } from '@/pages/ModuleComingSoonPage';
 
-// Lazy-loaded routes for code splitting
-const LedgerPage = React.lazy(() => import('../modules/ledger').then((mod) => ({ default: mod.LedgerPage })));
+// ── Lazy-loaded module entries (route-level code splitting) ───────────────────
+const LedgerPage = React.lazy(() =>
+  import('@/modules/ledger').then((m) => ({ default: m.LedgerPage }))
+);
+const DashboardHomePage = React.lazy(() =>
+  import('@/modules/dashboard').then((m) => ({ default: m.DashboardHomePage }))
+);
+const AdminDashboard = React.lazy(() =>
+  import('@/modules/admin').then((m) => ({ default: m.AdminDashboard }))
+);
+const ProfilePage = React.lazy(() =>
+  import('@/modules/profile').then((m) => ({ default: m.ProfilePage }))
+);
+const SettingsPage = React.lazy(() =>
+  import('@/modules/settings').then((m) => ({ default: m.SettingsPage }))
+);
 
+// ── Route tree ────────────────────────────────────────────────────────────────
 function AppRoutes() {
   const { user } = useAuth();
 
   return (
     <Routes>
+      {/* Public */}
       <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
       <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
-      <Route
-        element={
-          <ProtectedRoute>
-            <ProtectedAppLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/dashboard" element={<DashboardHomePage />} />
+
+      {/* Protected shell */}
+      <Route element={<ProtectedRoute><ProtectedAppLayout /></ProtectedRoute>}>
+        <Route
+          path="/dashboard"
+          element={<Suspense fallback={<PageLoader />}><DashboardHomePage /></Suspense>}
+        />
         <Route
           path="/ledger"
-          element={
-            <Suspense fallback={<div className="flex items-center justify-center p-8">Loading ledger...</div>}>
-              <LedgerPage />
-            </Suspense>
-          }
+          element={<Suspense fallback={<PageLoader />}><LedgerPage /></Suspense>}
         />
-        <Route path="/inventory" element={<ModuleComingSoonPage />} />
-        <Route path="/suppliers" element={<ModuleComingSoonPage />} />
-        <Route path="/lending" element={<ModuleComingSoonPage />} />
         <Route
           path="/admin"
           element={
             <ProtectedRoute requiredRole="SUPER_ADMIN">
-              <AdminDashboard />
+              <Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>
             </ProtectedRoute>
           }
         />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route
+          path="/profile"
+          element={<Suspense fallback={<PageLoader />}><ProfilePage /></Suspense>}
+        />
+        <Route
+          path="/settings"
+          element={<Suspense fallback={<PageLoader />}><SettingsPage /></Suspense>}
+        />
+        {/* Module placeholders */}
+        <Route path="/inventory" element={<ModuleComingSoonPage />} />
+        <Route path="/suppliers" element={<ModuleComingSoonPage />} />
+        <Route path="/lending" element={<ModuleComingSoonPage />} />
       </Route>
+
+      {/* Catch-all */}
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/'} replace />} />
     </Routes>
   );
 }
 
 export function AppRouter() {
-  const googleClientId = env.googleClientId;
-
   return (
     <BrowserRouter>
-      {googleClientId ? <GoogleOneTapAuth /> : null}
+      {env.googleClientId ? <GoogleOneTapAuth /> : null}
       <AppRoutes />
     </BrowserRouter>
   );

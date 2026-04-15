@@ -1,12 +1,14 @@
-import { LogOut, Settings, ShieldCheck, UserRound } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck, UserRound, LayoutDashboard, HandCoins, ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { appModules, type AppModule } from '../modules/moduleRegistry';
-import { listModuleCatalog } from '../api/api';
-import type { ModuleCatalogItem } from '../shared/types/domain';
-import { useAuth } from '../context/AuthContext';
+import { listModuleCatalog } from '@/shared/api/client';
+import type { ModuleCatalogItem } from '@/shared/types';
+import { useAuth } from '@/context/AuthContext';
+import { cn } from '@/shared/lib/utils';
+import { Badge } from '@/shared/components/ui/badge';
 
 const titleKeyByRoute: Record<string, string> = {
   '/dashboard': 'shell.titles.dashboard',
@@ -34,41 +36,33 @@ export const AppShell = ({ children }: AppShellProps) => {
     let active = true;
     void listModuleCatalog()
       .then((response) => {
-        if (active) {
-          setCatalog(response.data);
-        }
+        if (active) setCatalog(response.data);
       })
       .catch(() => {
-        if (active) {
-          setCatalog(null);
-        }
+        if (active) setCatalog(null);
       });
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
   const modules = useMemo<AppModule[]>(() => {
-    const source = catalog || appModules.map((module) => ({
-      key: module.id === 'dashboard' ? 'DASHBOARD' : module.id === 'ledger' ? 'LEDGER' : module.id === 'inventory' ? 'INVENTORY' : module.id === 'suppliers' ? 'SUPPLIERS' : 'LENDING',
-      label: module.label,
-      route: module.route,
-      status: module.enabled ? 'LIVE' : 'PLANNED',
-      enabled: module.enabled,
-      description: module.phase === 'live' ? 'Live module' : 'Planned module',
+    const source = catalog || appModules.map((m) => ({
+      key: m.id.toUpperCase(),
+      label: m.label,
+      route: m.route,
+      status: m.enabled ? 'LIVE' : 'PLANNED',
+      enabled: m.enabled,
     }));
 
     return source.map((module) => {
-      const fallback = appModules.find((candidate) => candidate.route === module.route);
-      return {
-        id: fallback?.id || 'dashboard',
-        label: module.label,
-        route: module.route,
-        icon: fallback?.icon || appModules[0].icon,
-        enabled: module.enabled,
-        phase: module.status === 'LIVE' ? 'live' : 'planned',
-      };
+       const fallback = appModules.find((c) => c.route === module.route);
+       return {
+         id: fallback?.id || 'dashboard',
+         label: module.label,
+         route: module.route,
+         icon: fallback?.icon || LayoutDashboard,
+         enabled: module.enabled,
+         phase: (module.status === 'LIVE' || module.enabled) ? 'live' : 'planned',
+       };
     });
   }, [catalog]);
 
@@ -80,160 +74,136 @@ export const AppShell = ({ children }: AppShellProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-surface-app text-text-primary">
-      <aside className="hidden border-r border-border-soft bg-surface-panel lg:fixed lg:inset-y-0 lg:left-0 lg:block lg:w-64">
+    <div className="min-h-screen bg-background text-foreground selection:bg-indigo-100 selection:text-indigo-900">
+      {/* Sidebar Desktop */}
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:block lg:w-72 border-r border-slate-200/60 bg-white/80 backdrop-blur-xl">
         <div className="flex h-full flex-col">
-          <div className="border-b border-border-soft px-5 py-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-text-secondary">HisabKit</p>
-            <h1 className="mt-1 text-lg font-black text-text-primary">{t('shell.productTagline', 'MSME Finance')}</h1>
+          <div className="px-8 pt-8 pb-6">
+            <div className="flex items-center gap-3">
+               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+                  <HandCoins className="text-white w-6 h-6" />
+               </div>
+               <div>
+                  <h1 className="text-xl font-black tracking-tighter text-slate-900">HisabKit</h1>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-500 opacity-80">Enterprise</p>
+               </div>
+            </div>
           </div>
 
-          <nav className="flex-1 space-y-1 px-3 py-4">
-            {modules.map((module) => {
-              const Icon = module.icon;
-              const isActive = location.pathname === module.route;
-              const label = t(`shell.modules.${module.id}`, module.label);
-              if (!module.enabled) {
-                return (
-                  <div key={module.id} className="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-400">
-                    <span className="inline-flex items-center gap-2">
-                      <Icon className="h-4 w-4" />
-                      {label}
-                    </span>
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]">
-                      {t('shell.soon', 'Soon')}
-                    </span>
-                  </div>
-                );
-              }
+          <div className="flex-1 px-4 space-y-8 overflow-y-auto py-4 custom-scrollbar">
+            <div>
+              <p className="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Core Modules</p>
+              <nav className="space-y-1.5">
+                {modules.map((module) => {
+                  const Icon = module.icon;
+                  const isActive = location.pathname === module.route;
+                  const label = t(`shell.modules.${module.id}`, module.label);
+                  
+                  return (
+                    <Link
+                      key={module.id}
+                      to={module.enabled ? module.route : '#'}
+                      className={cn(
+                        "group flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200",
+                        !module.enabled && "opacity-50 cursor-not-allowed",
+                        isActive 
+                          ? "bg-slate-900 text-white shadow-xl shadow-slate-200" 
+                          : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", isActive ? "text-indigo-400" : "text-slate-400")} />
+                        {label}
+                      </div>
+                      {!module.enabled ? (
+                        <Badge variant="secondary" className="text-[9px] font-black tracking-tighter uppercase px-1.5 h-5 bg-slate-100">Soon</Badge>
+                      ) : (
+                        isActive && <ChevronRight className="w-4 h-4 opacity-50" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
 
-              return (
+            <div>
+              <p className="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Administration</p>
+              <nav className="space-y-1.5">
+                {user?.role === 'SUPER_ADMIN' && (
+                  <Link
+                    to="/admin"
+                    className={cn(
+                      "group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all",
+                      location.pathname === '/admin' ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                    )}
+                  >
+                    <ShieldCheck className="w-5 h-5 text-indigo-500" />
+                    Admin Console
+                  </Link>
+                )}
                 <Link
-                  key={module.id}
-                  to={module.route}
-                  className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                    isActive ? 'bg-brand-primary text-text-inverse' : 'text-text-secondary hover:bg-surface-subtle'
-                  }`}
+                  to="/profile"
+                  className={cn(
+                    "group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all",
+                    location.pathname === '/profile' ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                  )}
                 >
-                  <Icon className="h-4 w-4" />
-                  {label}
+                  <UserRound className="w-5 h-5 text-slate-400 group-hover:text-indigo-600" />
+                  My Profile
                 </Link>
-              );
-            })}
+                <Link
+                  to="/settings"
+                  className={cn(
+                    "group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all",
+                    location.pathname === '/settings' ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                  )}
+                >
+                  <Settings className="w-5 h-5 text-slate-400 group-hover:text-indigo-600" />
+                  Preferences
+                </Link>
+              </nav>
+            </div>
+          </div>
 
-            {user?.role === 'SUPER_ADMIN' ? (
-              <Link
-                to="/admin"
-                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                  location.pathname === '/admin' ? 'bg-brand-primary text-text-inverse' : 'text-text-secondary hover:bg-surface-subtle'
-                }`}
-              >
-                <ShieldCheck className="h-4 w-4" />
-                {t('shell.adminConsole', 'Admin Console')}
-              </Link>
-            ) : null}
-
-            <Link
-              to="/profile"
-              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                location.pathname === '/profile' ? 'bg-brand-primary text-text-inverse' : 'text-text-secondary hover:bg-surface-subtle'
-              }`}
-            >
-              <UserRound className="h-4 w-4" />
-              {t('shell.profileSettings', 'Profile')}
-            </Link>
-
-            <Link
-              to="/settings"
-              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                location.pathname === '/settings' ? 'bg-brand-primary text-text-inverse' : 'text-text-secondary hover:bg-surface-subtle'
-              }`}
-            >
-              <Settings className="h-4 w-4" />
-              {t('shell.settings', 'Settings')}
-            </Link>
-          </nav>
-
-          <div className="border-t border-border-soft p-3">
+          <div className="p-6 border-t border-slate-100">
             <button
-              type="button"
               onClick={handleLogout}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border-soft bg-surface-subtle px-3 py-2 text-sm font-semibold text-text-secondary hover:bg-slate-100"
+              className="group flex w-full items-center gap-3 rounded-2xl bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 transition-all hover:bg-rose-100 hover:scale-[1.02]"
             >
-              <LogOut className="h-4 w-4" />
-              {t('common.logout', 'Logout')}
+              <LogOut className="w-5 h-5" />
+              Sign out
             </button>
           </div>
         </div>
       </aside>
 
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 border-b border-border-soft bg-surface-panel/90 px-4 py-3 backdrop-blur sm:px-6">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-secondary">{t('shell.workspace', 'Workspace')}</p>
-              <h2 className="text-lg font-black text-text-primary">{title}</h2>
+      <div className="lg:pl-72">
+        {/* Header Glassmorphism */}
+        <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-slate-200/50 px-6 py-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+               <div className="lg:hidden w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black">H</div>
+               <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t('shell.workspace', 'Active Organization')}</p>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tight">{title}</h2>
+               </div>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-xl border border-border-soft bg-surface-subtle px-3 py-1.5 text-xs font-semibold text-text-secondary">
-              {user?.username}
+            
+            <div className="flex items-center gap-4">
+               <div className="hidden sm:flex flex-col items-end">
+                  <p className="text-xs font-black text-slate-900">{user?.fullName || user?.username}</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Store Management</p>
+               </div>
+               <div className="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-bold overflow-hidden shadow-sm">
+                  {user?.username?.charAt(0).toUpperCase()}
+               </div>
             </div>
-          </div>
-
-          <div className="mt-3 flex gap-2 overflow-x-auto lg:hidden">
-            {modules
-              .filter((module) => module.enabled)
-              .map((module) => {
-                const isActive = location.pathname === module.route;
-                return (
-                  <Link
-                    key={module.id}
-                    to={module.route}
-                    className={`whitespace-nowrap rounded-xl border px-3 py-1.5 text-xs font-semibold ${
-                      isActive
-                        ? 'border-slate-900 bg-slate-900 text-white'
-                        : 'border-slate-200 bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    {t(`shell.modules.${module.id}`, module.label)}
-                  </Link>
-                );
-              })}
-            {user?.role === 'SUPER_ADMIN' ? (
-              <Link
-                to="/admin"
-                className={`whitespace-nowrap rounded-xl border px-3 py-1.5 text-xs font-semibold ${
-                  location.pathname === '/admin'
-                    ? 'border-slate-900 bg-slate-900 text-white'
-                    : 'border-slate-200 bg-slate-50 text-slate-700'
-                }`}
-              >
-                {t('shell.admin', 'Admin')}
-              </Link>
-            ) : null}
-            <Link
-              to="/profile"
-              className={`whitespace-nowrap rounded-xl border px-3 py-1.5 text-xs font-semibold ${
-                location.pathname === '/profile'
-                  ? 'border-slate-900 bg-slate-900 text-white'
-                  : 'border-slate-200 bg-slate-50 text-slate-700'
-              }`}
-            >
-              {t('shell.profile', 'Profile')}
-            </Link>
-            <Link
-              to="/settings"
-              className={`whitespace-nowrap rounded-xl border px-3 py-1.5 text-xs font-semibold ${
-                location.pathname === '/settings'
-                  ? 'border-slate-900 bg-slate-900 text-white'
-                  : 'border-slate-200 bg-slate-50 text-slate-700'
-              }`}
-            >
-              {t('shell.settings', 'Settings')}
-            </Link>
           </div>
         </header>
 
-        <main className="px-3 py-4 sm:px-5">{children}</main>
+        <main className="max-w-[1600px] mx-auto min-h-[calc(100vh-80px)] p-6 lg:p-10 relative">
+          {children}
+        </main>
       </div>
     </div>
   );
