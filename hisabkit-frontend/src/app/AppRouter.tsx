@@ -9,11 +9,11 @@ import { GoogleOneTapAuth } from '@/shared/components/GoogleOneTapAuth';
 import { ProtectedRoute } from '@/shared/components/ProtectedRoute';
 import { PageLoader } from '@/shared/components/ui/page-loader';
 import { env } from '@/shared/config/env';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/shared/context/AuthContext';
 import { ProtectedAppLayout } from '@/layout/ProtectedAppLayout';
-import { LandingPage } from '@/pages/LandingPage';
-import { LoginPage } from '@/pages/LoginPage';
-import { ModuleComingSoonPage } from '@/pages/ModuleComingSoonPage';
+import { LandingPage } from '@/modules/auth/pages/LandingPage';
+import { LoginPage } from '@/modules/auth/pages/LoginPage';
+import { ModuleComingSoonPage } from '@/shared/components/ModuleComingSoonPage';
 
 // ── Lazy-loaded module entries (route-level code splitting) ───────────────────
 const LedgerPage = React.lazy(() =>
@@ -30,6 +30,9 @@ const ProfilePage = React.lazy(() =>
 );
 const SettingsPage = React.lazy(() =>
   import('@/modules/settings').then((m) => ({ default: m.SettingsPage }))
+);
+const ReportsPage = React.lazy(() =>
+  import('@/modules/reports').then((m) => ({ default: m.ReportsPage }))
 );
 
 // ── Route tree ────────────────────────────────────────────────────────────────
@@ -67,6 +70,10 @@ function AppRoutes() {
         <Route
           path="/settings"
           element={<Suspense fallback={<PageLoader />}><SettingsPage /></Suspense>}
+        />
+        <Route
+          path="/reports"
+          element={<Suspense fallback={<PageLoader />}><ReportsPage /></Suspense>}
         />
         {/* Module placeholders */}
         <Route path="/inventory" element={<ModuleComingSoonPage />} />

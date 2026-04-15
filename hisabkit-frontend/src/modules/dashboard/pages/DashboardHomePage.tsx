@@ -1,7 +1,7 @@
 import { DashboardActionsPanel } from '../components/DashboardActionsPanel';
 import { DashboardHeader } from '../components/DashboardHeader';
 import { DashboardSummaryCards } from '../components/DashboardSummaryCards';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '@/shared/context/AuthContext';
 import { useDashboardHomeState } from '../hooks/useDashboardHomeState';
 
 export const DashboardHomePage = () => {

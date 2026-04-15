@@ -4,7 +4,6 @@
  */
 
 import { X } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog';
 import { Lightbox } from '@/shared/components/ui/lightbox';
 import { LedgerHeader } from '../components/LedgerHeader';
@@ -12,7 +11,6 @@ import { CustomerListPane } from '../components/CustomerListPane';
 import { CustomerDetailsHeader } from '../components/CustomerDetailsHeader';
 import { EmptyStatePanel } from '../components/EmptyStatePanel';
 import { TransactionListView } from '../components/TransactionListView';
-import { ReportPanel } from '../components/ReportPanel';
 import { CustomerFormDrawer } from '../components/CustomerFormDrawer';
 import { TransactionFormDrawer } from '../components/TransactionFormDrawer';
 import { MessageAlert } from '../components/MessageAlert';
@@ -32,6 +30,8 @@ export function LedgerPage() {
           customerCount={derived.filteredCustomers.length}
           onToggleTotals={() => state.setShowTotals(!state.showTotals)}
           onAddCustomer={() => actions.openCustomerDrawer(true)}
+          onExport={actions.handleExport}
+          onImport={actions.handleImport}
         />
 
         {/* Messages */}
@@ -56,52 +56,30 @@ export function LedgerPage() {
 
           {/* Right: Transactions/Reports */}
           <section className="flex flex-col gap-4">
-            {!state.selectedCustomer ? (
+            {!derived.selectedCustomer ? (
               <EmptyStatePanel />
             ) : (
               <>
                 <CustomerDetailsHeader
-                  customer={state.selectedCustomer}
+                  customer={derived.selectedCustomer}
                   onEdit={() => actions.openCustomerDrawer(false)}
                   onAddSale={() => actions.openTransactionDrawer('SALE')}
                   onAddPayment={() => actions.openTransactionDrawer('PAYMENT')}
                   onSendSMS={() => {}}
                   onSendWhatsApp={() => {}}
+                  onExportLedger={actions.handleExportLedger}
                   smsLink={derived.smsLink}
                   whatsappLink={derived.whatsappLink}
                 />
 
-                <Tabs value={state.rightTab} onValueChange={(tab) => state.setRightTab(tab as 'LEDGER' | 'REPORTS')}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="LEDGER">Ledger</TabsTrigger>
-                    <TabsTrigger value="REPORTS">Reports</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="LEDGER">
-                    <TransactionListView
-                      transactions={state.transactions}
-                      attachmentsByTransaction={state.attachmentsByTransaction}
-                      isLoading={queries.transactionsQuery.isLoading}
-                      onEdit={actions.handleOpenTransactionEdit}
-                      onDelete={(id) => state.setConfirmDeleteTransactionId(id)}
-                      onViewAttachment={actions.handleViewAttachment}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="REPORTS">
-                    <ReportPanel
-                      report={derived.reportData}
-                      searchTerm={state.reportSearchTerm}
-                      dueFilter={state.reportDueFilter}
-                      sortField={state.reportSortField}
-                      isLoading={false}
-                      onSearchChange={state.setReportSearchTerm}
-                      onFilterChange={state.setReportDueFilter}
-                      onSortChange={state.setReportSortField}
-                      onExportCsv={actions.handleExportReportCsv}
-                    />
-                  </TabsContent>
-                </Tabs>
+                <TransactionListView
+                  transactions={derived.transactions}
+                  attachmentsByTransaction={derived.attachmentsByTransaction}
+                  isLoading={queries.transactionsQuery.isLoading}
+                  onEdit={actions.handleOpenTransactionEdit}
+                  onDelete={(id) => state.setConfirmDeleteTransactionId(id)}
+                  onViewAttachment={actions.handleViewAttachment}
+                />
               </>
             )}
           </section>
@@ -126,10 +104,16 @@ export function LedgerPage() {
             isSubmitting={state.isSubmittingTransaction}
             isEditing={!!state.editingTransactionId}
             initialValues={state.transactionForm}
+            attachmentFile={state.attachmentFile}
+            existingAttachment={state.editingTransactionId ? (derived.attachmentsByTransaction[state.editingTransactionId]?.[0] || null) : null}
             onClose={state.closeDrawer}
             onFileChange={state.setAttachmentFile}
             onSubmit={actions.handleTransactionSubmit}
-            attachmentFile={state.attachmentFile}
+            onDeleteAttachment={async (id) => {
+               if (confirm('Delete this attachment?')) {
+                 await actions.handleDeleteAttachment(id);
+               }
+            }}
           />
         )}
 

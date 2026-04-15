@@ -16,6 +16,8 @@ interface LedgerHeaderProps {
   customerCount: number;
   onToggleTotals: () => void;
   onAddCustomer: () => void;
+  onExport: () => void;
+  onImport: () => void;
 }
 
 export function LedgerHeader({
@@ -25,91 +27,98 @@ export function LedgerHeader({
   customerCount,
   onToggleTotals,
   onAddCustomer,
+  onExport,
+  onImport,
 }: LedgerHeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="sticky top-0 z-30 mb-6 glass-card rounded-2xl p-6 transition-all duration-300">
-      {/* Title section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-             <div className="p-1.5 rounded-lg bg-indigo-100 text-indigo-600">
-               <Wallet className="w-4 h-4" />
-             </div>
-             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-indigo-500/80">
-               {t('ledger.header.title', 'Workspace Account Book')}
-             </p>
+    <div className="sticky top-0 z-30 mb-4 glass-card rounded-2xl p-3 px-5 reveal">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+            <Wallet className="w-5 h-5" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-            Dashboard overview
-          </h1>
+          <div>
+            <h1 className="text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none">
+              Ledger <span className="text-indigo-600 dark:text-indigo-400">Directory</span>
+            </h1>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">
+              {customerCount} Accounts • {overdueCount} Overdue
+            </p>
+          </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
           <Button 
-            variant="outline" 
+            variant="ghost" 
             size="sm" 
-            className="rounded-xl border-slate-200 hover:bg-slate-50 transition-all"
+            className="h-9 rounded-xl border-none hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-bold text-[11px] uppercase tracking-wider text-slate-500"
             onClick={onToggleTotals}
           >
-            <PieChart className="w-4 h-4 mr-2 text-indigo-500" />
-            {showTotals ? t('ledger.header.hide_totals') : t('ledger.header.show_totals')}
+            <PieChart className="w-4 h-4 mr-1.5 text-indigo-500" />
+            {showTotals ? 'Hide Stats' : 'Stats'}
           </Button>
           
-          <div className="flex h-9 items-center rounded-xl border border-slate-200 bg-white/50 px-1 overflow-hidden transition-all hover:bg-white">
-             <Button variant="ghost" size="sm" className="h-7 px-2 rounded-lg text-slate-600 hover:text-indigo-600" onClick={() => alert('Import features coming soon!')}>
-               <Upload className="w-3.5 h-3.5 mr-1.5" />
-               {t('ledger.header.import', 'Import')}
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
+
+          <div className="hidden sm:flex items-center gap-1">
+             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-500 hover:text-indigo-600" onClick={onImport} title="Import CSV">
+               <Upload className="w-4 h-4" />
              </Button>
-             <div className="w-px h-4 bg-slate-200 mx-1" />
-             <Button variant="ghost" size="sm" className="h-7 px-2 rounded-lg text-slate-600 hover:text-indigo-600" onClick={() => alert('Export features coming soon!')}>
-               <Download className="w-3.5 h-3.5 mr-1.5" />
-               {t('ledger.header.export', 'Export')}
+             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-500 hover:text-indigo-600" onClick={onExport} title="Export CSV">
+               <Download className="w-4 h-4" />
              </Button>
           </div>
 
           <Button 
-            variant="default" 
-            className="rounded-xl px-5 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 bg-gradient-to-r from-indigo-600 to-violet-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            size="sm"
+            className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 rounded-xl text-[11px] uppercase tracking-wider shadow-md shadow-indigo-200 dark:shadow-none"
             onClick={onAddCustomer}
           >
-            <UserPlus className="mr-2 h-4 w-4" />
-            {t('ledger.header.add_customer', 'Add Customer')}
+            <UserPlus className="mr-1.5 h-4 w-4" />
+            New Customer
           </Button>
         </div>
       </div>
 
-      {/* Totals section (conditional) */}
       {showTotals && (
-        <div className="mt-2 grid gap-1.5 sm:grid-cols-4">
-          <div className="rounded-lg bg-emerald-50 px-3 py-2 text-right">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
+        <div className="mt-8 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/10 p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 mb-2">
               {t('ledger.totals.you_collect')}
             </p>
-            <p className="mt-0.5 text-sm font-extrabold text-emerald-800">{formatCurrency(totals.toCollect)}</p>
+            <p className="text-2xl font-black text-emerald-700 dark:text-emerald-300">
+              {formatCurrency(totals.toCollect)}
+            </p>
           </div>
-          <div className="rounded-lg bg-rose-50 px-3 py-2 text-right">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-rose-700">
+          <div className="rounded-2xl bg-rose-500/5 border border-rose-500/10 p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-rose-600 dark:text-rose-400 mb-2">
               {t('ledger.totals.you_pay')}
             </p>
-            <p className="mt-0.5 text-sm font-extrabold text-rose-800">{formatCurrency(totals.toPay)}</p>
+            <p className="text-2xl font-black text-rose-700 dark:text-rose-300">
+              {formatCurrency(totals.toPay)}
+            </p>
           </div>
-          <div className="rounded-lg bg-muted px-3 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <div className="rounded-2xl bg-indigo-500/5 border border-indigo-500/10 p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400 mb-2">
               {t('ledger.totals.visible_customers')}
             </p>
-            <p className="mt-1 text-lg font-black text-foreground">{customerCount}</p>
+            <p className="text-2xl font-black text-indigo-700 dark:text-indigo-300">
+              {customerCount}
+            </p>
           </div>
-          <div className="rounded-lg bg-amber-50 px-3 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-700">
+          <div className="rounded-2xl bg-amber-500/5 border border-amber-500/10 p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-600 dark:text-amber-400 mb-2">
               {t('ledger.totals.overdue')}
             </p>
-            <p className="mt-1 text-lg font-black text-amber-900">{overdueCount}</p>
+            <p className="text-2xl font-black text-amber-700 dark:text-amber-300">
+              {overdueCount}
+            </p>
           </div>
         </div>
       )}
     </div>
   );
 }
+

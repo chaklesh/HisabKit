@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useGoogleOneTapLogin } from '@react-oauth/google';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loginWithGoogleCredential, normalizeAuthSession } from '@/shared/api/client';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/shared/context/AuthContext';
 
 const publicPaths = new Set(['/','/login']);
 

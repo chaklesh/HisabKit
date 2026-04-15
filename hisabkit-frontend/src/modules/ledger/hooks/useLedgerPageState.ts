@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { useCustomersQuery, useTransactionsQuery } from '../services/useLedger';
+import ledgerService from '../services/ledgerService';
 import { useTenantProfileQuery } from '@/modules/profile/services/useProfile';
-import { today } from '@/shared/utils/ledgerUtils';
+import { today, formatDate } from '@/shared/utils/ledgerUtils';
 import type { Attachment } from '@/shared/types';
 import type { Customer, LedgerTransaction, CustomerForm, TransactionForm } from '../types/ledgerTypes';
 import { useLedgerState } from './useLedgerState';
@@ -30,14 +31,23 @@ export function useLedgerPageState() {
   const transactionsQuery = useTransactionsQuery(state.selectedCustomerId || undefined);
   const tenantQuery = useTenantProfileQuery();
 
+  const customers = customersQuery.data || [];
+  const selectedCustomer = useMemo(
+    () => customers.find((c) => c.id === state.selectedCustomerId) ?? null,
+    [customers, state.selectedCustomerId]
+  );
+
+  const transactions = useMemo(() => transactionsQuery.data?.transactions || [], [transactionsQuery.data]);
+  const attachmentsByTransaction = useMemo(() => transactionsQuery.data?.attachmentsByTransaction || {}, [transactionsQuery.data]);
+
   const dueStorageKey = useMemo(
     () => `hisabkit_due_dates_${tenantQuery.data?.id || 'default'}`,
     [tenantQuery.data?.id]
   );
 
   const customersWithDueDate = useMemo(
-    () => applyDueDateMap(state.customers, state.dueDateByCustomer),
-    [state.customers, state.dueDateByCustomer]
+    () => applyDueDateMap(customers as Customer[], state.dueDateByCustomer),
+    [customers, state.dueDateByCustomer]
   );
 
   const filteredCustomers = useMemo(
@@ -69,23 +79,23 @@ export function useLedgerPageState() {
     () =>
       buildReminderMessage({
         template: tenantQuery.data?.smsTemplate,
-        selectedCustomer: state.selectedCustomer,
+        selectedCustomer: selectedCustomer as Customer,
         businessName: tenantQuery.data?.name,
       }),
-    [state.selectedCustomer, tenantQuery.data]
+    [selectedCustomer, tenantQuery.data]
   );
 
   const whatsappMessage = useMemo(
     () =>
       buildReminderMessage({
         template: tenantQuery.data?.whatsappTemplate || tenantQuery.data?.smsTemplate,
-        selectedCustomer: state.selectedCustomer,
+        selectedCustomer: selectedCustomer as Customer,
         businessName: tenantQuery.data?.name,
       }),
-    [state.selectedCustomer, tenantQuery.data]
+    [selectedCustomer, tenantQuery.data]
   );
 
-  const customerPhoneDigits = (state.selectedCustomer?.phone || '').replace(/\D/g, '');
+  const customerPhoneDigits = (selectedCustomer?.phone || '').replace(/\D/g, '');
   const whatsappLink = customerPhoneDigits
     ? `https://wa.me/${customerPhoneDigits}?text=${encodeURIComponent(whatsappMessage)}`
     : '';
@@ -105,21 +115,21 @@ export function useLedgerPageState() {
       email: customer.email || '',
       address: customer.address || '',
       gstNumber: customer.gstNumber || '',
-      dueDate: customer.dueDate || '',
+      dueDate: state.dueDateByCustomer[customer.id] || '',
     });
     state.setIsEditingCustomer(true);
   };
 
   const openCustomerDrawer = (forceNew = false) => {
-    if (state.selectedCustomer && !forceNew) {
+    if (selectedCustomer && !forceNew) {
       state.setIsEditingCustomer(true);
       state.setCustomerForm({
-        name: state.selectedCustomer.name || '',
-        phone: state.selectedCustomer.phone || '',
-        email: state.selectedCustomer.email || '',
-        address: state.selectedCustomer.address || '',
-        gstNumber: state.selectedCustomer.gstNumber || '',
-        dueDate: state.selectedCustomer.dueDate || '',
+        name: selectedCustomer.name || '',
+        phone: selectedCustomer.phone || '',
+        email: selectedCustomer.email || '',
+        address: selectedCustomer.address || '',
+        gstNumber: selectedCustomer.gstNumber || '',
+        dueDate: state.dueDateByCustomer[selectedCustomer.id] || '',
       });
     } else {
       state.setIsEditingCustomer(false);
@@ -197,7 +207,6 @@ export function useLedgerPageState() {
         return next;
       });
       state.setSelectedCustomerId('');
-      state.setTransactions([]);
       state.setCustomerForm(state.INITIAL_CUSTOMER_FORM);
       state.setIsEditingCustomer(false);
       state.setNotice('Customer deleted.');
@@ -275,11 +284,66 @@ export function useLedgerPageState() {
 
   const handleViewAttachment = async (attachment: Attachment) => {
     clearMessages();
-    try {
-      await handlers.attachment.download(attachment);
-    } catch {
-      state.setError('Unable to download attachment.');
+    const ext = attachment.fileName?.split('.').pop()?.toLowerCase() || '';
+    const isImage = attachment.fileType?.startsWith('image/') || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+    const isPdf = attachment.fileType === 'application/pdf' || ext === 'pdf';
+
+    if (isImage || isPdf) {
+      try {
+        const blob = await ledgerService.fetchAttachmentContent(attachment.id);
+        const url = URL.createObjectURL(blob.data as Blob);
+        state.setLightbox({
+          name: attachment.fileName,
+          type: isImage ? 'image' : 'pdf',
+          url,
+        });
+      } catch {
+        state.setError('Unable to load attachment preview.');
+      }
+    } else {
+      try {
+        await handlers.attachment.download(attachment);
+      } catch {
+        state.setError('Unable to download attachment.');
+      }
     }
+  };
+
+  const handleImport = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      state.setIsSubmittingCustomer(true);
+      try {
+        const count = await handlers.import.bulkData(file, async () => {
+          await customersQuery.refetch();
+        });
+        state.setNotice(`Successfully imported ${count} customers.`);
+      } catch (err: any) {
+        state.setError(err.message || 'Import failed.');
+      } finally {
+        state.setIsSubmittingCustomer(false);
+      }
+    };
+    input.click();
+  };
+
+  const handleExport = () => {
+    handlers.export.downloadCsv(
+      `customers-${today()}.csv`,
+      ['Name', 'Phone', 'Email', 'Address', 'GST'],
+      customers.map(c => [
+        c.name,
+        c.phone || '',
+        c.email || '',
+        c.address || '',
+        c.gstNumber || ''
+      ])
+    );
+    state.setNotice('Customer list exported.');
   };
 
   const handleExportReportCsv = () => {
@@ -302,28 +366,10 @@ export function useLedgerPageState() {
   };
 
   useEffect(() => {
-    const list = customersQuery.data ? [...customersQuery.data] : [];
-    state.setCustomers(list as Customer[]);
-
-    if (list.length === 0) {
-      state.setSelectedCustomerId('');
-      state.setIsEditingCustomer(false);
-      return;
+    if (customers.length > 0 && !state.selectedCustomerId) {
+      state.setSelectedCustomerId(customers[0].id);
     }
-
-    const keepSelection = list.some((customer) => customer.id === state.selectedCustomerId)
-      ? state.selectedCustomerId
-      : list[0].id;
-
-    if (keepSelection !== state.selectedCustomerId) {
-      state.setSelectedCustomerId(keepSelection);
-    }
-
-    const selected = list.find((customer) => customer.id === keepSelection);
-    if (selected) {
-      selectCustomer(selected as Customer);
-    }
-  }, [customersQuery.data]);
+  }, [customers, state.selectedCustomerId]);
 
   useEffect(() => {
     const raw = localStorage.getItem(dueStorageKey);
@@ -344,19 +390,6 @@ export function useLedgerPageState() {
   }, [state.dueDateByCustomer, dueStorageKey]);
 
   useEffect(() => {
-    if (!transactionsQuery.data) {
-      state.setTransactions([]);
-      state.setAttachmentsByTransaction({});
-      return;
-    }
-
-    const nextTransactions = transactionsQuery.data.transactions as LedgerTransaction[];
-    const nextAttachments = transactionsQuery.data.attachmentsByTransaction as Record<string, Attachment[]>;
-    state.setTransactions(nextTransactions);
-    state.setAttachmentsByTransaction(nextAttachments);
-  }, [transactionsQuery.data]);
-
-  useEffect(() => {
     if (!state.error) return;
     const timer = window.setTimeout(() => state.setError(''), 5000);
     return () => window.clearTimeout(timer);
@@ -375,6 +408,10 @@ export function useLedgerPageState() {
       transactionsQuery,
     },
     derived: {
+      customers,
+      selectedCustomer: selectedCustomer as Customer,
+      transactions,
+      attachmentsByTransaction,
       filteredCustomers,
       totals,
       overdueCount,
@@ -392,7 +429,36 @@ export function useLedgerPageState() {
       handleTransactionSubmit,
       handleDeleteTransaction,
       handleViewAttachment,
+      handleImport,
+      handleExport,
       handleExportReportCsv,
+      handleDeleteAttachment: async (attachmentId: string) => {
+        clearMessages();
+        try {
+          await handlers.attachment.delete(attachmentId, async () => {
+            if (state.selectedCustomerId) {
+              await transactionsQuery.refetch();
+            }
+          });
+          state.setNotice('Attachment removed.');
+        } catch (error: unknown) {
+          state.setError(getErrorMessage(error, 'Unable to delete attachment.'));
+        }
+      },
+      handleExportLedger: () => {
+        if (!selectedCustomer) return;
+        handlers.export.downloadCsv(
+          `ledger-${selectedCustomer.name}-${today()}.csv`,
+          ['Date', 'Type', 'Description', 'Amount'],
+          transactions.map((t) => [
+            formatDate(t.timestamp),
+            t.type,
+            t.description || '',
+            t.totalAmount.toString(),
+          ])
+        );
+        state.setNotice('Ledger exported.');
+      },
     },
   };
 }

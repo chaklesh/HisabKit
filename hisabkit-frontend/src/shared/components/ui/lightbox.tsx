@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from "lucide-react"
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Download } from "lucide-react"
 import { cn } from "@/shared/lib/utils"
 
 interface LightboxProps {
@@ -47,6 +47,20 @@ export function Lightbox({ isOpen, onClose, images, currentIndex, onNavigate }: 
     setRotation(prev => (prev + 90) % 360)
   }
 
+  const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const current = images[currentIndex]
+    if (!current) return
+
+    const anchor = document.createElement('a')
+    anchor.href = current.url
+    anchor.download = current.title || 'hisabkit-attachment'
+    anchor.target = '_blank'
+    document.body.appendChild(anchor)
+    anchor.click()
+    document.body.removeChild(anchor)
+  }
+
   if (!isOpen || images.length === 0) return null
 
   const currentImage = images[currentIndex]
@@ -56,13 +70,27 @@ export function Lightbox({ isOpen, onClose, images, currentIndex, onNavigate }: 
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm animate-in fade-in duration-300" />
         <DialogPrimitive.Content className="fixed inset-0 z-[101] flex flex-col items-center justify-center outline-none animate-in zoom-in-95 duration-300">
+          <DialogPrimitive.Title className="sr-only">
+            {currentImage.title || 'Attachment Preview'}
+          </DialogPrimitive.Title>
+          <DialogPrimitive.Description className="sr-only">
+            Viewing attachment file in full screen
+          </DialogPrimitive.Description>
           
           {/* Header/Toolbar */}
           <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent z-[102]">
-            <div className="text-white text-sm font-medium truncate max-w-[50%]">
-              {currentImage.title || `Image ${currentIndex + 1} of ${images.length}`}
+            <div className="text-white text-sm font-bold truncate max-w-[50%]">
+              {currentImage.title || `Attachment ${currentIndex + 1}`}
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <button 
+                onClick={handleDownload} 
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all text-xs font-bold ring-1 ring-white/20"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Download</span>
+              </button>
+              <div className="w-px h-6 bg-white/10 mx-1 sm:mx-2" />
               <button onClick={zoomIn} className="text-white/80 hover:text-white transition-colors p-2">
                 <ZoomIn className="w-5 h-5" />
               </button>
@@ -72,7 +100,7 @@ export function Lightbox({ isOpen, onClose, images, currentIndex, onNavigate }: 
               <button onClick={rotate} className="text-white/80 hover:text-white transition-colors p-2">
                 <RotateCw className="w-5 h-5" />
               </button>
-              <button onClick={onClose} className="text-white/80 hover:text-white transition-colors p-2 ml-2">
+              <button onClick={onClose} className="rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all p-2 ml-2">
                 <X className="w-6 h-6" />
               </button>
             </div>

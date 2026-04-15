@@ -126,11 +126,36 @@ export function useLedgerHandlers() {
 
   const handleImportBulkData = useCallback(async (file: File, onSuccess: () => Promise<void>) => {
     const text = await file.text();
-    const lines = text.trim().split('\n');
-    if (lines.length < 2) throw new Error('CSV must have at least header + 1 row');
+    const rows = text.split('\n').map(l => l.split(',').map(c => c.trim().replace(/^"|"$/g, '')));
+    if (rows.length < 2) throw new Error('CSV is empty or missing headers');
 
-    // Add your CSV processing logic here
-    await onSuccess();
+    const headers = rows[0].map(h => h.toLowerCase());
+    const dataRows = rows.slice(1).filter(r => r.length > 0 && r[0] !== '');
+
+    let successCount = 0;
+    for (const row of dataRows) {
+      try {
+        const payload: CustomerForm = {
+          name: row[headers.indexOf('name')] || row[0],
+          phone: row[headers.indexOf('phone')] || '',
+          email: row[headers.indexOf('email')] || '',
+          address: row[headers.indexOf('address')] || '',
+          gstNumber: row[headers.indexOf('gst')] || '',
+          dueDate: '',
+        };
+        if (payload.name) {
+          await ledgerService.createCustomer(payload);
+          successCount++;
+        }
+      } catch (err) {
+        console.error('Failed to import row', row, err);
+      }
+    }
+    
+    if (successCount > 0) {
+      await onSuccess();
+    }
+    return successCount;
   }, []);
 
   return {

@@ -1,6 +1,7 @@
-import { Building2, Save } from 'lucide-react';
+import { Save, Info, Building2, Briefcase, Phone, Mail, CreditCard, Link as LinkIcon, MapPin, MessageSquare, Quote } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Tenant } from '@/shared/types';
+import { Button } from '@/shared/components/ui/button';
 
 type BusinessProfileFormProps = {
   tenant: Tenant;
@@ -25,60 +26,137 @@ export function BusinessProfileForm({
         e.preventDefault();
         void onSubmit();
       }}
-      className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+      className="space-y-12"
     >
-      <h2 className="mb-2 flex items-center gap-2 text-xl font-black text-slate-900">
-        <Building2 className="h-5 w-5" />
-        Business Profile and Reminder Templates
-      </h2>
-      <p className="mb-4 text-xs text-slate-500">Template variables: {templateHelp}</p>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-1">
-          <p className={formLabelClass}>Business name</p>
-          <input value={tenant.name || ''} onChange={(e) => setTenant((p) => ({ ...p, name: e.target.value }))} placeholder="Business name" className={formInputClass} />
-        </div>
-        <div className="space-y-1">
-          <p className={formLabelClass}>Business type</p>
-          <input value={tenant.businessType || ''} onChange={(e) => setTenant((p) => ({ ...p, businessType: e.target.value }))} placeholder="Retail, Wholesale, Services..." className={formInputClass} />
-        </div>
-        <div className="space-y-1">
-          <p className={formLabelClass}>Owner name</p>
-          <input value={tenant.ownerName || ''} onChange={(e) => setTenant((p) => ({ ...p, ownerName: e.target.value }))} placeholder="Owner name" className={formInputClass} />
-        </div>
-        <div className="space-y-1">
-          <p className={formLabelClass}>Business phone</p>
-          <input value={tenant.businessPhone || ''} onChange={(e) => setTenant((p) => ({ ...p, businessPhone: e.target.value }))} placeholder="+91xxxxxxxxxx" className={formInputClass} />
-        </div>
-        <div className="space-y-1">
-          <p className={formLabelClass}>Business email</p>
-          <input value={tenant.businessEmail || ''} onChange={(e) => setTenant((p) => ({ ...p, businessEmail: e.target.value }))} placeholder="accounts@business.com" className={formInputClass} />
-        </div>
-        <div className="space-y-1">
-          <p className={formLabelClass}>GST number</p>
-          <input value={tenant.gstNumber || ''} onChange={(e) => setTenant((p) => ({ ...p, gstNumber: e.target.value }))} placeholder="GSTIN" className={formInputClass} />
-        </div>
-        <div className="space-y-1 md:col-span-2">
-          <p className={formLabelClass}>Logo URL</p>
-          <input value={tenant.logoUrl || ''} onChange={(e) => setTenant((p) => ({ ...p, logoUrl: e.target.value }))} placeholder="https://..." className={formInputClass} />
-        </div>
-        <div className="space-y-1 md:col-span-2">
-          <p className={formLabelClass}>Business address</p>
-          <input value={tenant.businessAddress || ''} onChange={(e) => setTenant((p) => ({ ...p, businessAddress: e.target.value }))} placeholder="Business address" className={formInputClass} />
-        </div>
-        <div className="space-y-1 md:col-span-2">
-          <p className={formLabelClass}>SMS template</p>
-          <textarea value={tenant.smsTemplate || ''} onChange={(e) => setTenant((p) => ({ ...p, smsTemplate: e.target.value }))} placeholder="SMS reminder template" className={`min-h-24 ${formInputClass}`} />
-        </div>
-        <div className="space-y-1 md:col-span-2">
-          <p className={formLabelClass}>WhatsApp template</p>
-          <textarea value={tenant.whatsappTemplate || ''} onChange={(e) => setTenant((p) => ({ ...p, whatsappTemplate: e.target.value }))} placeholder="WhatsApp reminder template" className={`min-h-24 ${formInputClass}`} />
-        </div>
+      {/* Information Header */}
+      <div className="flex flex-col md:flex-row items-center gap-6 p-6 bg-indigo-50 dark:bg-indigo-950/20 rounded-[2rem] border border-indigo-100 dark:border-indigo-900/40">
+         <div className="p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-sm text-indigo-600">
+            <Info className="w-6 h-6" />
+         </div>
+         <div className="flex-1 space-y-1">
+            <p className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider">Template Variables</p>
+            <p className="text-xs font-mono text-indigo-600 dark:text-indigo-400 break-all">{templateHelp}</p>
+         </div>
       </div>
-      <button type="submit" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white">
-        <Save className="h-4 w-4" />
-        Save tenant settings
-      </button>
+
+      <div className="grid gap-8">
+         {/* Identity Group */}
+         <div className="space-y-6">
+            <div className="flex items-center gap-2 px-1">
+               <Building2 className="w-3.5 h-3.5 text-slate-300" />
+               <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Business Identity</span>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+               <div className="space-y-1">
+                 <label className={formLabelClass}>Business Name</label>
+                 <div className="relative">
+                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <input value={tenant.name || ''} onChange={(e) => setTenant((p) => ({ ...p, name: e.target.value }))} placeholder="Business Name" className={`${formInputClass} pl-11`} />
+                 </div>
+               </div>
+               <div className="space-y-1">
+                 <label className={formLabelClass}>Business Type</label>
+                 <div className="relative">
+                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <input value={tenant.businessType || ''} onChange={(e) => setTenant((p) => ({ ...p, businessType: e.target.value }))} placeholder="Category" className={`${formInputClass} pl-11`} />
+                 </div>
+               </div>
+               <div className="space-y-1">
+                 <label className={formLabelClass}>Owner Name</label>
+                 <input value={tenant.ownerName || ''} onChange={(e) => setTenant((p) => ({ ...p, ownerName: e.target.value }))} placeholder="Owner Name" className={formInputClass} />
+               </div>
+               <div className="space-y-1">
+                 <label className={formLabelClass}>GST Number</label>
+                 <div className="relative">
+                    <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <input value={tenant.gstNumber || ''} onChange={(e) => setTenant((p) => ({ ...p, gstNumber: e.target.value }))} placeholder="Tax ID" className={`${formInputClass} pl-11 uppercase`} />
+                 </div>
+               </div>
+            </div>
+         </div>
+
+         {/* Connectivity Group */}
+         <div className="space-y-6">
+            <div className="flex items-center gap-2 px-1">
+               <Phone className="w-3.5 h-3.5 text-slate-300" />
+               <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Contact Information</span>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+               <div className="space-y-1">
+                 <label className={formLabelClass}>Business Phone</label>
+                 <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <input value={tenant.businessPhone || ''} onChange={(e) => setTenant((p) => ({ ...p, businessPhone: e.target.value }))} placeholder="Phone Number" className={`${formInputClass} pl-11`} />
+                 </div>
+               </div>
+               <div className="space-y-1">
+                 <label className={formLabelClass}>Business Email</label>
+                 <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <input value={tenant.businessEmail || ''} onChange={(e) => setTenant((p) => ({ ...p, businessEmail: e.target.value }))} placeholder="Email address" className={`${formInputClass} pl-11`} />
+                 </div>
+               </div>
+               <div className="space-y-1 md:col-span-2">
+                 <label className={formLabelClass}>Logo URL</label>
+                 <div className="relative">
+                    <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <input value={tenant.logoUrl || ''} onChange={(e) => setTenant((p) => ({ ...p, logoUrl: e.target.value }))} placeholder="https://..." className={`${formInputClass} pl-11`} />
+                 </div>
+               </div>
+               <div className="space-y-1 md:col-span-2">
+                 <label className={formLabelClass}>Business Address</label>
+                 <div className="relative">
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    <input value={tenant.businessAddress || ''} onChange={(e) => setTenant((p) => ({ ...p, businessAddress: e.target.value }))} placeholder="Full address" className={`${formInputClass} pl-11`} />
+                 </div>
+               </div>
+            </div>
+         </div>
+
+         {/* Automation Group */}
+         <div className="space-y-6">
+            <div className="flex items-center gap-2 px-1">
+               <MessageSquare className="w-3.5 h-3.5 text-slate-300" />
+               <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Message Templates</span>
+            </div>
+            <div className="grid gap-6">
+               <div className="space-y-2">
+                 <label className={formLabelClass}>SMS Template</label>
+                 <div className="relative">
+                    <Quote className="absolute left-4 top-6 w-4 h-4 text-slate-200" />
+                    <textarea 
+                      value={tenant.smsTemplate || ''} 
+                      onChange={(e) => setTenant((p) => ({ ...p, smsTemplate: e.target.value }))} 
+                      placeholder="SMS text format..." 
+                      className={`${formInputClass} min-h-32 pl-11 py-5 resize-none`} 
+                    />
+                 </div>
+               </div>
+               <div className="space-y-2">
+                 <label className={formLabelClass}>WhatsApp Template</label>
+                 <div className="relative">
+                    <Quote className="absolute left-4 top-6 w-4 h-4 text-slate-200" />
+                    <textarea 
+                      value={tenant.whatsappTemplate || ''} 
+                      onChange={(e) => setTenant((p) => ({ ...p, whatsappTemplate: e.target.value }))} 
+                      placeholder="WhatsApp text format..." 
+                      className={`${formInputClass} min-h-32 pl-11 py-5 resize-none`} 
+                    />
+                 </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div className="pt-4 flex justify-end">
+        <Button 
+          type="submit" 
+          className="h-10 px-6 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 font-semibold w-full md:w-auto"
+        >
+          <Save className="h-4 w-4 mr-2" />
+          Save Business Profile
+        </Button>
+      </div>
     </form>
   );
 }
-

@@ -3,17 +3,14 @@
  * Centralizes all UI state for the Ledger module.
  * Pure state – no side effects, no API calls.
  */
-import { useCallback, useMemo, useRef, useState } from 'react';
-import type { Attachment } from '@/shared/types';
+import { useCallback, useRef, useState } from 'react';
 import { today } from '@/shared/utils/ledgerUtils';
 import type {
-  Customer,
   CustomerFilter,
   CustomerForm,
   CustomerSort,
   DrawerMode,
   LedgerRightTab,
-  LedgerTransaction,
   TransactionForm,
 } from '../types/ledgerTypes';
 
@@ -37,8 +34,7 @@ export const makeInitialTransactionForm = (customerId = '', date = today()): Tra
 });
 
 export function useLedgerState() {
-  // ── Customer list ──────────────────────────────────────────────────────────
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  // ── Selections & Search ───────────────────────────────────────────────────
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [customerFilter, setCustomerFilter] = useState<CustomerFilter>('ALL');
@@ -46,10 +42,8 @@ export function useLedgerState() {
   const [showTotals, setShowTotals] = useState(false);
   const [dueDateByCustomer, setDueDateByCustomer] = useState<Record<string, string>>({});
 
-  // ── Transactions ───────────────────────────────────────────────────────────
-  const [transactions, setTransactions] = useState<LedgerTransaction[]>([]);
+  // ── Transient UI State ────────────────────────────────────────────────────
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
-  const [attachmentsByTransaction, setAttachmentsByTransaction] = useState<Record<string, Attachment[]>>({});
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [lightbox, setLightbox] = useState<{ name: string; type: 'image' | 'pdf'; url: string } | null>(null);
 
@@ -76,14 +70,8 @@ export function useLedgerState() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
-  // ── Refs (for focus management) ────────────────────────────────────────────
+  // ── Refs ───────────────────────────────────────────────────────────────────
   const importFileInputRef = useRef<HTMLInputElement | null>(null);
-
-  // ── Derived ────────────────────────────────────────────────────────────────
-  const selectedCustomer = useMemo(
-    () => customers.find((c) => c.id === selectedCustomerId) ?? null,
-    [customers, selectedCustomerId]
-  );
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const closeDrawer = useCallback(() => {
@@ -101,20 +89,16 @@ export function useLedgerState() {
   );
 
   return {
-    // Customer list
-    customers, setCustomers,
+    // Selections
     selectedCustomerId, setSelectedCustomerId,
-    selectedCustomer,
     searchTerm, setSearchTerm,
     customerFilter, setCustomerFilter,
     customerSort, setCustomerSort,
     showTotals, setShowTotals,
     dueDateByCustomer, setDueDateByCustomer,
 
-    // Transactions
-    transactions, setTransactions,
+    // UI State
     editingTransactionId, setEditingTransactionId,
-    attachmentsByTransaction, setAttachmentsByTransaction,
     attachmentFile, setAttachmentFile,
     lightbox, setLightbox,
 
@@ -152,3 +136,4 @@ export function useLedgerState() {
     INITIAL_CUSTOMER_FORM,
   };
 }
+

@@ -184,16 +184,23 @@ export const updateCustomer = (id: string, payload: CustomerMutationPayload) =>
 export const deleteCustomer = (id: string) => api.delete(`/ledger/customers/${id}`);
 
 export const listTransactions = (customerId: string) =>
-  api.get<LedgerTransaction[]>(`/ledger/transactions?customerId=${encodeURIComponent(customerId)}`);
+  api.get<LedgerTransaction[]>(`/ledger/customers/${customerId}/transactions`);
 export const createTransaction = (payload: TransactionMutationPayload) =>
   api.post<LedgerTransaction>('/ledger/transactions', payload);
 
 // ────── Profile ───────────────────────────────────────────────────────────────
 export const getMyProfile = () => api.get<UserProfile>('/profile');
-export const updateMyProfile = (payload: Partial<Pick<UserProfile, 'fullName' | 'email' | 'mobile' | 'avatarUrl'>>) =>
-  api.put<UserProfile>('/profile', payload);
-export const changeMyPassword = (payload: { currentPassword: string; newPassword: string }) =>
-  api.put('/profile/password', payload);
+export const updateMyProfile = (payload: {
+  fullName?: string;
+  email?: string;
+  mobile?: string;
+  avatarUrl?: string;
+}) => api.put<UserProfile>('/profile', payload);
+
+export const changeMyPassword = (payload: {
+  currentPassword: string;
+  newPassword: string;
+}) => api.put('/profile/password', payload);
 export const uploadMyAvatar = (file: File) => {
   const form = new FormData();
   form.append('file', file);

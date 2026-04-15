@@ -1,7 +1,8 @@
-import { Users, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Users, ArrowUpRight, Wallet, Activity } from 'lucide-react';
 import { formatCurrency } from '../../../shared/utils/ledgerUtils';
 import type { DashboardSummary } from '../types/dashboardTypes';
 import { Card, CardContent } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
 
 type DashboardSummaryCardsProps = {
   customerCount: number;
@@ -10,55 +11,79 @@ type DashboardSummaryCardsProps = {
 
 export function DashboardSummaryCards({ customerCount, summary }: DashboardSummaryCardsProps) {
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-10 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-      <Card className="glass-card border-none overflow-hidden group">
-        <CardContent className="p-6">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8 reveal">
+      {/* Managed Accounts Card */}
+      <Card className="glass-card border-none overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300 rounded-3xl">
+        <CardContent className="p-5 relative">
           <div className="flex items-center justify-between mb-4">
-             <div className="p-3 rounded-2xl bg-indigo-100 text-indigo-600 transition-transform group-hover:scale-110">
-                <Users className="w-6 h-6" />
+             <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                <Users className="w-5 h-5" />
              </div>
-             <div className="p-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold px-2">
-                +12% this month
+             <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-black uppercase tracking-wider">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
              </div>
           </div>
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Active Customers</p>
-          <div className="flex items-end gap-2 mt-1">
-             <h3 className="text-4xl font-black text-slate-900 tracking-tighter">{customerCount}</h3>
-             <p className="text-xs text-slate-400 mb-1.5 font-medium">accounts managed</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Customers</p>
+          <div className="flex items-baseline gap-2">
+             <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums">
+               {customerCount}
+             </h3>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="glass-card border-none overflow-hidden group">
-        <CardContent className="p-6">
+      {/* Receivables Card */}
+      <Card className="glass-card border-none overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300 rounded-3xl">
+        <CardContent className="p-5 relative">
           <div className="flex items-center justify-between mb-4">
-             <div className="p-3 rounded-2xl bg-emerald-100 text-emerald-600 transition-transform group-hover:scale-110">
-                <ArrowDownLeft className="w-6 h-6" />
+             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                <Wallet className="w-5 h-5" />
              </div>
-             <div className="p-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2">
-                Receivable
-             </div>
+             <Badge variant="outline" className="text-[9px] font-bold border-emerald-100 bg-emerald-50/50 text-emerald-600">Secure</Badge>
           </div>
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Total to collect</p>
-          <div className="flex items-end gap-2 mt-1">
-             <h3 className="text-3xl font-black text-emerald-600 tracking-tighter">{formatCurrency(summary.toCollect)}</h3>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">You Collect</p>
+          <div className="flex items-baseline gap-1">
+             <h3 className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight tabular-nums">
+               {formatCurrency(summary.toCollect)}
+             </h3>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="glass-card border-none overflow-hidden group">
-        <CardContent className="p-6">
+      {/* Payables Card */}
+      <Card className="glass-card border-none overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300 rounded-3xl">
+        <CardContent className="p-5 relative">
           <div className="flex items-center justify-between mb-4">
-             <div className="p-3 rounded-2xl bg-rose-100 text-rose-600 transition-transform group-hover:scale-110">
-                <ArrowUpRight className="w-6 h-6" />
+             <div className="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:bg-rose-600 group-hover:text-white transition-all duration-300">
+                <ArrowUpRight className="w-5 h-5" />
              </div>
-             <div className="p-1 rounded-full bg-rose-50 text-rose-600 text-[10px] font-bold px-2">
-                Payable
+             <Badge variant="outline" className="text-[9px] font-bold border-rose-100 bg-rose-50/50 text-rose-600">Pending</Badge>
+          </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">You Pay</p>
+          <div className="flex items-baseline gap-1">
+             <h3 className="text-2xl font-black text-rose-600 dark:text-rose-400 tracking-tight tabular-nums">
+               {formatCurrency(summary.toPay)}
+             </h3>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Overdue Card */}
+      <Card className="glass-card border-none overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300 rounded-3xl">
+        <CardContent className="p-5 relative">
+          <div className="flex items-center justify-between mb-4">
+             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:bg-amber-600 group-hover:text-white transition-all duration-300">
+                <Activity className="w-5 h-5" />
+             </div>
+             <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/20 text-amber-600 text-[9px] font-black uppercase tracking-wider">
+                Critical
              </div>
           </div>
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Total to pay</p>
-          <div className="flex items-end gap-2 mt-1">
-             <h3 className="text-3xl font-black text-rose-600 tracking-tighter">{formatCurrency(summary.toPay)}</h3>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Overdue Accounts</p>
+          <div className="flex items-baseline gap-1">
+             <h3 className="text-3xl font-black text-amber-600 dark:text-amber-400 tracking-tight tabular-nums">
+               {summary.overdueCount}
+             </h3>
           </div>
         </CardContent>
       </Card>

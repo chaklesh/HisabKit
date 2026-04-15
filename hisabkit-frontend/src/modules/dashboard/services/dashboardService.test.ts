@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../api/api', () => ({
+vi.mock('@/shared/api/client', () => ({
   default: { get: vi.fn() },
 }));
 
 import dashboardService from './dashboardService';
-import api from '../../api/api';
+import api from '@/shared/api/client';
 
 describe('dashboardService', () => {
   beforeEach(() => {

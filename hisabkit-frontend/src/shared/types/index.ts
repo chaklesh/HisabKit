@@ -36,6 +36,10 @@ export interface Tenant {
   smsTemplate?: string;
   whatsappTemplate?: string;
   status?: string;
+  // Storage settings
+  attachmentQuotaMb?: number;
+  maxAttachmentFileSizeMb?: number;
+  attachmentRetentionDays?: number;
 }
 
 // ────── Customer ──────────────────────────────────────────────────────────────
@@ -46,8 +50,8 @@ export interface Customer {
   email?: string;
   address?: string;
   gstNumber?: string;
-  totalBalance?: number;
   dueDate?: string;
+  totalBalance?: number;
   createdAt?: string;
   updatedAt?: string;
   lastTransactionAt?: string;

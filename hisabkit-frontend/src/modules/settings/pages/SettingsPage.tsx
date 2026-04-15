@@ -1,8 +1,8 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Paintbrush, Settings2 } from 'lucide-react';
+import { Paintbrush, Sliders, Globe, Bell, Shield, Layout as LayoutIcon, Building2 } from 'lucide-react';
 import { useTenantProfileQuery } from '@/modules/profile/services/useProfile';
 import type { Tenant } from '@/shared/types';
-import { Badge } from '@/shared/components/ui/badge';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { AppearanceSection } from '../components/AppearanceSection';
@@ -11,94 +11,111 @@ import { BusinessSection } from '../components/BusinessSection';
 import { RemindersSection } from '../components/RemindersSection';
 import { SecuritySection } from '../components/SecuritySection';
 import { LayoutSection } from '../components/LayoutSection';
+import { cn } from '@/shared/lib/utils';
 
 export function SettingsPage() {
   const { t } = useTranslation();
   const tenantQuery = useTenantProfileQuery();
   const businessData: Tenant | null = tenantQuery.data ?? null;
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const TabItem = ({ value, icon: Icon, label }: { value: string, icon: any, label: string }) => (
+    <TabsTrigger 
+      value={value} 
+      className={cn(
+        "w-full justify-start gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group",
+        "data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900",
+        "data-[state=active]:shadow-xl data-[state=active]:shadow-indigo-500/10",
+        "data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400",
+        "data-[state=inactive]:text-slate-500 hover:data-[state=inactive]:bg-slate-100 dark:hover:data-[state=inactive]:bg-slate-800/50"
+      )}
+    >
+      <div className={cn(
+        "p-2 rounded-xl transition-colors",
+        "group-data-[state=active]:bg-indigo-500 group-data-[state=active]:text-white",
+        "group-data-[state=inactive]:bg-slate-100 dark:group-data-[state=inactive]:bg-slate-800"
+      )}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <span className="font-semibold text-xs">{label}</span>
+    </TabsTrigger>
+  );
+
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 p-4 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <Card className="border-none shadow-md bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
-        <CardHeader className="md:px-8 md:py-8">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="space-y-3">
-              <Badge variant="outline" className="bg-white/50 text-slate-600 dark:text-slate-300 backdrop-blur-sm px-3 py-1 text-xs tracking-widest font-semibold uppercase">
-                <Settings2 className="w-3.5 h-3.5 mr-1.5 inline-block text-emerald-600" />
-                {t('settings.badge', 'Workspace Configuration')}
-              </Badge>
-              <CardTitle className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
-                {t('settings.title', 'Settings & Preferences')}
+    <div className="mx-auto max-w-[1400px] flex flex-col gap-12 pb-24 reveal">
+      {/* Settings Explorer Head */}
+      <Card className="border-none bg-white/50 dark:bg-slate-900/50 backdrop-blur-2xl rounded-3xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-800">
+        <CardHeader className="p-8 lg:p-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="space-y-4 text-center lg:text-left">
+              <CardTitle className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                Settings
               </CardTitle>
-              <CardDescription className="text-lg text-slate-500 dark:text-slate-400 max-w-xl">
-                {t(
-                  'settings.subtitle',
-                  'Configure your business identity, workspace layout, security policies, and localization preferences from this central dashboard.'
-                )}
+              <CardDescription className="text-base text-slate-500 dark:text-slate-400 max-w-2xl font-medium">
+                Manage your workspace settings, including appearance, localization, and notifications.
               </CardDescription>
             </div>
             
-            <div className="hidden md:flex rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 p-5 px-6 border border-indigo-100 dark:border-indigo-800/30 text-indigo-800 dark:text-indigo-300 max-w-sm w-full gap-4 items-center">
-              <div className="bg-indigo-100 dark:bg-indigo-800 p-2.5 rounded-full shrink-0">
-                <Paintbrush className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+            <div className="hidden lg:flex flex-col items-center justify-center p-8 rounded-[2rem] bg-indigo-600 text-white shadow-xl shadow-indigo-500/20 w-80 shrink-0 gap-4">
+              <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md">
+                <Paintbrush className="w-8 h-8 text-white" />
               </div>
-              <p className="text-sm leading-relaxed font-medium">
-                {t(
-                  'settings.alert.description',
-                  'Your workspace preferences synchronize securely across all your devices.'
-                )}
+              <p className="text-sm text-center leading-relaxed font-semibold opacity-90">
+                Your settings are applied across all your devices.
               </p>
             </div>
           </div>
         </CardHeader>
       </Card>
 
-      <Tabs defaultValue="business" className="w-full flex flex-col md:flex-row gap-6 lg:gap-10">
-        <TabsList className="flex md:flex-col h-auto w-full md:w-64 bg-transparent gap-2 items-start justify-start overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
-          <TabsTrigger value="business" className="w-full justify-start text-left px-5 py-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-700 data-[state=active]:font-bold transition-all border border-transparent data-[state=active]:border-slate-200">
-            {t('settings.tabs.business', 'Business Identity')}
-          </TabsTrigger>
-          <TabsTrigger value="appearance" className="w-full justify-start text-left px-5 py-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-700 data-[state=active]:font-bold transition-all border border-transparent data-[state=active]:border-slate-200">
-            {t('settings.tabs.appearance', 'Appearance & Theme')}
-          </TabsTrigger>
-          <TabsTrigger value="language" className="w-full justify-start text-left px-5 py-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-700 data-[state=active]:font-bold transition-all border border-transparent data-[state=active]:border-slate-200">
-            {t('settings.tabs.language', 'Localization')}
-          </TabsTrigger>
-          <TabsTrigger value="reminders" className="w-full justify-start text-left px-5 py-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-700 data-[state=active]:font-bold transition-all border border-transparent data-[state=active]:border-slate-200">
-            {t('settings.tabs.reminders', 'Auto-Reminders')}
-          </TabsTrigger>
-          <TabsTrigger value="security" className="w-full justify-start text-left px-5 py-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-700 data-[state=active]:font-bold transition-all border border-transparent data-[state=active]:border-slate-200">
-            {t('settings.tabs.security', 'Security & Access')}
-          </TabsTrigger>
-          <TabsTrigger value="layout" className="w-full justify-start text-left px-5 py-3 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-700 data-[state=active]:font-bold transition-all border border-transparent data-[state=active]:border-slate-200">
-            {t('settings.tabs.layout', 'Interface Layout')}
-          </TabsTrigger>
+      <Tabs 
+        defaultValue="business" 
+        orientation={isMobile ? "horizontal" : "vertical"}
+        className="w-full flex flex-col md:flex-row gap-8 lg:gap-14"
+      >
+        <TabsList className="flex md:flex-col h-auto w-full md:w-64 bg-slate-100/50 dark:bg-slate-900/50 p-2 rounded-2xl border border-slate-200/50 dark:border-slate-800 gap-1 items-stretch justify-start overflow-x-auto scrollbar-hide">
+          <TabItem value="business" icon={Building2} label={t('settings.tabs.business', 'Business')} />
+          <TabItem value="appearance" icon={Sliders} label={t('settings.tabs.appearance', 'Appearance')} />
+          <TabItem value="language" icon={Globe} label={t('settings.tabs.language', 'Language')} />
+          <TabItem value="reminders" icon={Bell} label={t('settings.tabs.reminders', 'Reminders')} />
+          <TabItem value="security" icon={Shield} label={t('settings.tabs.security', 'Security')} />
+          <TabItem value="layout" icon={LayoutIcon} label={t('settings.tabs.layout', 'Layout')} />
         </TabsList>
 
-        <div className="flex-1 min-w-0 pb-12">
-          <TabsContent value="business" className="m-0 focus-visible:outline-none animate-in fade-in slide-in-from-right-4 duration-500">
-            <BusinessSection businessData={businessData} />
-          </TabsContent>
-          
-          <TabsContent value="appearance" className="m-0 focus-visible:outline-none animate-in fade-in slide-in-from-right-4 duration-500">
-            <AppearanceSection />
-          </TabsContent>
+        <div className="flex-1 min-w-0">
+          <div className="glass-card rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <TabsContent value="business" className="m-0 focus-visible:outline-none reveal">
+              <BusinessSection businessData={businessData} />
+            </TabsContent>
+            
+            <TabsContent value="appearance" className="m-0 focus-visible:outline-none reveal">
+              <AppearanceSection />
+            </TabsContent>
 
-          <TabsContent value="language" className="m-0 focus-visible:outline-none animate-in fade-in slide-in-from-right-4 duration-500">
-            <LanguageSection />
-          </TabsContent>
+            <TabsContent value="language" className="m-0 focus-visible:outline-none reveal">
+              <LanguageSection />
+            </TabsContent>
 
-          <TabsContent value="reminders" className="m-0 focus-visible:outline-none animate-in fade-in slide-in-from-right-4 duration-500">
-            <RemindersSection businessData={businessData} />
-          </TabsContent>
+            <TabsContent value="reminders" className="m-0 focus-visible:outline-none reveal">
+              <RemindersSection businessData={businessData} />
+            </TabsContent>
 
-          <TabsContent value="security" className="m-0 focus-visible:outline-none animate-in fade-in slide-in-from-right-4 duration-500">
-            <SecuritySection />
-          </TabsContent>
+            <TabsContent value="security" className="m-0 focus-visible:outline-none reveal">
+              <SecuritySection />
+            </TabsContent>
 
-          <TabsContent value="layout" className="m-0 focus-visible:outline-none animate-in fade-in slide-in-from-right-4 duration-500">
-            <LayoutSection />
-          </TabsContent>
+            <TabsContent value="layout" className="m-0 focus-visible:outline-none reveal">
+              <LayoutSection />
+            </TabsContent>
+          </div>
         </div>
       </Tabs>
     </div>

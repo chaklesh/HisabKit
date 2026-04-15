@@ -43,7 +43,9 @@
     "cancel": "Cancel",
     "loading": "Loading...",
     "error_occurred": "An error occurred",
-    "or": "or"
+    "or": "or",
+    "reset": "Reset",
+    "save_changes": "Save changes"
   },
   "ledger": {
     "title": "Customer-wise account book",
@@ -55,7 +57,9 @@
       "add_customer": "Add customer",
       "edit_customer": "Edit customer",
       "sale": "Sale",
-      "payment": "Payment"
+      "payment": "Payment",
+      "import": "Import CSV",
+      "export": "Export CSV"
     },
     "totals": {
       "you_collect": "You collect",
@@ -72,6 +76,11 @@
       "address": "Address",
       "gst_number": "GST number",
       "due_date": "Due date",
+      "add_title": "Add Customer",
+      "edit_title": "Edit Customer",
+      "name_placeholder": "e.g. Ramesh Traders",
+      "address_placeholder": "Shop #12, Market Road",
+      "due_date_hint": "Payment due reminder",
       "no_contact": "No contact added",
       "no_address": "No address added",
       "due": "Due",
@@ -158,6 +167,7 @@
     "admin": "Admin",
     "profile": "Profile",
     "settings": "Settings",
+    "logout": "Sign out",
     "adminConsole": "Admin Console",
     "profileSettings": "Profile Settings",
     "productTagline": "MSME Finance",
@@ -165,6 +175,7 @@
     "titles": {
       "dashboard": "Dashboard",
       "ledger": "Customer Ledger",
+      "reports": "Reports & Analytics",
       "inventory": "Inventory",
       "suppliers": "Suppliers",
       "lending": "Money Lending",
@@ -176,6 +187,7 @@
     "modules": {
       "dashboard": "Dashboard",
       "ledger": "Customer Ledger",
+      "reports": "Reports & Analytics",
       "inventory": "Inventory",
       "suppliers": "Suppliers",
       "lending": "Money Lending"
@@ -193,6 +205,28 @@
       "security": "Security",
       "layout": "Layout",
       "roadmap": "What is next"
+    },
+    "layout": {
+      "title": "Layout & Preferences",
+      "description": "Customize dashboard appearance and navigation behavior",
+      "density": "Dashboard Density",
+      "density_description": "Choose how much space elements should occupy",
+      "navigation": "Navigation",
+      "navigation_description": "Customize how navigation is displayed",
+      "compact_sidebar": "Compact sidebar",
+      "compact_sidebar_desc": "Show icons only, hide labels",
+      "hide_planned": "Hide planned modules",
+      "hide_planned_desc": "Show only available features, hide coming soon",
+      "note": "Layout preferences are stored locally on this device and don't sync across browsers yet."
+    },
+    "reminders": {
+      "title": "Notification Templates",
+      "description": "Customize messages sent to customers via SMS and WhatsApp",
+      "available_variables": "Available variables",
+      "sms_template": "SMS template",
+      "whatsapp_template": "WhatsApp template",
+      "copy_from_sms": "Copy from SMS",
+      "whatsapp_note": "WhatsApp allows longer messages and media support"
     },
     "alert": {
       "title": "Settings foundation is live",
@@ -246,6 +280,44 @@
     "toast": {
       "theme_updated": "Appearance updated",
       "language_updated": "Language updated"
+    }
+  },
+  "admin": {
+    "title": "Control Center",
+    "subtitle": "Infrastructure management",
+    "tabs": {
+      "tenants": "Tenants",
+      "customers": "Customer Hub",
+      "transactions": "Ledger Log"
+    },
+    "tenants": {
+      "title": "Tenant management",
+      "add_tenant": "Add workspace",
+      "edit_tenant": "Edit workspace",
+      "no_tenants": "No tenants yet. Create your first tenant to start onboarding users.",
+      "fields": {
+        "name": "Workspace Name",
+        "slug": "Slug",
+        "business_type": "Business Type",
+        "owner": "Owner Name",
+        "phone": "Business Phone",
+        "email": "Business Email",
+        "gst": "GST Number",
+        "logo": "Logo URL",
+        "address": "Full Address",
+        "status": "Operational Status",
+        "quota": "Storage Quota (MB)",
+        "max_file": "Max File Size (MB)",
+        "retention": "Retention (Days)"
+      }
+    },
+    "customers": {
+      "title": "Customer accounts",
+      "search_placeholder": "Search by name, contact, OR GST..."
+    },
+    "transactions": {
+      "title": "Transaction history",
+      "search_placeholder": "Search by ref, customer, date, or amount..."
     }
   }
 }

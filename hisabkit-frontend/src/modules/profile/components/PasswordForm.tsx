@@ -1,6 +1,7 @@
-import { KeyRound, Save } from 'lucide-react';
+import { KeyRound, ShieldCheck, Lock, Unlock } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { PasswordFormState } from '../types/profileTypes';
+import { Button } from '@/shared/components/ui/button';
 
 type PasswordFormProps = {
   passwordForm: PasswordFormState;
@@ -23,42 +24,57 @@ export function PasswordForm({
         e.preventDefault();
         void onSubmit();
       }}
-      className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+      className="space-y-8"
     >
-      <h2 className="mb-4 flex items-center gap-2 text-xl font-black text-slate-900">
-        <KeyRound className="h-5 w-5" />
-        Change Password
-      </h2>
-      <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-        Use a strong password with at least 8 characters and a mix of letters, numbers, and symbols.
-      </p>
-      <div className="grid gap-4">
+      <div className="p-6 bg-slate-100 dark:bg-slate-800/40 rounded-[2rem] border border-slate-200 dark:border-slate-800 space-y-4">
+         <div className="flex items-center gap-3 text-slate-900 dark:text-white">
+            <ShieldCheck className="w-5 h-5 text-emerald-500" />
+            <h4 className="text-sm font-bold uppercase tracking-widest">Password Requirements</h4>
+         </div>
+         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
+           Changing your password will sign you out of all other active sessions across your devices.
+         </p>
+      </div>
+
+      <div className="space-y-6">
         <div className="space-y-1">
-          <p className={formLabelClass}>Current password</p>
-          <input
-            type="password"
-            value={passwordForm.currentPassword}
-            onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
-            placeholder="Enter current password"
-            className={formInputClass}
-          />
+          <label className={formLabelClass}>Current Password</label>
+          <div className="relative">
+             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+             <input
+               type="password"
+               value={passwordForm.currentPassword}
+               onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+               placeholder="Current password"
+               className={`${formInputClass} pl-11`}
+             />
+          </div>
         </div>
+        
         <div className="space-y-1">
-          <p className={formLabelClass}>New password</p>
-          <input
-            type="password"
-            value={passwordForm.newPassword}
-            onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
-            placeholder="Enter new password"
-            className={formInputClass}
-          />
+          <label className={formLabelClass}>New Password</label>
+          <div className="relative">
+             <Unlock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+             <input
+               type="password"
+               value={passwordForm.newPassword}
+               onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
+               placeholder="At least 8 characters"
+               className={`${formInputClass} pl-11`}
+             />
+          </div>
         </div>
       </div>
-      <button type="submit" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-bold text-white">
-        <Save className="h-4 w-4" />
-        Update password
-      </button>
+
+      <div className="pt-2">
+        <Button 
+          type="submit" 
+          className="h-10 px-6 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-semibold w-full md:w-auto"
+        >
+          <KeyRound className="h-4 w-4 mr-2" />
+          Update Password
+        </Button>
+      </div>
     </form>
   );
 }
-

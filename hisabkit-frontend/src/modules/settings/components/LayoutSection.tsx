@@ -3,15 +3,15 @@
  * Manages dashboard density, default views, and layout options
  */
 
+// Removed unused React imports
 import { Check, Layout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Separator } from '@/shared/components/ui/separator';
 import { cn } from '@/shared/lib/utils';
 import type { DashboardDensity, LayoutSettings } from '../types/settingsTypes';
-import { useLayoutSettings } from '../hooks/useSettingsHooks';
+import { useLayout } from '@/shared/context/LayoutContext';
 
 const densityOptions: Array<{ value: DashboardDensity; label: string; description: string }> = [
   {
@@ -33,32 +33,15 @@ const densityOptions: Array<{ value: DashboardDensity; label: string; descriptio
 
 export function LayoutSection() {
   const { t } = useTranslation();
-  const { loadLayoutSettings, saveLayoutSettings } = useLayoutSettings();
-  const [settings, setSettings] = useState<LayoutSettings>({
-    dashboardDensity: 'comfortable',
-    defaultView: 'dashboard',
-    hidePlannedModules: false,
-    compactNavigationSidebar: false,
-  });
-
-  useEffect(() => {
-    const loaded = loadLayoutSettings();
-    if (loaded) {
-      setSettings(loaded);
-    }
-  }, []);
+  const { settings, updateSettings } = useLayout();
 
   const handleDensityChange = (density: DashboardDensity) => {
-    const updated = { ...settings, dashboardDensity: density };
-    setSettings(updated);
-    saveLayoutSettings(updated);
+    updateSettings({ dashboardDensity: density });
     toast.success(t('settings.layout.density_changed', `Changed to ${density} layout`));
   };
 
   const handleToggle = (key: keyof LayoutSettings, value: boolean) => {
-    const updated = { ...settings, [key]: value };
-    setSettings(updated);
-    saveLayoutSettings(updated);
+    updateSettings({ [key]: value });
   };
 
   return (

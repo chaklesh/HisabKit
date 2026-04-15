@@ -1,14 +1,16 @@
 import { Building2, Database, Users, ShieldCheck, LayoutGrid } from 'lucide-react';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '@/shared/context/AuthContext';
 import { CustomersTab } from '../components/CustomersTab';
 import { TenantsTab } from '../components/TenantsTab';
 import { TransactionsTab } from '../components/TransactionsTab';
 import { useAdminDashboardState } from '../hooks/useAdminDashboardState';
 import { cn } from '@/shared/lib/utils';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/shared/components/ui/badge';
 import { Card, CardContent } from '@/shared/components/ui/card';
 
 export const AdminDashboard = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const {
     activeTab,
@@ -59,6 +61,8 @@ export const AdminDashboard = () => {
     resetTransactionCreate,
     openCustomerEdit,
     openTransactionEdit,
+    transactionAttachment,
+    setTransactionAttachment,
   } = useAdminDashboardState(user?.role);
 
   if (user?.role !== 'SUPER_ADMIN') {
@@ -91,39 +95,39 @@ export const AdminDashboard = () => {
                 onClick={() => setActiveTab('tenants')}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all duration-300",
-                  activeTab === 'tenants' ? "bg-slate-900 text-white shadow-xl shadow-slate-200" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                  activeTab === 'tenants' ? "bg-slate-900 dark:bg-indigo-600 text-white shadow-xl shadow-slate-200 dark:shadow-none" : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400"
                 )}
               >
-                <div className={cn("p-1.5 rounded-lg", activeTab === 'tenants' ? "bg-white/10" : "bg-slate-100")}>
+                <div className={cn("p-1.5 rounded-lg", activeTab === 'tenants' ? "bg-white/10" : "bg-slate-100 dark:bg-slate-800")}>
                   <Building2 className="h-4 w-4" />
                 </div>
-                Tenants
+                {t('admin.tabs.tenants')}
               </button>
               
               <button
                 onClick={() => setActiveTab('customers')}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all duration-300",
-                  activeTab === 'customers' ? "bg-slate-900 text-white shadow-xl shadow-slate-200" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                  activeTab === 'customers' ? "bg-slate-900 dark:bg-indigo-600 text-white shadow-xl shadow-slate-200 dark:shadow-none" : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400"
                 )}
               >
-                <div className={cn("p-1.5 rounded-lg", activeTab === 'customers' ? "bg-white/10" : "bg-slate-100")}>
+                <div className={cn("p-1.5 rounded-lg", activeTab === 'customers' ? "bg-white/10" : "bg-slate-100 dark:bg-slate-800")}>
                   <Users className="h-4 w-4" />
                 </div>
-                Customer Hub
+                {t('admin.tabs.customers')}
               </button>
               
               <button
                 onClick={() => setActiveTab('transactions')}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all duration-300",
-                  activeTab === 'transactions' ? "bg-slate-900 text-white shadow-xl shadow-slate-200" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                  activeTab === 'transactions' ? "bg-slate-900 dark:bg-indigo-600 text-white shadow-xl shadow-slate-200 dark:shadow-none" : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400"
                 )}
               >
-                <div className={cn("p-1.5 rounded-lg", activeTab === 'transactions' ? "bg-white/10" : "bg-slate-100")}>
+                <div className={cn("p-1.5 rounded-lg", activeTab === 'transactions' ? "bg-white/10" : "bg-slate-100 dark:bg-slate-800")}>
                   <Database className="h-4 w-4" />
                 </div>
-                Ledger Log
+                {t('admin.tabs.transactions')}
               </button>
             </div>
           </div>
@@ -132,15 +136,15 @@ export const AdminDashboard = () => {
           <div className="glass-card rounded-[2rem] p-6 border-none bg-indigo-600 text-white overflow-hidden relative">
              <div className="relative z-10">
                 <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Active Context</p>
-                <h3 className="text-lg font-black leading-tight mb-4">
+                <h3 className="text-lg font-black leading-tight mb-3">
                    {selectedTenant ? selectedTenant.name : 'No Tenant Selected'}
                 </h3>
                 <div className="flex items-center gap-2">
                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                   <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">Online Instance</span>
+                   <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">Infrastructure Root</span>
                 </div>
              </div>
-             <LayoutGrid className="absolute -bottom-4 -right-4 w-24 h-24 opacity-10 rotate-12" />
+             <LayoutGrid className="absolute -bottom-2 -right-2 w-20 h-20 opacity-10 rotate-12" />
           </div>
         </aside>
 
@@ -148,8 +152,8 @@ export const AdminDashboard = () => {
         <main className="space-y-6">
           <header className="glass-card rounded-[2rem] p-6 border-none flex flex-wrap items-center justify-between gap-4">
              <div className="flex items-center gap-4">
-                <div className="px-5 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center gap-3">
-                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Global Filter</label>
+                <div className="px-5 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+                   <label className="text-xs font-bold text-slate-500 leading-none">Global Filter</label>
                    <select
                      value={selectedTenantId}
                      onChange={(e) => setSelectedTenantId(e.target.value)}
@@ -163,13 +167,13 @@ export const AdminDashboard = () => {
                 </div>
              </div>
              <div className="flex items-center gap-2">
-                <Badge className="bg-white/50 text-slate-600 border-slate-200">
+                <Badge className="bg-white/50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800">
                    {isLoading ? 'Syncing...' : 'System Stable'}
                 </Badge>
              </div>
           </header>
 
-          <Card className="rounded-[2.5rem] border-none shadow-xl shadow-slate-200/50 p-2 overflow-hidden">
+          <Card className="rounded-[2.5rem] bg-white dark:bg-slate-950 border-none shadow-xl shadow-slate-200/50 dark:shadow-none p-2 overflow-hidden">
             <CardContent className="p-8">
               {error && (
                 <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700 animate-in shake duration-300">
@@ -244,6 +248,8 @@ export const AdminDashboard = () => {
                       resetTransactionCreate={resetTransactionCreate}
                       resetTransactionEdit={resetTransactionEdit}
                       openTransactionEdit={openTransactionEdit}
+                      transactionAttachment={transactionAttachment}
+                      setTransactionAttachment={setTransactionAttachment}
                     />
                   )}
                 </div>

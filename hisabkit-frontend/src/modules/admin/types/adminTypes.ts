@@ -24,6 +24,9 @@ export type TenantFormState = {
   adminPassword: string;
   adminEmail: string;
   adminMobile: string;
+  attachmentQuotaMb: number;
+  maxAttachmentFileSizeMb: number;
+  attachmentRetentionDays: number;
 };
 
 export type CustomerFormState = {
@@ -33,7 +36,7 @@ export type CustomerFormState = {
   email: string;
   address: string;
   gstNumber: string;
-  dueDate: string;
+  dueDate?: string;
 };
 
 export type CustomerCreateState = Omit<CustomerFormState, 'id'>;
@@ -69,6 +72,9 @@ export const createEmptyTenantForm = (): TenantFormState => ({
   adminPassword: '',
   adminEmail: '',
   adminMobile: '',
+  attachmentQuotaMb: 100,
+  maxAttachmentFileSizeMb: 10,
+  attachmentRetentionDays: 365,
 });
 
 export const mapTenantToForm = (tenant: Tenant): TenantFormState => ({
@@ -89,6 +95,9 @@ export const mapTenantToForm = (tenant: Tenant): TenantFormState => ({
   adminPassword: '',
   adminEmail: '',
   adminMobile: '',
+  attachmentQuotaMb: (tenant as any).attachmentQuotaMb || 100,
+  maxAttachmentFileSizeMb: (tenant as any).maxAttachmentFileSizeMb || 10,
+  attachmentRetentionDays: (tenant as any).attachmentRetentionDays || 365,
 });
 
 export const createEmptyCustomerEdit = (): CustomerFormState => ({
@@ -98,7 +107,6 @@ export const createEmptyCustomerEdit = (): CustomerFormState => ({
   email: '',
   address: '',
   gstNumber: '',
-  dueDate: '',
 });
 
 export const createEmptyCustomerCreate = (): CustomerCreateState => ({
@@ -107,7 +115,6 @@ export const createEmptyCustomerCreate = (): CustomerCreateState => ({
   email: '',
   address: '',
   gstNumber: '',
-  dueDate: '',
 });
 
 export const createEmptyTransactionEdit = (): TransactionFormState => ({

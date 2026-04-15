@@ -18,6 +18,7 @@ export function useDashboardHomeState() {
   }, []);
 
   const summary = useMemo<DashboardSummary>(() => {
+    const now = new Date();
     return customers.reduce(
       (acc, customer) => {
         const balance = Number(customer.totalBalance || 0);
@@ -26,9 +27,13 @@ export function useDashboardHomeState() {
         } else {
           acc.toPay += Math.abs(balance);
         }
+
+        if (customer.dueDate && new Date(customer.dueDate) < now) {
+          acc.overdueCount++;
+        }
         return acc;
       },
-      { toCollect: 0, toPay: 0 }
+      { toCollect: 0, toPay: 0, overdueCount: 0 }
     );
   }, [customers]);
 

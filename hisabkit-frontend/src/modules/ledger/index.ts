@@ -6,7 +6,6 @@ export { LedgerHeader } from './components/LedgerHeader';
 export { CustomerListPane } from './components/CustomerListPane';
 export { CustomerDetailsHeader } from './components/CustomerDetailsHeader';
 export { TransactionListView } from './components/TransactionListView';
-export { ReportPanel } from './components/ReportPanel';
 export { CustomerFormDrawer } from './components/CustomerFormDrawer';
 export { TransactionFormDrawer } from './components/TransactionFormDrawer';
 export { EmptyStatePanel } from './components/EmptyStatePanel';

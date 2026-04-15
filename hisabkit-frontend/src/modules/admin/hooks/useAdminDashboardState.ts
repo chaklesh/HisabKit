@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Tenant } from '@/shared/types';
-import * as adminService from '@/shared/api/client';
+import adminService from '../services/adminService';
 import type {
   Customer,
   CustomerCreateState,
@@ -38,6 +38,7 @@ export function useAdminDashboardState(userRole?: string) {
   const [customerCreate, setCustomerCreate] = useState<CustomerCreateState>(createEmptyCustomerCreate);
   const [transactionEdit, setTransactionEdit] = useState<TransactionFormState>(createEmptyTransactionEdit);
   const [transactionCreate, setTransactionCreate] = useState<TransactionCreateState>(createEmptyTransactionCreate);
+  const [transactionAttachment, setTransactionAttachment] = useState<File | null>(null);
 
   const selectedTenant = useMemo(
     () => tenants.find((tenant) => tenant.id === selectedTenantId) || null,
@@ -96,6 +97,7 @@ export function useAdminDashboardState(userRole?: string) {
     setCustomerCreate(createEmptyCustomerCreate());
     setTransactionEdit(createEmptyTransactionEdit());
     setTransactionCreate(createEmptyTransactionCreate());
+    setTransactionAttachment(null);
   };
 
   const loadTenants = async () => {
@@ -283,7 +285,8 @@ export function useAdminDashboardState(userRole?: string) {
         description: transactionEdit.description || undefined,
         transactionDate: transactionEdit.transactionDate || undefined,
         referenceNo: transactionEdit.referenceNo || undefined,
-      });
+      }, transactionAttachment);
+      setTransactionAttachment(null);
       setTransactionEdit(createEmptyTransactionEdit());
       await loadTransactions(selectedTenantId);
       await loadCustomers(selectedTenantId);
@@ -305,7 +308,8 @@ export function useAdminDashboardState(userRole?: string) {
         description: transactionCreate.description || undefined,
         transactionDate: transactionCreate.transactionDate || undefined,
         referenceNo: transactionCreate.referenceNo || undefined,
-      });
+      }, transactionAttachment);
+      setTransactionAttachment(null);
       setTransactionCreate(createEmptyTransactionCreate());
       await loadTransactions(selectedTenantId);
       await loadCustomers(selectedTenantId);
@@ -396,6 +400,8 @@ export function useAdminDashboardState(userRole?: string) {
     setTransactionEdit,
     transactionCreate,
     setTransactionCreate,
+    transactionAttachment,
+    setTransactionAttachment,
     isTenantFormValid,
     customerNameById,
     filteredCustomers,

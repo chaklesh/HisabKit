@@ -2,13 +2,13 @@ import { BusinessProfileForm } from '../components/BusinessProfileForm';
 import { PasswordForm } from '../components/PasswordForm';
 import { ProfileDetailsForm } from '../components/ProfileDetailsForm';
 import { useProfilePageState } from '../hooks/useProfilePageState';
-import { Badge } from '@/shared/components/ui/badge';
-import { UserCircle2 } from 'lucide-react';
+import { UserCircle2, Building, Lock } from 'lucide-react';
+import { MessageAlert } from '@/modules/ledger/components/MessageAlert';
 
 const templateHelp = '{{customerName}}, {{balance}}, {{balanceType}}, {{businessName}}, {{customerPhone}}';
 const formInputClass =
-  'w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 outline-none transition-all focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 dark:bg-slate-900';
-const formLabelClass = 'text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 block px-1';
+  'w-full h-10 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-800 dark:text-slate-200 outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500';
+const formLabelClass = 'text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block px-1';
 
 export const ProfilePage = () => {
   const {
@@ -30,48 +30,34 @@ export const ProfilePage = () => {
   } = useProfilePageState();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-12 animate-in fade-in duration-700">
+    <div className="max-w-[1400px] mx-auto space-y-12 pb-24 reveal">
       
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 py-4">
         <div className="space-y-2">
-           <div className="flex items-center gap-2">
-              <Badge className="bg-indigo-50 text-indigo-600 border-indigo-100 font-black uppercase tracking-widest text-[9px] px-2 h-5">
-                 <UserCircle2 className="w-3 h-3 mr-1" /> Authorized session
-              </Badge>
-           </div>
-           <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Account Center</h1>
-           <p className="text-slate-500 font-medium max-w-xl">
-             Manage your public enterprise identity, security protocols, and operational ledger templates from a single control point.
+           <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+             Account Settings
+           </h1>
+           <p className="text-base text-slate-500 dark:text-slate-400 max-w-2xl">
+             Manage your profile, password, and business information.
            </p>
         </div>
       </div>
 
-      {(error || notice) && (
-        <div className="space-y-3">
-          {error && (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700 animate-in shake duration-300 flex items-center gap-3">
-               <div className="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0" />
-               {error}
-            </div>
-          )}
-          {notice && (
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-bold text-emerald-700 animate-in slide-in-from-top-2 duration-300 flex items-center gap-3">
-               <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-               {notice}
-            </div>
-          )}
-        </div>
-      )}
+      <MessageAlert message={error} type="error" />
+      <MessageAlert message={notice} type="success" />
 
       {/* Profile & Security Grid */}
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="glass-card rounded-[2.5rem] border-none p-2 shadow-xl shadow-slate-200/50">
-          <div className="p-8">
-            <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
-               Personal Identity
-               <div className="h-0.5 flex-1 bg-slate-100" />
-            </h3>
+      <div className="grid gap-10 lg:grid-cols-2">
+        <div className="glass-card rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <div className="flex items-center gap-3 mb-8">
+               <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  <UserCircle2 className="w-5 h-5" />
+               </div>
+               <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">Profile</h3>
+               </div>
+            </div>
             <ProfileDetailsForm
               profile={profile}
               setProfile={setProfile}
@@ -82,15 +68,17 @@ export const ProfilePage = () => {
               formInputClass={formInputClass}
               formLabelClass={formLabelClass}
             />
-          </div>
         </div>
 
-        <div className="glass-card rounded-[2.5rem] border-none p-2 shadow-xl shadow-slate-200/50">
-          <div className="p-8">
-            <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
-               Access Control
-               <div className="h-0.5 flex-1 bg-slate-100" />
-            </h3>
+        <div className="glass-card rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <div className="flex items-center gap-3 mb-8">
+               <div className="p-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 text-white">
+                  <Lock className="w-5 h-5" />
+               </div>
+               <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">Password Settings</h3>
+               </div>
+            </div>
             <PasswordForm
               passwordForm={passwordForm}
               setPasswordForm={setPasswordForm}
@@ -98,28 +86,34 @@ export const ProfilePage = () => {
               formInputClass={formInputClass}
               formLabelClass={formLabelClass}
             />
-          </div>
         </div>
       </div>
 
       {/* Business Preferences (Templates etc) */}
       {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
-        <div className="glass-card rounded-[2.5rem] border-none p-2 shadow-xl shadow-slate-200/50">
-          <div className="p-8">
-            <h3 className="text-xl font-black text-slate-900 mb-2 flex items-center gap-2">
-               Enterprise Ledger Configuration
-               <div className="h-0.5 flex-1 bg-slate-100" />
-            </h3>
-            <p className="text-sm text-slate-500 font-medium mb-8">Set defaults for communication templates and shop branding.</p>
-            <BusinessProfileForm
-              tenant={tenant}
-              setTenant={setTenant}
-              onSubmit={saveTenant}
-              templateHelp={templateHelp}
-              formInputClass={formInputClass}
-              formLabelClass={formLabelClass}
-            />
-          </div>
+        <div className="glass-card rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <div className="flex items-center gap-4 mb-8">
+               <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md">
+                  <Building className="w-6 h-6" />
+               </div>
+               <div className="space-y-1">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                     Business Profile
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Update your company details and message templates.</p>
+               </div>
+            </div>
+            
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+              <BusinessProfileForm
+                tenant={tenant}
+                setTenant={setTenant}
+                onSubmit={saveTenant}
+                templateHelp={templateHelp}
+                formInputClass={formInputClass}
+                formLabelClass={formLabelClass}
+              />
+            </div>
         </div>
       )}
     </div>
