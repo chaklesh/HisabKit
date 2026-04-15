@@ -1,37 +1,28 @@
 import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { AuthProvider } from './src/context/AuthContext';
-import { NetworkProvider } from './src/context/NetworkContext';
-import { ThemeProvider, useTheme } from './src/context/ThemeContext';
-import { AppNavigator } from './src/navigation/AppNavigator';
+import { AppProviders } from './src/app/providers/AppProviders';
+import { useAppTheme } from './src/app/providers/ThemeProvider';
+import { RootNavigator } from './src/app/navigation/RootNavigator';
 
-function RootApp() {
-  const { navigationTheme, statusBarStyle } = useTheme();
+function Root() {
+  const { theme, isDark } = useAppTheme();
 
   return (
-    <NavigationContainer theme={navigationTheme}>
-      <StatusBar style={statusBarStyle} />
-      <AppNavigator />
+    <NavigationContainer theme={theme}>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <RootNavigator />
     </NavigationContainer>
   );
 }
 
+
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <ThemeProvider>
-          <AuthProvider>
-            <NetworkProvider>
-              <RootApp />
-            </NetworkProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <AppProviders>
+      <Root />
+    </AppProviders>
   );
 }
+

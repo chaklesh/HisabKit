@@ -1,0 +1,395 @@
+import React, { useState } from 'react';
+import { View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
+import { Text, useTheme, Avatar, Searchbar, Portal, Dialog, IconButton } from 'react-native-paper';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { 
+  Search, 
+  Plus, 
+  Phone, 
+  BookUser, 
+  ChevronRight,
+  TrendingUp,
+  TrendingDown
+} from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Screen } from '../../../shared/components/ui/Screen';
+import { Card } from '../../../shared/components/ui/Card';
+import { Input } from '../../../shared/components/ui/Input';
+import { Button } from '../../../shared/components/ui/Button';
+import { useNetwork } from '../../../context/NetworkContext';
+import { useLedgerData, type FilterMode } from '../hooks/useLedgerData';
+import { useCustomerMutations } from '../hooks/useCustomerMutations';
+import type { LedgerStackParamList } from '../../../app/navigation/RootNavigator';
+import { formatCurrency } from '../../../utils/format';
+import type { Customer } from '../../../shared/types/ledger';
+
+type Props = NativeStackScreenProps<LedgerStackParamList, 'LedgerList'>;
+
+export function LedgerListScreen({ navigation }: Props) {
+  const theme = useTheme();
+  const { 
+    filteredCustomers, 
+    totals, 
+    search, 
+    setSearch, 
+    filterMode, 
+    setFilterMode, 
+    refetch, 
+    isRefreshing 
+  } = useLedgerData();
+
+  const { createCustomer, isSaving } = useCustomerMutations();
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    gstNumber: '',
+    email: '',
+  });
+
+  const handleOpenForm = () => {
+    setFormData({ name: '', phone: '', address: '', gstNumber: '', email: '' });
+    setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    if (!formData.name.trim()) return;
+    try {
+      await createCustomer(formData);
+      setShowForm(false);
+    } catch (e) {}
+  };
+
+  const netBalance = totals.collect - totals.pay;
+
+  return (
+    <Screen style={styles.container}>
+      {/* Premium Hero Header */}
+      <LinearGradient 
+        colors={[theme.colors.primary, '#4338ca']} 
+        style={styles.hero}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <SafeAreaView>
+          <View style={styles.heroTop}>
+            <View>
+              <Text variant="labelMedium" style={styles.heroSub}>MY NET BALANCE</Text>
+              <Text variant="displaySmall" style={styles.heroBalance}>
+                {formatCurrency(Math.abs(netBalance))}
+              </Text>
+              <View style={[styles.netBadge, { backgroundColor: netBalance >= 0 ? '#10b981' : '#ef4444' }]}>
+                <Text style={styles.netBadgeText}>{netBalance >= 0 ? 'YOU GET' : 'YOU GIVE'}</Text>
+              </View>
+            </View>
+            <TouchableOpacity style={styles.addHeroBtn} onPress={handleOpenForm}>
+              <Plus color="white" size={24} strokeWidth={3} />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.heroStats}>
+            <View style={styles.heroStatItem}>
+              <Text variant="labelSmall" style={styles.heroStatLabel}>TO COLLECT</Text>
+              <Text variant="titleMedium" style={styles.heroStatValue}>{formatCurrency(totals.collect)}</Text>
+            </View>
+            <View style={styles.heroStatDivider} />
+            <View style={styles.heroStatItem}>
+              <Text variant="labelSmall" style={styles.heroStatLabel}>TO PAY</Text>
+              <Text variant="titleMedium" style={styles.heroStatValue}>{formatCurrency(totals.pay)}</Text>
+            </View>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+
+      <View style={styles.content}>
+        <View style={styles.searchSection}>
+          <Searchbar
+            placeholder="Search accounts or numbers..."
+            onChangeText={setSearch}
+            value={search}
+            style={styles.searchBar}
+            inputStyle={styles.searchInput}
+            iconColor="#94a3b8"
+            placeholderTextColor="#94a3b8"
+          />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow}>
+            {(['ALL', 'COLLECT', 'PAY', 'SETTLED'] as FilterMode[]).map((mode) => (
+              <TouchableOpacity 
+                key={mode} 
+                onPress={() => setFilterMode(mode)}
+                style={[styles.filterChip, filterMode === mode && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary }]}
+              >
+                <Text style={[styles.filterText, filterMode === mode && { color: 'white' }]}>
+                  {mode}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        <ScrollView 
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refetch} tintColor={theme.colors.primary} />}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+        >
+          {filteredCustomers.length === 0 ? (
+            <View style={styles.empty}>
+              <BookUser size={64} color="#e2e8f0" />
+              <Text variant="titleMedium" style={styles.emptyText}>No accounts found</Text>
+            </View>
+          ) : (
+            filteredCustomers.map((customer) => {
+              const balance = Number(customer.totalBalance ?? 0);
+              const isDue = balance > 0;
+              const tone = isDue ? '#ef4444' : balance < 0 ? '#10b981' : '#94a3b8';
+
+              return (
+                <TouchableOpacity 
+                  key={customer.id} 
+                  style={styles.accountCard}
+                  onPress={() => navigation.navigate('CustomerKhata', { customer })}
+                  activeOpacity={0.7}
+                >
+                  <Avatar.Text 
+                    size={48} 
+                    label={customer.name.slice(0, 1).toUpperCase()} 
+                    style={{ backgroundColor: '#f1f5f9' }}
+                    labelStyle={{ color: theme.colors.primary, fontWeight: '950' }}
+                  />
+                  <View style={styles.accountInfo}>
+                    <Text variant="titleMedium" style={styles.accountName}>{customer.name}</Text>
+                    <View style={styles.accountMeta}>
+                      <Phone size={10} color="#94a3b8" />
+                      <Text variant="labelSmall" style={styles.accountPhone}>{customer.phone || 'No phone'}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.accountBalance}>
+                    <Text variant="titleMedium" style={[styles.balanceText, { color: tone }]}>
+                      {formatCurrency(Math.abs(balance))}
+                    </Text>
+                    <View style={styles.indicatorRow}>
+                      <Text variant="labelSmall" style={[styles.indicatorText, { color: tone }]}>
+                        {balance > 0 ? 'GIVE' : balance < 0 ? 'GET' : 'CLR'}
+                      </Text>
+                      <ChevronRight size={12} color="#cbd5e1" />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )
+            })
+          )}
+        </ScrollView>
+      </View>
+
+      <Portal>
+        <Dialog visible={showForm} onDismiss={() => setShowForm(false)} style={styles.dialog}>
+          <Dialog.Title style={styles.dialogTitle}>Add New Account</Dialog.Title>
+          <Dialog.Content>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Input label="Customer Name" value={formData.name} onChangeText={(t) => setFormData({ ...formData, name: t })} icon="user" />
+              <Input label="Mobile Number" value={formData.phone} onChangeText={(t) => setFormData({ ...formData, phone: t })} keyboardType="phone-pad" icon="phone" />
+              <Input label="Business Address" value={formData.address} onChangeText={(t) => setFormData({ ...formData, address: t })} icon="map-pin" />
+              <Input label="GSTIN" value={formData.gstNumber} onChangeText={(t) => setFormData({ ...formData, gstNumber: t })} icon="file-text" />
+            </ScrollView>
+          </Dialog.Content>
+          <Dialog.Actions style={styles.dialogActions}>
+            <Button mode="text" onPress={() => setShowForm(false)}>Cancel</Button>
+            <Button onPress={handleSave} loading={isSaving} style={{ flex: 1 }}>Create Account</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#fff',
+  },
+  hero: {
+    paddingBottom: 40,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    elevation: 10,
+    shadowColor: '#4338ca',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+  },
+  heroTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 12,
+  },
+  heroSub: {
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '900',
+    letterSpacing: 2,
+  },
+  heroBalance: {
+    color: 'white',
+    fontWeight: '950',
+    marginTop: 4,
+  },
+  netBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  netBadgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  addHeroBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  heroStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 32,
+    paddingHorizontal: 24,
+  },
+  heroStatItem: {
+    flex: 1,
+  },
+  heroStatLabel: {
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '900',
+    fontSize: 9,
+    letterSpacing: 1,
+  },
+  heroStatValue: {
+    color: 'white',
+    fontWeight: '900',
+    marginTop: 2,
+  },
+  heroStatDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    marginHorizontal: 20,
+  },
+  content: {
+    flex: 1,
+    marginTop: -20,
+  },
+  searchSection: {
+    paddingHorizontal: 16,
+    zIndex: 10,
+  },
+  searchBar: {
+    borderRadius: 20,
+    backgroundColor: 'white',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  searchInput: {
+    fontSize: 15,
+  },
+  filterRow: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  filterChip: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 99,
+    backgroundColor: '#f8fafc',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+  },
+  filterText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#64748b',
+  },
+  listContent: {
+    padding: 16,
+    paddingBottom: 40,
+  },
+  accountCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 18,
+    backgroundColor: 'white',
+    borderRadius: 28,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+  },
+  accountInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  accountName: {
+    fontWeight: '950',
+    color: '#1e293b',
+  },
+  accountMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+  },
+  accountPhone: {
+    color: '#94a3b8',
+    fontWeight: '800',
+  },
+  accountBalance: {
+    alignItems: 'flex-end',
+  },
+  balanceText: {
+    fontWeight: '950',
+  },
+  indicatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  indicatorText: {
+    fontWeight: '900',
+    fontSize: 9,
+    letterSpacing: 0.5,
+  },
+  empty: {
+    paddingVertical: 100,
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: '#94a3b8',
+    marginTop: 16,
+    fontWeight: '800',
+  },
+  dialog: {
+    borderRadius: 32,
+  },
+  dialogTitle: {
+    textAlign: 'center',
+    fontWeight: '900',
+  },
+  dialogActions: {
+    padding: 24,
+    gap: 12,
+  },
+});
+

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
-import { syncPendingOperations } from '../services/ledger';
-import { getPendingQueue } from '../services/offline';
+import { syncPendingOperations } from '../modules/ledger/services/ledgerService';
+import { getPendingQueue } from '../shared/services/offlineService';
 
 interface NetworkState {
   isOnline: boolean;
