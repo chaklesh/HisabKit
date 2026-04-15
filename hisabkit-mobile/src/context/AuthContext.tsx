@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { AppState } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import * as authService from '../services/auth';
-import type { AuthData, UserSummary } from '../services/auth';
+import * as authService from '../modules/auth/services/authService';
+import type { AuthData, UserSummary } from '../modules/auth/services/authService';
 
 interface AuthState {
   isLoading: boolean;
