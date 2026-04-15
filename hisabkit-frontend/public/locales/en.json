@@ -43,21 +43,131 @@
     "cancel": "Cancel",
     "loading": "Loading...",
     "error_occurred": "An error occurred",
-    "or": "or"
+    "or": "or",
+    "reset": "Reset",
+    "save_changes": "Save changes"
   },
   "ledger": {
-    "title": "Ledger",
-    "add_transaction": "Add Transaction",
-    "customer_name": "Customer Name",
-    "amount": "Amount",
-    "credit": "You Gave",
-    "debit": "You Got",
-    "balance": "Balance"
+    "title": "Customer-wise account book",
+    "subtitle": "Manage customers, track sales and payments, and view due dates",
+    "header": {
+      "title": "HisabKit Ledger",
+      "show_totals": "Show totals",
+      "hide_totals": "Hide totals",
+      "add_customer": "Add customer",
+      "edit_customer": "Edit customer",
+      "sale": "Sale",
+      "payment": "Payment",
+      "import": "Import CSV",
+      "export": "Export CSV"
+    },
+    "totals": {
+      "you_collect": "You collect",
+      "you_pay": "You pay",
+      "visible_customers": "Visible customers",
+      "overdue": "Overdue"
+    },
+    "customer": {
+      "title": "Customer",
+      "name": "Customer name",
+      "search_label": "Search for customers",
+      "phone": "Phone number",
+      "email": "Email",
+      "address": "Address",
+      "gst_number": "GST number",
+      "due_date": "Due date",
+      "add_title": "Add Customer",
+      "edit_title": "Edit Customer",
+      "name_placeholder": "e.g. Ramesh Traders",
+      "address_placeholder": "Shop #12, Market Road",
+      "due_date_hint": "Payment due reminder",
+      "no_contact": "No contact added",
+      "no_address": "No address added",
+      "due": "Due",
+      "to_collect": "To collect",
+      "to_pay": "To pay",
+      "zero_balance": "Zero balance",
+      "search_placeholder": "Name, phone or address"
+    },
+    "transaction": {
+      "title": "Transaction",
+      "type": "Entry type",
+      "sale": "Sale (Udhar)",
+      "payment": "Payment (Jama)",
+      "total_amount": "Total amount",
+      "paid_amount": "Paid amount",
+      "paid_now_optional": "Paid now (optional)",
+      "payment_amount": "Payment amount",
+      "date": "Transaction date",
+      "description": "Description",
+      "attachment": "Attach proof (PDF/Image) - optional",
+      "no_transactions": "No transactions yet",
+      "timestamp": "Timestamp",
+      "paid": "Paid",
+      "new": "New Transaction",
+      "edit": "Edit transaction",
+      "record_sale": "Record a sale",
+      "record_payment": "Record a payment"
+    },
+    "report": {
+      "title": "Reports",
+      "search_placeholder": "Customer name or phone",
+      "filter_label": "Filter",
+      "sort_label": "Sort by",
+      "all": "All customers",
+      "overdue": "Overdue",
+      "upcoming_7_days": "Due in 7 days",
+      "no_due_date": "No due date",
+      "by_balance": "Balance",
+      "by_due_date": "Due date",
+      "by_name": "Name",
+      "most_recent": "Most Recent",
+      "highest_amount": "Highest Amount",
+      "least_amount": "Least Amount",
+      "oldest": "Oldest",
+      "export_csv": "Export csv",
+      "no_matches": "No customers match filters"
+    },
+    "buttons": {
+      "add": "Add",
+      "create": "Create",
+      "update": "Update customer",
+      "save": "Save",
+      "update_transaction": "Update",
+      "delete": "Delete",
+      "cancel": "Close",
+      "clear": "Clear",
+      "close": "Close",
+      "saving": "Saving..."
+    },
+    "empty_state": "Select a customer to view transactions and reports",
+    "messages": {
+      "loading": "Loading...",
+      "loading_customers": "Loading customers...",
+      "loading_transactions": "Loading transactions...",
+      "customer_added": "Customer added successfully.",
+      "customer_updated": "Customer updated successfully.",
+      "customer_deleted": "Customer deleted.",
+      "transaction_added": "Transaction added successfully.",
+      "transaction_updated": "Transaction updated successfully.",
+      "transaction_deleted": "Transaction deleted.",
+      "attachment_deleted": "Attachment deleted.",
+      "error_general": "An error occurred. Please try again."
+    },
+    "filters": {
+      "all": "All customers",
+      "to_collect": "To collect",
+      "to_pay": "To pay",
+      "zero_balance": "Zero balance",
+      "with_contact": "With contact"
+    }
   },
   "shell": {
     "workspace": "Workspace",
     "admin": "Admin",
     "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Sign out",
     "adminConsole": "Admin Console",
     "profileSettings": "Profile Settings",
     "productTagline": "MSME Finance",
@@ -65,19 +175,149 @@
     "titles": {
       "dashboard": "Dashboard",
       "ledger": "Customer Ledger",
+      "reports": "Reports & Analytics",
       "inventory": "Inventory",
       "suppliers": "Suppliers",
       "lending": "Money Lending",
       "admin": "Admin Console",
       "profile": "Profile Settings",
+      "settings": "Settings",
       "default": "HisabKit"
     },
     "modules": {
       "dashboard": "Dashboard",
       "ledger": "Customer Ledger",
+      "reports": "Reports & Analytics",
       "inventory": "Inventory",
       "suppliers": "Suppliers",
       "lending": "Money Lending"
+    }
+  },
+  "settings": {
+    "badge": "Workspace preferences",
+    "title": "Settings",
+    "subtitle": "Tune appearance, language, and app behavior before we expand this into the full business control center.",
+    "tabs": {
+      "appearance": "Appearance",
+      "language": "Language",
+      "business": "Business",
+      "reminders": "Reminders",
+      "security": "Security",
+      "layout": "Layout",
+      "roadmap": "What is next"
+    },
+    "layout": {
+      "title": "Layout & Preferences",
+      "description": "Customize dashboard appearance and navigation behavior",
+      "density": "Dashboard Density",
+      "density_description": "Choose how much space elements should occupy",
+      "navigation": "Navigation",
+      "navigation_description": "Customize how navigation is displayed",
+      "compact_sidebar": "Compact sidebar",
+      "compact_sidebar_desc": "Show icons only, hide labels",
+      "hide_planned": "Hide planned modules",
+      "hide_planned_desc": "Show only available features, hide coming soon",
+      "note": "Layout preferences are stored locally on this device and don't sync across browsers yet."
+    },
+    "reminders": {
+      "title": "Notification Templates",
+      "description": "Customize messages sent to customers via SMS and WhatsApp",
+      "available_variables": "Available variables",
+      "sms_template": "SMS template",
+      "whatsapp_template": "WhatsApp template",
+      "copy_from_sms": "Copy from SMS",
+      "whatsapp_note": "WhatsApp allows longer messages and media support"
+    },
+    "alert": {
+      "title": "Settings foundation is live",
+      "description": "Theme and language controls are wired into the app now. Business, security, and reminder preferences are next."
+    },
+    "appearance": {
+      "title": "Theme preference",
+      "description": "Keep the app readable in bright shops, low-light counters, and device-driven system mode.",
+      "active_theme": "Active resolved theme"
+    },
+    "theme": {
+      "light": {
+        "label": "Light",
+        "description": "Bright and clear for daytime store operations."
+      },
+      "dark": {
+        "label": "Dark",
+        "description": "Lower glare for evening work and long sessions."
+      },
+      "system": {
+        "label": "System",
+        "description": "Match the device theme automatically."
+      }
+    },
+    "language": {
+      "title": "Language preference",
+      "description": "Choose the working language for operators. This will later align with mobile and printable communication flows.",
+      "en": {
+        "label": "English",
+        "description": "Best for mixed-language teams and administrative work."
+      },
+      "hi": {
+        "label": "Hindi",
+        "description": "Useful for day-to-day operator workflows in Hindi."
+      }
+    },
+    "roadmap": {
+      "title": "Next settings milestones",
+      "description": "These are the next product-level controls planned as we streamline the web and mobile apps.",
+      "planned": "Planned",
+      "items": {
+        "business": "Business profile and brand assets",
+        "reminders": "Reminder templates and notification defaults",
+        "security": "Security, session controls, and device management",
+        "layout": "Dashboard density, default views, and navigation preferences"
+      }
+    },
+    "actions": {
+      "open_profile": "Open profile settings"
+    },
+    "toast": {
+      "theme_updated": "Appearance updated",
+      "language_updated": "Language updated"
+    }
+  },
+  "admin": {
+    "title": "Control Center",
+    "subtitle": "Infrastructure management",
+    "tabs": {
+      "tenants": "Tenants",
+      "customers": "Customer Hub",
+      "transactions": "Ledger Log"
+    },
+    "tenants": {
+      "title": "Tenant management",
+      "add_tenant": "Add workspace",
+      "edit_tenant": "Edit workspace",
+      "no_tenants": "No tenants yet. Create your first tenant to start onboarding users.",
+      "fields": {
+        "name": "Workspace Name",
+        "slug": "Slug",
+        "business_type": "Business Type",
+        "owner": "Owner Name",
+        "phone": "Business Phone",
+        "email": "Business Email",
+        "gst": "GST Number",
+        "logo": "Logo URL",
+        "address": "Full Address",
+        "status": "Operational Status",
+        "quota": "Storage Quota (MB)",
+        "max_file": "Max File Size (MB)",
+        "retention": "Retention (Days)"
+      }
+    },
+    "customers": {
+      "title": "Customer accounts",
+      "search_placeholder": "Search by name, contact, OR GST..."
+    },
+    "transactions": {
+      "title": "Transaction history",
+      "search_placeholder": "Search by ref, customer, date, or amount..."
     }
   }
 }
