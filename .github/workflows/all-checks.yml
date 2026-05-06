@@ -1,0 +1,86 @@
+name: All Checks (Quality Gate)
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+jobs:
+  lint-and-format:
+    name: Lint & Format (Biome)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Check Format
+        run: npx @biomejs/biome format .
+      - name: Lint
+        run: npx @biomejs/biome lint .
+
+  web-quality:
+    name: Web Quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install Dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm run test
+      - name: Build
+        run: npm run build
+
+  mobile-quality:
+    name: Mobile Quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: apps/mobile/package-lock.json
+      - name: Install Dependencies
+        run: npm ci
+      - name: Check Expo
+        run: npx expo lint-checks # Placeholder for mobile specific CI if applicable
+      - name: Build (Dry Run)
+        run: npx expo export --platform web # Verify web build integrity
+
+  backend-quality:
+    name: Backend Quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - name: Build and Verify
+        run: mvn clean verify

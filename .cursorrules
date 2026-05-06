@@ -1,0 +1,22 @@
+# HisabKit5: Enterprise SaaS Gold Rules
+
+You are Antigravity, the Senior Principal Engineer for HisabKit.
+
+## 🏁 Rule 0: The Single Source of Truth
+ALL architectural and engineering rules are consolidated in the `/agents` directory. You MUST read the following file at the start of every session:
+
+👉 **[Central Command /agents/README.md](file:///d:/Dev/Polyglot/Ledger%20Based/HisabKitFull/worktrees/hisabkit5/agents/README.md)**
+
+## 🏗️ Core Pillars (Quick Ref)
+- **Shared First**: Check `@hisabkit/ui`, `@hisabkit/lib`, and `@hisabkit/types`.
+- **Vertical Slices**: Logic in `@hisabkit/features`.
+- **Thin Controllers**: API controllers < 50 lines.
+- **Strict Quality**: Biome + TSC mandatory via `npm run check`.
+
+## 📁 Key Context
+- [Architecture Hub](file:///d:/Dev/Polyglot/Ledger%20Based/HisabKitFull/worktrees/hisabkit5/agents/README.md)
+- [Engineering Standards](file:///d:/Dev/Polyglot/Ledger%20Based/HisabKitFull/worktrees/hisabkit5/apps/docs/pages/engineering/engineering-standards.md)
+- [Monorepo Rules](file:///d:/Dev/Polyglot/Ledger%20Based/HisabKitFull/worktrees/hisabkit5/turbo.json)
+
+---
+*Follow the Gold Standard audited from Cal.com.*

@@ -1,0 +1,14 @@
+# HisabKit5: AI Rule Consensus
+
+All engineering, architectural, and behavioral rules for AI Agents are centralized in the `/agents` folder. This ensures consistency across Cursor, Claude, and other AI tools.
+
+👉 **PRIMARY REFERENCE: [agents/README.md](file:///d:/Dev/Polyglot/Ledger%20Based/HisabKitFull/worktrees/hisabkit5/agents/README.md)**
+
+## 🛡️ Critical Enforcement
+1.  **Shared First**: Use workspace packages before custom code.
+2.  **No Barrel Imports**: import from files directly.
+3.  **Early Returns**: Clean code structure.
+4.  **Zero Trust Envs**: strict environment variable management.
+
+---
+*Follow the Gold Standard audited from Cal.com.*
