@@ -8,37 +8,44 @@ hs_err_pid*
 replay_pid*
 .runlogs/
 
-# Java / Maven
-hisabkit-backend/target/
-hisabkit-backend/.m2repo/
+# Java / Maven (apps/api)
+apps/api/target/
+apps/api/.m2repo/
 .mvn/
 
-# Node / frontend build
-hisabkit-frontend/node_modules/
-hisabkit-frontend/dist/
+# Node / frontend build (apps/web, apps/docs)
+apps/web/node_modules/
+apps/web/dist/
+apps/docs/node_modules/
+apps/docs/.next/
+
+# Mobile (apps/mobile)
+apps/mobile/node_modules/
+apps/mobile/.expo/
+apps/mobile/android/.gradle/
+apps/mobile/android/app/build/
+apps/mobile/ios/build/
+
+# Packages
+packages/*/node_modules/
+packages/*/dist/
+
+# Turbo
+.turbo/
 
 # Environment files
 .env
 .env.*
 !*.env.example
-hisabkit-frontend/.env
-hisabkit-backend/.env
 
 # Data
 data/
 
 # Uploads
-hisabkit-backend/uploads/
-
-# Mobile
-hisabkit-mobile/node_modules/
-hisabkit-mobile/.expo/
-hisabkit-mobile/android/.gradle/
-hisabkit-mobile/android/app/build/
-hisabkit-mobile/ios/build/
-hisabkit-mobile/*.apk
-hisabkit-mobile/*.aab
+apps/api/uploads/
 
 # APK/AAB releases (never commit binaries)
 *.apk
 *.aab
+node_modules
+
