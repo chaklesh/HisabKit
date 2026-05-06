@@ -1,0 +1,43 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Scaled up and tightly cropped to ensure max legibility at 16x16 pixels in the browser tab -->
+  <defs>
+    <linearGradient id="fintechGradient" gradientUnits="userSpaceOnUse" x1="0" y1="100" x2="100" y2="0">
+      <stop offset="0%" stop-color="#3B41E3" />
+      <stop offset="50%" stop-color="#8034F6" />
+      <stop offset="100%" stop-color="#B224F4" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(6, 6) scale(0.88)">
+    <path d="
+      M 12 12 
+      A 12 12 0 0 1 36 12 
+      L 36 45.6 
+      L 88 24.8 
+      L 88 88 
+      A 12 12 0 0 1 64 88 
+      L 64 54.4 
+      L 12 75.2 
+      L 12 12 
+      Z
+    " fill="url(#fintechGradient)" />
+    
+    <path d="
+      M 88 18.8 
+      L 88 12 
+      A 12 12 0 0 0 64 12 
+      L 64 28.4 
+      L 88 18.8 
+      Z
+    " fill="url(#fintechGradient)" />
+
+    <path d="
+      M 36 71.6 
+      L 36 88 
+      A 12 12 0 0 1 12 88 
+      L 12 81.2 
+      L 36 71.6 
+      Z
+    " fill="url(#fintechGradient)" />
+  </g>
+</svg>

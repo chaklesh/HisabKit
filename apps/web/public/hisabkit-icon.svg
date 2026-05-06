@@ -1,0 +1,68 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Vibrant Blue-Indigo-Purple gradient -->
+    <linearGradient id="fintechGradient" gradientUnits="userSpaceOnUse" x1="12" y1="88" x2="88" y2="12">
+      <stop offset="0%" stop-color="#3B41E3" />
+      <stop offset="50%" stop-color="#8034F6" />
+      <stop offset="100%" stop-color="#B224F4" />
+    </linearGradient>
+
+    <!-- Subtle layered glow to separate the overlapping pieces -->
+    <filter id="premiumGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#3B41E3" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <g>
+    <!-- Main Center Ribbon -->
+    <path d="
+      M 12 12 
+      A 12 12 0 0 1 36 12 
+      L 36 45.6 
+      L 88 24.8 
+      L 88 88 
+      A 12 12 0 0 1 64 88 
+      L 64 54.4 
+      L 12 75.2 
+      L 12 12 
+      Z" 
+      fill="url(#fintechGradient)" 
+      stroke="url(#fintechGradient)" 
+      stroke-width="2" 
+      stroke-linejoin="round"
+      stroke-linecap="round"
+    />
+    
+    <!-- Top-Right Floating Snippet -->
+    <path d="
+      M 88 18.8 
+      L 88 12 
+      A 12 12 0 0 0 64 12 
+      L 64 28.4 
+      L 88 18.8 
+      Z" 
+      fill="url(#fintechGradient)" 
+      stroke="url(#fintechGradient)" 
+      stroke-width="2" 
+      stroke-linejoin="round"
+      stroke-linecap="round"
+      filter="url(#premiumGlow)"
+    />
+
+    <!-- Bottom-Left Floating Snippet -->
+    <path d="
+      M 36 71.6 
+      L 36 88 
+      A 12 12 0 0 1 12 88 
+      L 12 81.2 
+      L 36 71.6 
+      Z" 
+      fill="url(#fintechGradient)" 
+      stroke="url(#fintechGradient)" 
+      stroke-width="2" 
+      stroke-linejoin="round"
+      stroke-linecap="round"
+      filter="url(#premiumGlow)"
+    />
+  </g>
+</svg>

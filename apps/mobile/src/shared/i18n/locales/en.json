@@ -1,0 +1,103 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "back": "Go Back",
+    "search": "Search...",
+    "update": "Update",
+    "today": "TODAY",
+    "yesterday": "YESTERDAY",
+    "confirm_action": "Are you sure?",
+    "error": "Error",
+    "delete": "Delete",
+    "camera": "Camera",
+    "gallery": "Gallery",
+    "pdf": "PDF"
+  },
+  "ledger": {
+    "title": "HisabKit",
+    "customer": {
+      "you_gave": "You Gave",
+      "you_got": "You Got",
+      "balance": "Balance",
+      "to_collect": "To Collect",
+      "to_pay": "To Pay",
+      "give": "GIVE",
+      "get": "GET",
+      "net_outstanding": "NET OUTSTANDING",
+      "send_nudge": "SEND NUDGE",
+      "no_phone": "NO PHONE",
+      "edit_title": "Edit Profile",
+      "delete": "Delete Customer",
+      "due_label": "DUE:",
+      "balance_label": "Current Balance",
+      "add_title": "Add New Account",
+      "gst_number": "GSTIN",
+      "settled": "CLR"
+    },
+    "transaction": {
+      "new_entry": "New Entry",
+      "edit_entry": "Edit Entry",
+      "amount": "Amount",
+      "date": "Date",
+      "remarks": "Remarks",
+      "details": "Details",
+      "delete_entry": "Delete Entry",
+      "no_history": "No recording history",
+      "sale_entry": "Sale Entry",
+      "payment_received": "Payment Received",
+      "attachments_label": "ATTACHMENT(S)",
+      "new_sale": "New Sale",
+      "new_payment": "New Payment",
+      "collected_now": "Collected Now",
+      "remaining_due": "Remaining Due:",
+      "desc_placeholder": "What is this for?",
+      "select_date": "Select Date",
+      "attach_receipt": "Attach Receipt"
+    },
+    "dashboard": {
+      "net_balance": "MY NET BALANCE",
+      "search_placeholder": "Search accounts or numbers...",
+      "no_accounts": "No accounts found"
+    },
+    "filters": {
+      "all": "ALL",
+      "collect": "COLLECT",
+      "pay": "PAY",
+      "settled": "SETTLED"
+    },
+    "stats": {
+      "sales": "Sales",
+      "received": "Received",
+      "pending": "Pending"
+    },
+    "report": {
+      "share": "Share Report",
+      "statement_for": "Ledger Statement for",
+      "generated_via": "Generated via HisabKit"
+    },
+    "alert": {
+      "permission_denied": "Permission denied",
+      "camera_required": "Camera access is required.",
+      "invalid_amount": "Please enter a valid amount"
+    },
+    "messages": {
+      "account_settled": "Account settled",
+      "customer_advance": "Customer has advance",
+      "customer_dues": "Customer has dues",
+      "invalid_amount": "Please enter a valid amount"
+    },
+    "buttons": {
+      "create_account": "Create Account",
+      "delete": "Delete",
+      "save_entry": "Save Entry"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Login"
+  }
+}

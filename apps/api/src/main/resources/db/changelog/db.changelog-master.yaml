@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/001-initial-schema.xml
+  - include:
+      file: db/changelog/changes/002-audit-logs.xml
+  - include:
+      file: db/changelog/changes/003-ledger-schema.xml
+  - include:
+      file: db/changelog/changes/004-user-email.xml
+  - include:
+      file: db/changelog/changes/005-user-social-profile.xml
+  - include:
+      file: db/changelog/changes/006-user-mobile.xml
+  - include:
+      file: db/changelog/changes/007-tenant-profile-and-templates.xml
+  - include:
+      file: db/changelog/changes/008-user-avatar-clob.xml
+  - include:
+      file: db/changelog/changes/009-v11-attachment-policy-and-metadata.xml
+  - include:
+      file: db/changelog/changes/010-fix-customer-schema.xml
+  - include:
+      file: db/changelog/changes/011-relax-audit-logs-constraints.yaml

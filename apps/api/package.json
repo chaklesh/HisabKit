@@ -1,0 +1,13 @@
+{
+  "name": "@hisabkit/api",
+  "version": "1.2.0",
+  "private": true,
+  "scripts": {
+    "build": "mvn clean package -DskipTests",
+    "dev": "mvn spring-boot:run",
+    "start": "java -jar target/hisabkit-backend-1.2.0.jar",
+    "test": "mvn test",
+    "lint": "echo 'Skipping Java lint'",
+    "typecheck": "echo 'Skipping Java typecheck (Maven handles this)'"
+  }
+}

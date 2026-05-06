@@ -1,0 +1,103 @@
+{
+  "common": {
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "loading": "लोड हो रहा है...",
+    "back": "पीछे जाएँ",
+    "search": "खोजें...",
+    "update": "अपडेट करें",
+    "today": "आज",
+    "yesterday": "कल",
+    "confirm_action": "क्या आप सुनिश्चित हैं?",
+    "error": "त्रुटि",
+    "delete": "हटाएं",
+    "camera": "कैमरा",
+    "gallery": "गैलरी",
+    "pdf": "PDF"
+  },
+  "ledger": {
+    "title": "हिसाबकिट",
+    "customer": {
+      "you_gave": "आपने दिया",
+      "you_got": "आपको मिला",
+      "balance": "बाकी",
+      "to_collect": "लेना है",
+      "to_pay": "देना है",
+      "give": "देना",
+      "get": "लेना",
+      "net_outstanding": "कुल बकाया",
+      "send_nudge": "मैसेज भेजें",
+      "no_phone": "नंबर नहीं है",
+      "edit_title": "प्रोफ़ाइल बदलें",
+      "delete": "ग्राहक हटाएं",
+      "due_label": "बकाया:",
+      "balance_label": "कुल बाकी",
+      "add_title": "नया खाता जोड़ें",
+      "gst_number": "GST नंबर",
+      "settled": "बराबर"
+    },
+    "transaction": {
+      "new_entry": "नई एंट्री",
+      "edit_entry": "एंट्री बदलें",
+      "amount": "रकम",
+      "date": "तारीख",
+      "remarks": "विवरण",
+      "details": "जानकारी",
+      "delete_entry": "एंट्री हटाएं",
+      "no_history": "कोई इतिहास नहीं",
+      "sale_entry": "बिक्री एंट्री",
+      "payment_received": "भुगतान मिला",
+      "attachments_label": "संलग्नक",
+      "new_sale": "नई बिक्री",
+      "new_payment": "नया भुगतान",
+      "collected_now": "अभी प्राप्त रकम",
+      "remaining_due": "शेष बाकी:",
+      "desc_placeholder": "यह किस बारे में है?",
+      "select_date": "तारीख चुनें",
+      "attach_receipt": "संलग्नक जोड़ें"
+    },
+    "dashboard": {
+      "net_balance": "मेरा कुल बाकी",
+      "search_placeholder": "खाता या नंबर खोजें...",
+      "no_accounts": "कोई खाता नहीं मिला"
+    },
+    "filters": {
+      "all": "सभी",
+      "collect": "लेना है",
+      "pay": "देना है",
+      "settled": "हिसाब बराबर"
+    },
+    "stats": {
+      "sales": "बिक्री",
+      "received": "प्राप्त",
+      "pending": "पेंडिंग"
+    },
+    "report": {
+      "share": "रिपोर्ट साझा करें",
+      "statement_for": "लेजर स्टेटमेंट -",
+      "generated_via": "हिसाबकिट द्वारा जनरेट किया गया"
+    },
+    "alert": {
+      "permission_denied": "अनुमति अस्वीकृत",
+      "camera_required": "कैमरा एक्सेस आवश्यक है।",
+      "invalid_amount": "कृपया सही रकम दर्ज करें"
+    },
+    "messages": {
+      "account_settled": "हिसाब बराबर",
+      "customer_advance": "ग्राहक का एडवांस है",
+      "customer_dues": "ग्राहक का बकाया है",
+      "invalid_amount": "कृपया सही रकम दर्ज करें"
+    },
+    "buttons": {
+      "create_account": "खाता बनाएं",
+      "delete": "हटाएं",
+      "save_entry": "सहेजें"
+    }
+  },
+  "auth": {
+    "login": "लॉगिन",
+    "username": "उपयोगकर्ता नाम",
+    "password": "पासवर्ड",
+    "submit": "लॉगिन"
+  }
+}

@@ -1,36 +1,63 @@
 version: '3.8'
 
 services:
-  app:
+  db:
+    image: mariadb:10.11
+    container_name: hisabkit-db-dev
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: hisabkit_dev
+      MARIADB_USER: devuser
+      MARIADB_PASSWORD: devpassword
+    ports:
+      - "3388:3306" # Mapped to 3388 on host to avoid conflict with local mysql
+    volumes:
+      - hisabkit-db-data:/var/lib/mysql
+    networks:
+      - hisabkit-network
+
+  api:
     build:
-      context: ./hisabkit-backend
-    container_name: hisabkit-backend
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: hisabkit-api
     ports:
       - "8010:8010"
     env_file:
-      - ./hisabkit-backend/.env
+      - apps/api/.env
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - DB_HOST=host.docker.internal  # On Linux, you may need to use your server IP or extra_hosts
+      - SPRING_PROFILES_ACTIVE=dev
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=hisabkit_dev
+      - DB_USER=devuser
+      - DB_PASSWORD=devpassword
+    depends_on:
+      - db
     volumes:
-      - ./hisabkit-backend/uploads:/app/uploads
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - ./apps/api/uploads:/app/uploads
     restart: always
     networks:
       - hisabkit-network
 
-  frontend:
+  web:
     build:
-      context: ./hisabkit-frontend
-    container_name: hisabkit-frontend
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: hisabkit-web
     ports:
-      - "3010:3010"
+      - "5173:5173"
     depends_on:
-      - app
+      - api
     restart: always
     networks:
       - hisabkit-network
+
+volumes:
+  hisabkit-db-data:
+    driver: local
 
 networks:
   hisabkit-network:

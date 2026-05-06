@@ -1,0 +1,36 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Monochromatic White Version for dark headers and splash screens -->
+  <g>
+    <path d="
+      M 12 12 
+      A 12 12 0 0 1 36 12 
+      L 36 45.6 
+      L 88 24.8 
+      L 88 88 
+      A 12 12 0 0 1 64 88 
+      L 64 54.4 
+      L 12 75.2 
+      L 12 12 
+      Z" 
+      fill="#FFFFFF" 
+    />
+    <path d="
+      M 88 18.8 
+      L 88 12 
+      A 12 12 0 0 0 64 12 
+      L 64 28.4 
+      L 88 18.8 
+      Z" 
+      fill="#FFFFFF" 
+    />
+    <path d="
+      M 36 71.6 
+      L 36 88 
+      A 12 12 0 0 1 12 88 
+      L 12 81.2 
+      L 36 71.6 
+      Z" 
+      fill="#FFFFFF" 
+    />
+  </g>
+</svg>

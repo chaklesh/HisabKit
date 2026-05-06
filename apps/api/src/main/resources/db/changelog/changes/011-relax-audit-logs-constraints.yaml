@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 11
+      author: maintainer
+      changes:
+        - dropForeignKeyConstraint: { baseTableName: "audit_logs", constraintName: "fk_audit_logs_tenants" }
+        - dropForeignKeyConstraint: { baseTableName: "audit_logs", constraintName: "fk_audit_logs_users" }
+        - dropNotNullConstraint: { tableName: "audit_logs", columnName: "user_id", columnDataType: "UUID" }
+        - dropNotNullConstraint: { tableName: "audit_logs", columnName: "tenant_id", columnDataType: "UUID" }

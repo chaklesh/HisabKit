@@ -1,0 +1,77 @@
+@import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --color-brand: #3b82f6;
+}
+
+@layer base {
+  :root {
+    --nextra-primary-hue: 215deg;
+    --nextra-primary-saturation: 100%;
+  }
+
+  html {
+    @apply antialiased scroll-smooth;
+    font-feature-settings: "cv02", "cv05", "cv08", "cv11";
+  }
+
+  body {
+    @apply bg-white text-slate-900 dark:bg-[#020617] dark:text-slate-100;
+  }
+}
+
+/* Premium Typography */
+.nextra-content h1 {
+  @apply text-4xl font-black tracking-tighter text-slate-900 dark:text-white mb-8 border-none;
+}
+
+.nextra-content h2 {
+  @apply text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100 mt-12 mb-4 border-none;
+}
+
+.nextra-content p {
+  @apply text-lg leading-relaxed text-slate-600 dark:text-slate-400 mb-6;
+}
+
+/* Glassmorphism Sidebar */
+.nextra-sidebar-container {
+  @apply bg-white/80 dark:bg-[#020617]/80 backdrop-blur-xl border-r border-slate-200/50 dark:border-slate-800/50;
+}
+
+/* Modern Navbar */
+.nextra-nav-container {
+  @apply bg-white/80 dark:bg-[#020617]/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50;
+}
+
+/* Custom Search styling */
+.nextra-search input {
+  @apply rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm transition-all focus:ring-2 focus:ring-brand/50;
+}
+
+/* Better code blocks */
+pre {
+  @apply bg-[#0f172a] rounded-2xl border border-slate-800 shadow-2xl my-8 overflow-hidden;
+}
+
+code {
+  @apply font-mono text-sm leading-relaxed;
+}
+
+.nextra-copy-icon {
+  @apply hover:bg-white/10 p-1 rounded-md transition-colors;
+}
+
+/* Navigation links */
+.nextra-sidebar-container a {
+  @apply transition-all duration-200 rounded-lg mx-2 my-0.5;
+}
+
+.nextra-sidebar-container a:hover {
+  @apply bg-slate-100 dark:bg-slate-800/50;
+}
+
+.nextra-sidebar-container a.active {
+  @apply bg-brand/10 text-brand font-semibold;
+}

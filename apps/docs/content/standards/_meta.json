@@ -1,0 +1,9 @@
+{
+  "engineering": "Core Engineering Standards",
+  "backend": "Backend (Spring Boot)",
+  "frontend": "Frontend (React / Web)",
+  "mobile": "Mobile (Expo / React Native)",
+  "api": "API Design & Governance",
+  "data": "Data & Financial Integrity",
+  "design-system": "Design System"
+}

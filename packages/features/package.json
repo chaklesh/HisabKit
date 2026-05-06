@@ -1,0 +1,36 @@
+{
+  "name": "@hisabkit/features",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./*.ts",
+      "import": "./*.ts",
+      "default": "./*.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "test": "echo 'No tests in features yet'"
+  },
+  "dependencies": {
+    "@hisabkit/lib": "*",
+    "@hisabkit/types": "*",
+    "axios": "^1.6.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/react": "^18.2.0",
+    "react": "^18.2.0"
+  }
+}

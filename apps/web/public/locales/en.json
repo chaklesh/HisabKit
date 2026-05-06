@@ -1,0 +1,422 @@
+{
+  "login": {
+    "title": "Welcome to HisabKit",
+    "subtitle": "Sign in to your account",
+    "username": "Username",
+    "password": "Password",
+    "tenantId": "Tenant ID",
+    "button": "Login",
+    "loading": "Logging in...",
+    "switch_language": "Switch Language",
+    "switch_to_english": "English",
+    "switch_to_hindi": "Hindi",
+    "error": "Invalid username or password",
+    "google_no_token": "Google did not return an ID token. Please try again.",
+    "google_failed": "Google sign-in failed. Please try again.",
+    "google_start_failed": "Google sign-in could not start. Please try again.",
+    "back_to_landing": "Back to landing",
+    "secure_access": "Secure access to HisabKit",
+    "hero_title": "Login to your Shop",
+    "hero_description": "Access your enterprise ledger to manage customer accounts, credits, and file attachments securely.",
+    "feature_data_title": "Isolated Shop Data",
+    "feature_data_description": "Every request is scoped to your specific shop ensuring absolute data privacy.",
+    "feature_i18n_title": "Multilingual Support",
+    "feature_i18n_description": "Switch seamlessly between English and Hindi interface after logging in.",
+    "sign_in": "Sign in",
+    "shopkeeper_login": "Shopkeeper Login",
+    "enterprise_security": "Enterprise Security",
+    "username_placeholder": "Enter your username",
+    "password_placeholder": "Enter your password",
+    "signing_in": "Signing in...",
+    "sign_in_password": "Sign in with password",
+    "google_not_configured_prefix": "Google sign-in is not configured yet. Add",
+    "google_not_configured_suffix": "to enable it. Password sign-in is still available.",
+    "footer_note": "Manage your MSME business finances with peace of mind."
+  },
+  "common": {
+    "login": "Login",
+    "register": "Register",
+    "welcome": "Welcome to HisabKit",
+    "language": "Language",
+    "logout": "Logout",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error_occurred": "An error occurred",
+    "or": "or",
+    "reset": "Reset",
+    "save_changes": "Save changes",
+    "back": "Go Back",
+    "confirm_action": "Are you sure?"
+  },
+  "ledger": {
+    "title": "Customer-wise account book",
+    "subtitle": "Manage customers, track sales and payments, and view due dates",
+    "header": {
+      "title": "HisabKit Ledger",
+      "show_totals": "Show totals",
+      "hide_totals": "Hide totals",
+      "add_customer": "Add customer",
+      "edit_customer": "Edit customer",
+      "sale": "Sale",
+      "payment": "Payment",
+      "import": "Import CSV",
+      "export": "Export CSV"
+    },
+    "totals": {
+      "you_collect": "You collect",
+      "you_pay": "You pay",
+      "visible_customers": "Visible customers",
+      "overdue": "Overdue"
+    },
+    "customer": {
+      "title": "Customer",
+      "name": "Customer name",
+      "search_label": "Search for customers",
+      "phone": "Phone number",
+      "email": "Email",
+      "address": "Address",
+      "gst_number": "GST number",
+      "due_date": "Due date",
+      "add_title": "Add Customer",
+      "edit_title": "Edit Customer",
+      "name_placeholder": "e.g. Ramesh Traders",
+      "address_placeholder": "Shop #12, Market Road",
+      "due_date_hint": "Payment due reminder",
+      "no_contact": "No contact added",
+      "no_address": "No address added",
+      "due": "Due",
+      "to_collect": "To collect",
+      "to_pay": "To pay",
+      "zero_balance": "Zero balance",
+      "search_placeholder": "Name, phone or address",
+      "add_desc": "Register a new customer in ledger",
+      "edit_desc": "Modify account details"
+    },
+    "transaction": {
+      "title": "Transaction",
+      "type": "Entry type",
+      "sale": "Sale (Udhar)",
+      "payment": "Payment (Jama)",
+      "total_amount": "Total amount",
+      "paid_amount": "Paid amount",
+      "paid_now_optional": "Paid now (optional)",
+      "payment_amount": "Payment amount",
+      "date": "Transaction date",
+      "description": "Description",
+      "attachment": "Attach proof (PDF/Image) - optional",
+      "no_transactions": "No transactions yet",
+      "timestamp": "Timestamp",
+      "paid": "Paid",
+      "new": "New Transaction",
+      "edit": "Edit transaction",
+      "record_sale": "Record a sale",
+      "record_payment": "Record a payment",
+      "add_title": "New Entry",
+      "edit_title": "Edit Entry",
+      "add_desc": "Items gave on credit",
+      "payment_desc": "Cash/Payment received",
+      "edit_desc": "Update ledger record",
+      "delete_title": "Delete Entry",
+      "delete_confirm": "Delete this record? Action cannot be undone.",
+      "gave_label": "Gave (Udhaar)",
+      "got_label": "Got (Cash)",
+      "bill_value": "Bill Value",
+      "cash_received": "Cash Received",
+      "amount_got": "Amount Got",
+      "amount_placeholder": "0.00",
+      "date_label": "Date",
+      "entry_date_label": "Due Date",
+      "details_label": "Details / Bill No",
+      "remarks_placeholder": "Remarks",
+      "attach_bill": "Attach Bill Photo",
+      "add_bill_placeholder": "Add Bill Photo / Receipt"
+    },
+    "report": {
+      "title": "Reports",
+      "search_placeholder": "Customer name or phone",
+      "filter_label": "Filter",
+      "sort_label": "Sort by",
+      "all": "All customers",
+      "overdue": "Overdue",
+      "upcoming_7_days": "Due in 7 days",
+      "no_due_date": "No due date",
+      "by_balance": "Balance",
+      "by_due_date": "Due date",
+      "by_name": "Name",
+      "most_recent": "Most Recent",
+      "highest_amount": "Highest Amount",
+      "least_amount": "Least Amount",
+      "oldest": "Oldest",
+      "export_csv": "Export csv",
+      "no_matches": "No customers match filters"
+    },
+    "buttons": {
+      "add": "Add",
+      "create": "Create",
+      "update": "Update customer",
+      "save": "Save",
+      "update_transaction": "Update",
+      "delete": "Delete",
+      "cancel": "Close",
+      "clear": "Clear",
+      "close": "Close",
+      "saving": "Saving...",
+      "save_party": "Save Customer",
+      "create_party": "Add Customer",
+      "save_entry": "Save Entry",
+      "add_entry": "Add Entry",
+      "archive_party": "Delete Customer",
+      "back": "Go Back"
+    },
+    "empty_state": "Select a customer to view transactions and reports",
+    "messages": {
+      "loading": "Loading...",
+      "loading_customers": "Loading customers...",
+      "loading_transactions": "Loading transactions...",
+      "customer_added": "Customer added successfully.",
+      "customer_updated": "Customer updated successfully.",
+      "customer_deleted": "Customer deleted.",
+      "transaction_added": "Transaction added successfully.",
+      "transaction_updated": "Transaction updated successfully.",
+      "transaction_deleted": "Transaction deleted.",
+      "attachment_deleted": "Attachment deleted.",
+      "error_general": "An error occurred. Please try again.",
+      "confirm_delete_attachment": "Delete this attachment?"
+    },
+    "filters": {
+      "all": "All customers",
+      "to_collect": "To collect",
+      "to_pay": "To pay",
+      "zero_balance": "Zero balance",
+      "with_contact": "With contact"
+    },
+    "dialog": {
+      "delete_customer_title": "Delete Customer",
+      "delete_customer_desc": "Are you sure you want to delete this customer? This action will also delete all associated transactions.",
+      "delete_transaction_title": "Delete Transaction",
+      "delete_transaction_desc": "Are you sure you want to delete this transaction?"
+    }
+  },
+  "shell": {
+    "workspace": "Workspace",
+    "admin": "Admin",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Sign out",
+    "adminConsole": "Admin Console",
+    "profileSettings": "Profile Settings",
+    "productTagline": "MSME Finance",
+    "soon": "Soon",
+    "titles": {
+      "dashboard": "Dashboard",
+      "ledger": "Customer Ledger",
+      "reports": "Shop Reports",
+      "inventory": "Inventory",
+      "suppliers": "Suppliers",
+      "lending": "Money Lending",
+      "admin": "Admin Console",
+      "profile": "Profile Settings",
+      "settings": "Settings",
+      "default": "HisabKit"
+    },
+    "modules": {
+      "dashboard": "Dashboard",
+      "ledger": "Customer Ledger",
+      "reports": "Shop Reports",
+      "inventory": "Inventory",
+      "suppliers": "Suppliers",
+      "lending": "Money Lending",
+      "analytics": "Portfolio Analytics",
+      "customers": "CRM"
+    }
+  },
+  "settings": {
+    "badge": "Workspace preferences",
+    "title": "Settings",
+    "subtitle": "Tune appearance, language, and app behavior before we expand this into the full business control center.",
+    "tabs": {
+      "appearance": "Appearance",
+      "language": "Language",
+      "business": "Business",
+      "reminders": "Reminders",
+      "security": "Security",
+      "layout": "Layout",
+      "roadmap": "What is next"
+    },
+    "layout": {
+      "title": "Layout & Preferences",
+      "description": "Customize dashboard appearance and navigation behavior",
+      "density": "Dashboard Density",
+      "density_description": "Choose how much space elements should occupy",
+      "navigation": "Navigation",
+      "navigation_description": "Customize how navigation is displayed",
+      "compact_sidebar": "Compact sidebar",
+      "compact_sidebar_desc": "Show icons only, hide labels",
+      "hide_planned": "Hide planned modules",
+      "hide_planned_desc": "Show only available features, hide coming soon",
+      "note": "Layout preferences are stored locally on this device and don't sync across browsers yet."
+    },
+    "reminders": {
+      "title": "Notification Templates",
+      "description": "Customize messages sent to customers via SMS and WhatsApp",
+      "available_variables": "Available variables",
+      "sms_template": "SMS template",
+      "whatsapp_template": "WhatsApp template",
+      "copy_from_sms": "Copy from SMS",
+      "whatsapp_note": "WhatsApp allows longer messages and media support"
+    },
+    "alert": {
+      "title": "Settings foundation is live",
+      "description": "Theme and language controls are wired into the app now. Business, security, and reminder preferences are next."
+    },
+    "appearance": {
+      "title": "Theme preference",
+      "description": "Keep the app readable in bright shops, low-light counters, and device-driven system mode.",
+      "active_theme": "Active resolved theme"
+    },
+    "theme": {
+      "light": {
+        "label": "Light",
+        "description": "Bright and clear for daytime store operations."
+      },
+      "dark": {
+        "label": "Dark",
+        "description": "Lower glare for evening work and long sessions."
+      },
+      "system": {
+        "label": "System",
+        "description": "Match the device theme automatically."
+      }
+    },
+    "language": {
+      "title": "Language preference",
+      "description": "Choose the working language for operators. This will later align with mobile and printable communication flows.",
+      "en": {
+        "label": "English",
+        "description": "Best for mixed-language teams and administrative work."
+      },
+      "hi": {
+        "label": "Hindi",
+        "description": "Useful for day-to-day operator workflows in Hindi."
+      }
+    },
+    "roadmap": {
+      "title": "Next settings milestones",
+      "description": "These are the next product-level controls planned as we streamline the web and mobile apps.",
+      "planned": "Planned",
+      "items": {
+        "business": "Business profile and brand assets",
+        "reminders": "Reminder templates and notification defaults",
+        "security": "Security, session controls, and device management",
+        "layout": "Dashboard density, default views, and navigation preferences"
+      }
+    },
+    "actions": {
+      "open_profile": "Open profile settings"
+    },
+    "toast": {
+      "theme_updated": "Appearance updated",
+      "language_updated": "Language updated"
+    }
+  },
+  "admin": {
+    "title": "Admin Console",
+    "subtitle": "Manage all your registered shops and users",
+    "tabs": {
+      "tenants": "Tenants",
+      "customers": "Customers",
+      "transactions": "Transactions"
+    },
+    "tenants": {
+      "title": "Manage Registered Shops",
+      "add_tenant": "Register New Shop",
+      "edit_tenant": "Update Shop Details",
+      "no_tenants": "No shops registered yet. Add your first shop to start.",
+      "fields": {
+        "name": "Shop Name",
+        "slug": "Shop Link Name (ID)",
+        "business_type": "Type of Shop",
+        "owner": "Owner's Name",
+        "phone": "Shop Phone Number",
+        "email": "Shop Email",
+        "gst": "Tax Number (GST)",
+        "logo": "Shop Logo URL",
+        "address": "Full Address",
+        "status": "Account Status",
+        "quota": "Total Upload Space (MB)",
+        "max_file": "Max Single File Size (MB)",
+        "retention": "Delete Files After (Days)"
+      }
+    },
+    "customers": {
+      "title": "Customer accounts",
+      "search_placeholder": "Search by name, contact, OR Tax number..."
+    },
+    "transactions": {
+      "title": "Full History",
+      "search_placeholder": "Search by ref, customer, date, or amount..."
+    },
+    "loading_shops": "Loading shop details...",
+    "system_status": "Everything works",
+    "active_context": "Active Shop",
+    "no_shop_selected": "No Shop Selected",
+    "access_level": "Main Shop Owner",
+    "filter_label": "Filter",
+    "switch_shop": "Switch Shop",
+    "restricted": {
+      "title": "Access Denied",
+      "description": "Only the main shop owner can see this page. Speak to them if you need access."
+    }
+  },
+  "analytics": {
+    "title": "Shop Reports",
+    "subtitle": "Simple overview of your shop's money and business health",
+    "suite": "Shop Insights",
+    "kpis": {
+      "exposure": "Money Outside",
+      "exposure_trend": "vs last month",
+      "liabilities": "Money You Owe",
+      "liabilities_trend": "optimized",
+      "efficiency": "Payment Speed",
+      "efficiency_trend": "High Efficiency",
+      "risk": "Safety Score",
+      "risk_trend": "Balanced",
+      "profiles": "Total Customers",
+      "profiles_trend": "Growing",
+      "overdue": "Delayed Payments",
+      "overdue_trend": "Monitoring"
+    },
+    "visualizer": {
+      "aging": {
+        "title": "Pending Payments Over Time",
+        "subtitle": "How long payments have been pending"
+      },
+      "concentration": {
+        "title": "Balance Breakdown",
+        "subtitle": "Summary of what people owe vs what you owe"
+      }
+    },
+    "table": {
+      "title": "Customer Balances",
+      "subtitle": "Detailed list of who owes how much",
+      "search_placeholder": "FIND A CUSTOMER...",
+      "extract_data": "SAVE TO CSV",
+      "audit_report": "FULL SUMMARY REPORT",
+      "loading": "Loading report details...",
+      "empty": "No customer balances found at the moment.",
+      "header": {
+        "customer": "Customer Name",
+        "balance": "Total Balance",
+        "status": "Safety Status",
+        "deadline": "Due Date"
+      },
+      "status": {
+        "active": "Active",
+        "attention": "Needs Attention",
+        "safe": "Safe"
+      }
+    },
+    "realtime": "LIVE DATA"
+  }
+}
